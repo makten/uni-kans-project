@@ -1,0 +1,346 @@
+@import "bootstrap/bootstrap";
+
+@btn-font-weight: 300;
+@font-family-sans-serif: "Roboto", Helvetica, Arial, sans-serif;
+
+body, label, .checkbox label {
+  font-weight: 300;
+}
+
+.profile-img-card {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 10px;
+  display: block;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+
+.btn-circle-micro {
+  width: 19px;
+  height: 19px;
+  text-align: center;
+  padding: 1px 0;
+  font-size: 13px;
+  line-height: 0.1;
+  border-radius: 30px;
+}
+
+.btn-circle-micro.users_refresh {
+  background-color: #2196F3;
+  width: 22px;
+  height: 22px;
+}
+
+.btn-circle-micro.clients_refresh {
+  background-color: #4CAF50;
+  width: 22px;
+  height: 22px;
+}
+
+.btn-circle-micro.products_refresh {
+  background-color: #673AB7;
+  width: 22px;
+  height: 22px;
+}
+
+.errorMsg {
+  font-size: 10px;
+  color: #FAF7F0;
+  font-family: sans-serif;
+}
+
+.dashboardHeaders {
+  padding: 5px;
+  font-size: 16px;
+  background: #2196F3;
+  color: #FFFFFF;
+  font-weight: 30px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  position: relative;
+  border-radius: 3px;
+}
+
+.dashboardHeaders.clients {
+  background: #4CAF50;
+}
+
+.dashboardHeaders.products {
+  background: #673AB7;
+}
+
+/*
+*Table style
+*/
+.tcolor tbody tr:nth-child(even) {
+  background-color: #E0F0F8 !important;
+}
+
+.tcolor tbody tr:nth-child(odd) {
+  background-color: #FBFBFB !important;
+}
+
+.tcolor.hoverOn tbody tr:hover {
+  background-color: rgba(250, 223, 91, 0.22) !important;
+  cursor: pointer;
+}
+
+.noFinger tbody tr:hover {
+  background-color: rgba(250, 223, 91, 0.22) !important;
+  cursor: normal !important;
+}
+
+ul.products_menu {
+  margin: 0;
+  padding: 0px;
+  position: relative;
+}
+
+#add_product label {
+  font-weight: normal !important;
+}
+
+.ui-datepicker {
+  background: #fff;
+  background: #fff -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fcfcfc));
+  background: #fff -webkit-linear-gradient(top, #fcfcfc 0%, #fff 100%);
+  background: #fff -o-linear-gradient(top, #fcfcfc 0%, #fff 100%);
+  background: #fff -ms-linear-gradient(top, #fcfcfc 0%, #fff 100%);
+
+  font-size: 11px;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.ui-datepicker table {
+  width: 278px;
+}
+
+.ui-datepicker table td {
+  text-align: center;
+}
+
+.ui-datepicker a {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.ui-datepicker-prev {
+}
+
+.ui-datepicker-next {
+  float: right;
+}
+
+.ui-datepicker-title {
+  text-align: center;
+  font-weight: bold;
+}
+
+.pr_cat {
+  min-height: 42px;
+  max-height: 200px;
+  overflow: auto;
+  /*padding-left: -10px;*/
+  padding-top: 4px;
+  border: 1px solid #dfdfdf;
+  background-color: #fdfdfd;
+}
+
+#cat ul {
+  -webkit-margin-before: 1em;
+  -webkit-margin-after: 1em;
+  -webkit-margin-start: 0px;
+  -webkit-margin-end: 0px;
+  -webkit-padding-start: 40px;
+  margin-left: -35px !important;
+
+}
+
+.cat input[type=checkbox]:before {
+  content: "";
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  background: transparent url(http://i.stack.imgur.com/S4p2R.png) no-repeat 0 50%;
+}
+
+.cat input[type=checkbox]:checked:before {
+  background: transparent url(http://i.stack.imgur.com/S4p2R.png) no-repeat 80% 50%;
+}
+
+//Responsive table styling
+table table {
+  font-size: .8em;
+}
+
+tbody {
+  display: table-row-group;
+  vertical-align: middle;
+  border-color: inherit;
+  //font-size: 14px;
+}
+
+th, td {
+  display: table-cell;
+  padding: 0;
+
+}
+
+th {
+  font-size: 11px;
+  //text-align: left;
+  font-weight: bold;
+}
+
+td {
+  font-size: 12px;
+  padding: 2px;
+}
+
+.create-btn-container {
+  position: absolute;
+
+}
+
+.create-btn-container.client {
+  right: 20px;
+  top: 45px;
+}
+
+.create-btn-container.service {
+  right: -25px;
+  top: -35px;
+}
+
+.create-btn-container.product {
+  right: -25px;
+  top: -35px;
+}
+
+.dropdown-menu.actions {
+  min-width: 80px;
+  width: 80px;
+}
+
+.card {
+  background-color: rgb(255, 255, 255);
+  box-shadow: rgb(229, 229, 229) 0px -1px 0px, rgba(0, 0, 0, 0.117647) 0px 0px 2px, rgba(0, 0, 0, 0.239216) 0px 2px 4px;
+  display: flex;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.card-side {
+  background-color: rgb(245, 245, 245);
+  max-width: 200px;
+  max-height: 200px;
+  padding-right: 16px;
+  padding-left: 16px;
+  border-radius: 2px 0px 0px 2px;
+  overflow: hidden;
+  margin-right: 10px;
+}
+
+.card-main {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.card-inner {
+  margin: 14px 10px;
+}
+
+img {
+  border: 0;
+  vertical-align: middle;
+}
+
+.card-side.card-side-img {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.card-heading {
+  display: block;
+  font-size: 20px;
+  line-height: 28px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+.card-action {
+  min-height: 40px;
+  border-top: 1px solid rgba(0, 0, 0, 0.117647);
+  position: absolute;
+  bottom: 0;
+  padding: 0;
+  left: 208px;
+}
+
+.custrespon table {
+	border: 1px solid #ccc;
+	border-collapse: collapse;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+.custrespon table caption {
+	font-size: 1.5em;
+	margin: .25em 0 .75em;
+}
+.custrespon table tr {
+	background: #f8f8f8;
+	border: 1px solid #ddd;
+	padding: .35em;
+}
+.custrespon table th,
+.custrespon table td {
+	padding: .625em;
+	text-align: center;
+}
+.custrespon table th {
+	font-size: .85em;
+	letter-spacing: .1em;
+	text-transform: uppercase;
+}
+.custrespon table td img {
+	text-align: center;
+}
+@media screen and (max-width: 600px) {
+  .custrespon table {
+		border: 0;
+	}
+  .custrespon table caption {
+		font-size: 1.3em;
+	}
+  .custrespon table thead {
+		display: none;
+	}
+  .custrespon table tr {
+		border-bottom: 3px solid #ddd;
+		display: block;
+		margin-bottom: .625em;
+	}
+  .custrespon table td {
+		border-bottom: 1px solid #ddd;
+		display: block;
+		font-size: .8em;
+		text-align: right;
+		font-weight: bold;
+	}
+  .custrespon table td:before {
+		content: attr(data-label);
+		float: left;
+		font-weight: bold;
+		text-transform: uppercase;
+	}
+  .custrespon table td:last-child {
+		border-bottom: 0;
+	}
+}

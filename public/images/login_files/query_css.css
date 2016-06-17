@@ -1,0 +1,24 @@
+@media (min-width: 400px) and (max-width: 900px){
+	.main {
+    padding-top: 120px;    
+    background-color: #1015D2;
+	}
+}
+
+
+@media (min-width: 0px) and (max-width: 768px){
+	.arrow{
+		display: none;		
+	}
+	
+	.dropdown-toggle{
+		display: none;
+	}
+
+	/*.deliveryareapanel {
+    padding: 24px;
+    width: 560px;
+    max-width: 560px;
+	}*/
+}
+

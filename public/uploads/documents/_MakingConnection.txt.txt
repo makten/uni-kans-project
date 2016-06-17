@@ -1,0 +1,10 @@
+String CS = ConfigurationManager.ConnectionStrings["DBCS"].ConnectionString;
+            
+            using (SqlConnection con = new SqlConnection(CS)) 
+            {
+                SqlCommand cmd = new SqlCommand("Select * from tblStudent where Name like '" + txtSearch.Text + "%'", con);
+                con.Open();
+
+                GridView1.DataSource = cmd.ExecuteReader();
+                GridView1.DataBind();
+            }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use App\UserProfile;
 use Illuminate\Http\Request;
@@ -14,11 +14,12 @@ class UserProfileController extends Controller
 {
     public function __construct()
     {
+//        $this->middleware('auth.admin');
         $this->middleware('auth');
     }
 
     public function index(){
-        dd("you made it here");
+        return response()->json("You made it here");
     }
 
     public function updateSkin()

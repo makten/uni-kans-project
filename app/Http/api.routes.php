@@ -16,11 +16,12 @@
 
 Route::group([
     'prefix' => 'api',
-//    'middleware' => 'auth:api'
+    'middleware' => 'auth',
 
 ], function () {
     /**
      * Admin routes...
      */
-    Route::get('/hello', 'API\UserProfileController@all');
+    Route::get('userprofile/{id}/updateSkin', 'API\UserProfileController@updateSkin');
+    Route::get('dashboard', ['as' => 'dashboard', 'uses' => 'AdminController@dashboard']);
 });
