@@ -51,7 +51,7 @@
                     },
                     {name: 'Bouw', link: '/propositie/marktsegment/bouw', icon: 'fa-home fa-2x'},
                     {name: 'Sport Cultuur & Recreatie', link: '/propositie/marktsegment/zorg', icon: 'fa-trophy fa-2x'},
-                    {name: 'Industrie', link: '/propositie/marktsegment/industrie', icon: 'fa-industry fa-2x'},
+                    {name: 'Industrie', link: '/content/marktsegment/industrie', icon: 'fa-industry fa-2x'},
                     {
                         name: 'Woning corporatie',
                         link: '/propositie/marktsegment/woningcorporatie',

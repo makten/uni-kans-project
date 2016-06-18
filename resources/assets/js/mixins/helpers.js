@@ -466,7 +466,14 @@ export default {
             //return highlighted;
         },
 
+        getImg: function(link){
+
+            return link.replace('C:\\Users\\Hafiz\\Dropbox\\MyProjects\\Projects\\mytemplate-project\\public', '');
+        }
+
+
     },
+
 
     filters: {
         escape: escape,

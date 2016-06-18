@@ -39,7 +39,7 @@
 
                     <div id="{{$i}}" class="col-xs-9 cont"
                          style="padding: 0px; padding-left: 5px; text-align: justify;">
-                        <a href="{{ route('propositie.show', ['id' => $propo->id]) }}"><h4>{{$propo->pro_name}}</h4></a>
+                        <a href="{{ route('content', ['id' => $propo->id]) }}"><h4>{{$propo->pro_name}}</h4></a>
                         <div class="col-xs-8" style="padding: 0;">
                             <div class="hidden-xs">{!! highlight($propo->pro_description, $keyword, 'yellow')!!}</div>
                         {{--<span class="peep" data-text="{{$propo->pro_description}}">--}}

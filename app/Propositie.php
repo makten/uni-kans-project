@@ -66,7 +66,7 @@ class Propositie extends Model
 
 
     /**
-     * Get user associated with a given propositie
+     * Get user associated with a given content
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
@@ -76,7 +76,7 @@ class Propositie extends Model
     }
 
     /**
-     * Get team associated with a given propositie
+     * Get team associated with a given content
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function team()
@@ -85,7 +85,7 @@ class Propositie extends Model
     }
 
     /**
-     * Get themas associated with this propositie
+     * Get themas associated with this content
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function themas()

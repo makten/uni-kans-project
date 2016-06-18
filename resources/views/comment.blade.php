@@ -16,7 +16,7 @@
          @endif
            <span><i id="basic-addon1" class="time-ago addon right" title="{{$comment->created_at->format('d-m-Y h:i:s')}}">
                {{$comment->created_at->diffForHumans()}}</i>
-               {{--{!! $comment->propositie->user_id!!}--}}
+               {{--{!! $comment->content->user_id!!}--}}
            </span>
      </div>
 

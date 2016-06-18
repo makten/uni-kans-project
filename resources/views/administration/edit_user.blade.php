@@ -1,6 +1,6 @@
 @extends('layouts.dashboardmaster')
 
-@section('content')
+@section('main-content')
     {{--@include('auth.register_form')--}}
     {{--@include('auth.addclient')--}}
     {{--@include('auth.role_form')--}}

@@ -466,7 +466,7 @@
             var r = '', j, iLen = aData.length;
 
             //clean the string
-            var localLabel = label.replace('%', 'Perc').replace("&", "AND").replace("$", "DOL").replace("£", "STERL").replace("@", "AT").replace(/\s/g, "_");
+            var localLabel = label.replace('%', 'Perc').replace("&", "AND").replace("$", "DOL").replace("ï¿½", "STERL").replace("@", "AT").replace(/\s/g, "_");
             localLabel = localLabel.replace(/[^a-zA-Z 0-9]+/g, '');
             //clean the string
 
@@ -501,7 +501,7 @@
             r += '<div id="' + checkToggleDiv + '" '
                 + 'title="' + label + '" '
                 + 'rel="' + i + '" '
-                + 'class="toggle-check ui-widget-content ui-corner-all"  style="width: ' + (divWidthToggle) + '%; " >'; //dialog div
+                + 'class="toggle-check ui-widget-propositie ui-corner-all"  style="width: ' + (divWidthToggle) + '%; " >'; //dialog div
             //r+= '<div align="center" style="margin-top: 5px; "> <button id="'+buttonId+'Reset" class="checkbox_filter" > reset </button> </div>'; //reset button and its div
             r += divRowDef;
 

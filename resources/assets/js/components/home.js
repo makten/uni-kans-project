@@ -15,7 +15,7 @@ import Themas from './themas.vue';
 import Marktsegments from './marktsegments.vue';
 import Search from './search.vue';
 import NavSearch from './navsearch.vue';
-import HighlightText from '../mixins/helpers';
+import Helper from '../mixins/helpers';
 
 
 Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
@@ -40,7 +40,7 @@ Vue.transition('swipe', {
 
 new Vue({
 
-    mixins: [HighlightText],
+    mixins: [Helper],
     el: 'body',
 
     data: function(){
@@ -130,11 +130,6 @@ new Vue({
             }.bind(this), function (response) {
 
             })
-        },
-
-        getImg: function(link){
-
-            return link.replace('C:\\Users\\Hafiz\\Dropbox\\MyProjects\\Projects\\mytemplate-project\\public', '');
         }
     },
 

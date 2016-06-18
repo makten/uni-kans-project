@@ -6,8 +6,6 @@
     @include('layouts.partials.htmlheader')
 @show
 
-
-
 <body>
 
 @if(isset($userSettings))

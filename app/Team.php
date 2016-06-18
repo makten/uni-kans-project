@@ -14,7 +14,7 @@ class Team extends Model
 
 
     /**
-     * Get propositie associated with a given team
+     * Get content associated with a given team
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function propositie()

@@ -28,5 +28,6 @@ Route::group([
     /**
      * Propositie routes
      */
-    Route::get('proposities', ['as' => 'fetch.proposities', 'uses' => 'PropositieController@all']);
+    Route::get('proposities/all', ['as' => 'fetch.proposities', 'uses' => 'API\PropositieController@all']);
+    Route::get('content/{id}/show', ['as' => 'show.content', 'uses' => 'PropositieController@show']);
 });

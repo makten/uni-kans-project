@@ -23,7 +23,7 @@
 
                     <div id="{{$i}}" class="col-xs-12 cont">
 
-                        <a href="{{ route('propositie.show', ['id' => $prop->id]) }}"><h4>{{$prop->pro_name}}</h4>
+                        <a href="{{ route('content', ['id' => $prop->id]) }}"><h4>{{$prop->pro_name}}</h4>
                         </a>
 
                             <div class="visible-xs" style="padding-bottom: 25px; margin-bottom: 10px;">{!!substr($prop->pro_description, 0, 250) !!}....</div>

@@ -49,8 +49,8 @@
 
                 </li>
 
-                <li class="{{ (Request::is('/openinghours') ? 'active' : '') }}">
-                    <a v-link="{path: '/create_propositie' }">
+                <li class="{{ (Request::is('content') ? 'active' : '') }}">
+                    <a href="{{route('propositie.create')}}">
                         <i class='fa fa-table pull-left'></i> <span>Propositie aanmaken</span>
                     </a>
                 </li>

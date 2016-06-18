@@ -18,48 +18,52 @@ import Showpropositie from './propositie/showpropositie.vue';
 import CreateUser from './user/create_edit_user.vue';
 import EditUser from './user/create_edit_user.vue';
 
-//import AddToTeam from './propositie/create_edit_propositie.vue';
+//import AddToTeam from './content/create_edit_propositie.vue';
 
 
 
 
 var App = Vue.extend({
-
+    el: '#admin_app',
 })
 
-var router = new VueRouter({
-    saveScrollPosition: true
-})
-
-router.map({
-
-    '/': {
-        component: Overview,
-    },
-
-    '/overview': {
-        component: Overview
-    },
-
-    '/create_user': {
-        component: CreateUser
-    },
-
-    '/edit_user': {
-        component: EditUser
-    },
-
-    '/create_propositie': {
-        component: CreatePropositie
-    },
-
-    '/edit_propositie': {
-        component: Editpropositie
-    },
-
-    '/create_markt': {
-        component: Overview
-    }
-})
-
-router.start(App, '#admin_app');
+//var router = new VueRouter({
+//    saveScrollPosition: true
+//})
+//
+//router.map({
+//
+//    '/': {
+//        component: Overview,
+//    },
+//
+//    '/overview': {
+//        component: Overview
+//    },
+//
+//    '/create_user': {
+//        component: CreateUser
+//    },
+//
+//    '/edit_user': {
+//        component: EditUser
+//    },
+//
+//    '/create_propositie': {
+//        component: CreatePropositie
+//    },
+//
+//    '/showPropositie': {
+//        component: require('./show')
+//    },
+//
+//    '/edit_propositie': {
+//        component: Editpropositie
+//    },
+//
+//    '/create_markt': {
+//        component: Overview
+//    }
+//})
+//
+//router.start(App, '#admin_app');

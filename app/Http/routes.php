@@ -21,8 +21,6 @@ use Illuminate\Http\Request;
 
 
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -153,7 +151,15 @@ Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
 
-    // ---------------Admin routes ----------------------------
+   Route::get('propositie/{id}/show', function($id){
+
+       $pro = Propositie::with(['user.userprofile', 'themas'])->findOrFail($id);
+       $userSettings = \App\UserProfile::whereUserId(Auth::user()->id)->first();
+
+       return view('administration.propositie.show', ['propositie' => $pro, 'userSettings' => $userSettings]);
+   });
+
+       // ---------------Admin routes ----------------------------
 
     Route::post('store/settings', ['as' => 'skin.store', 'uses' => 'UserProfileController@updateSkin']);
 
