@@ -24,4 +24,9 @@ Route::group([
      */
     Route::get('userprofile/{id}/updateSkin', 'API\UserProfileController@updateSkin');
     Route::get('dashboard', ['as' => 'dashboard', 'uses' => 'AdminController@dashboard']);
+
+    /**
+     * Propositie routes
+     */
+    Route::get('proposities', ['as' => 'fetch.proposities', 'uses' => 'PropositieController@all']);
 });

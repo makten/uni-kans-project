@@ -48,4 +48,5 @@
         <![endif]-->
         <!--Datatables-->
         {!! Html::style('/css/jquery-dataTable.min.css') !!}
+        {!! Html::style('/css/landing.css') !!}
 </head>

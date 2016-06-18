@@ -11,6 +11,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Facades\Auth;
 use App\User;
 use Datatables;
+use JavaScript;
 
 class AdminController extends Controller
 {
@@ -32,7 +33,13 @@ class AdminController extends Controller
         if($request->user()->hasRole('admin'))
         {
             $userSettings = UserProfile::whereUserId($request->user()->id)->first();
-            return view('administration.dashboard', compact('userSettings'));
+            $user = Auth::user();
+
+            JavaScript::put([
+                'user' => $user
+            ]);
+
+            return view('administration.dashboard', compact('userSettings', 'user'));
         }
         elseif($request->user()->hasRole('propositieteam'))
         {

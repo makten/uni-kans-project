@@ -30,6 +30,14 @@ class PropositieController extends Controller
     }
 
 
+    public function all(Request $request, User $user){
+
+        abort_unless($request->user()->hasRole('admin'), 403);
+
+        return Propositie::with('user.userprofile')->get();
+    }
+
+
     /**
      * @param $id
      */

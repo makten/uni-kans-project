@@ -6,9 +6,9 @@
 @show
 
 @if(isset($userSettings))
-    <body id='app-body' class="{{$userSettings->skin}} sidebar-mini">
+    <body id='admin_app' class="{{$userSettings->skin}} sidebar-mini">
     @else
-        <body id='app-body' class="skin-blue sidebar-mini">
+        <body id='admin_app' class="skin-blue sidebar-mini">
         @endif
         <div class="wrapper">
 

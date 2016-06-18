@@ -16,6 +16,10 @@
         <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
             <span class="sr-only">Toggle navigation</span>
         </a>
+
+        {{--Search navbar search--}}
+
+
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
@@ -145,7 +149,7 @@
                                     <a href="#">Mijn team</a>
                                 </div>
                                 <div class="col-xs-4 text-center">
-                                    <a href="api/hello">Mijn activiteiten</a>
+                                    <a href="/hello">Mijn activiteiten</a>
                                 </div>
                             </li>
                             <!-- Menu Footer-->

@@ -29,7 +29,6 @@ require('laravel-elixir-vueify');
 
 elixir(function (mix) {
     mix.sass(['resources/assets/sass/app.scss'])
-
     mix.browserify('main.js');
 
 });

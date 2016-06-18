@@ -37,17 +37,17 @@ use Illuminate\Http\Request;
 
 Route::get('createPermission', function () {
 
-//    $adminRole = Role::create([
-//        'role_name' => 'Admin',
-//        'slug' => 'admin',
-//        'level' => 1
-//    ]);
-//
-//    $teamRole = Role::create([
-//        'role_name' => 'team member',
-//        'slug' => 'team.member',
-//        'level' => 2
-//    ]);
+    $adminRole = Role::create([
+        'role_name' => 'Admin',
+        'slug' => 'admin',
+        'level' => 1
+    ]);
+
+    $teamRole = Role::create([
+        'role_name' => 'team member',
+        'slug' => 'team.member',
+        'level' => 2
+    ]);
 
 //    $perm1 = Permission::find(1);
 //    $perm2 = Permission::find(2);
@@ -131,7 +131,7 @@ Route::get('/api/search/{query}', function($query){
 
 
 //    $proposities = \App\Propositie::where('pro_name', 'LIKE', "%{$query}%")->latest()->get();
-    $proposities = \App\Propositie::where('pro_name', 'LIKE', "%{$query}%")->latest()->paginate(12);
+    $proposities = \App\Propositie::with('user.userprofile')->where('pro_name', 'LIKE', "%{$query}%")->latest()->paginate(12);
 
     $response =[
         'pagination' => [
@@ -158,7 +158,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('store/settings', ['as' => 'skin.store', 'uses' => 'UserProfileController@updateSkin']);
 
     Route::get('/', 'HomeController@landing');
-    Route::get('/homepage', 'HomeController@homepage');
+//    Route::get('/home', 'AdminController@home');
     Route::get('/proposities', 'HomeController@proposities');
 
 //    Route::get('/dashboard', ['as' => 'dashboard', 'uses' => 'AdminController@dashboard']);

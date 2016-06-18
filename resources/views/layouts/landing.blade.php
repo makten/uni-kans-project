@@ -68,7 +68,7 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
 
                                 <div class="pull-left">
                                     <!-- User Image -->
-                                    <img src="{{asset('/uploads/users\6d5b03fbf96cf31bbad3aa1586c3a689.jpg')}}"
+                                    <img src="{{Auth::user()->userprofile->avatar}}"
                                          class="img_circle">
 
                                     {{ Auth::user()->first_name }}
@@ -77,7 +77,7 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
                                 <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 @if(Auth::user()->isAdmin('admin'))
-                                    <li><a href="/dashboard"><i class="material-icons">dashboard</i> Dashboard</a></li>
+                                    <li><a href="api/dashboard"><i class="material-icons">dashboard</i> Dashboard</a></li>
                                 @endif
                                 <li><a href="javascript:void(0)"><i class="material-icons">settings</i> Profile</a></li>
 
@@ -102,100 +102,8 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
 <div class="container-full-bg container">
     <!--Main image container container-->
 
-    <!--Search container-->
-    <div class=" col-sm-12 search-container animated" v-show="searchOutput.length > 0" transition="swipe">
-
-
-            <div class="close-bar">@{{ searchOutput.length }} Results found
-                <span class="pull-right" @click="searchOutput = []"><i class="fa fa-times "></i></span>
-            </div>
-
-
-            <div v-for="result in searchOutput" :class="'list-inline'">
-                <div class="col-md-3">
-
-                    {{--<!--Card-->--}}
-                    <div class="card" style="padding: 3px; margin-bottom: 0.9%">
-
-                        <!--Card image-->
-                        <div :class="'ripplelink'" class=" view overlay hm-white-slight " style="height: 150px">
-
-                            <img :src="getImg(result.pro_avatar)" height="180"
-                                 width="200">
-                            <a>
-                                <div class="mask"></div>
-                            </a>
-                        </div>
-                        <!--/.Card image-->
-
-                        <!--Button-->
-
-                        <a class="btn-floating btn-action btn img_circle">
-                            <img src="{{asset('/images/profile/images.jpg')}}"/>
-                        </a>
-
-                        <!--Card content-->
-                        <div class="card-block">
-                            <!--Title-->
-
-                            <div style="height: 50px; overflow: hidden">
-                                <h4 class="card-title">@{{{ result.pro_name  | highlight query }}}</h4>
-                            </div>
-                            <hr>
-                            <!--Text-->
-                            <div style="height: 100px; overflow: hidden">
-                                <p class="card-text">@{{ result.pro_description }}</p>
-                            </div>
-                            <a href="/" class="link-text"><h5>Meer lezen <i class="fa fa-chevron-right"></i></h5></a>
-                        </div>
-                        <!--/.Card content-->
-
-                        <!-- Card footer -->
-                        <div class="card-data" style="background-color: #6a6a6a; color: #ffffff; height: 35px; ">
-                            <ul class="list-inline">
-                                <li><i class="fa fa-clock-o"></i> @{{ result.created_at | moment "D-M-Y"}}</li>
-                                <li><a href="#"><i class="fa fa-comments-o"></i>12</a></li>
-                                <li><a href="#"><i class="fa fa-facebook"> </i>21</a></li>
-                                <li><a href="#"><i class="fa fa-twitter"> </i>5</a></li>
-                            </ul>
-                        </div>
-
-                        <!-- Card footer -->
-
-                    </div> <!--Card-->
-                </div><!--Card-wrapper-->
-
-            </div>
-
-            <div class="paginator-container" v-show="searchOutput.length > 0">
-                <nav>
-                    <ul class="pagination">
-                        <li v-if="pagination.current_page > 1">
-                            <a href="#" aria-label="Previous"
-                               @click.prevent="changePage(pagination.current_page - 1)">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        <li v-for="page in pagesNumber"
-                            v-bind:class="[ page == isActived ? 'active' : '']">
-                            <a href="#"
-                               @click.prevent="changePage(page)">@{{ page }}</a>
-                        </li>
-                        <li v-if="pagination.current_page < pagination.last_page">
-                            <a href="#" aria-label="Next"
-                               @click.prevent="changePage(pagination.current_page + 1)">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-
-    <!--Cards container col-12--->
-
-
-
-    </div><!--Search container -->
+    {{--Search blade--}}
+    @include('layouts.search_partials.search')
 
     <aside id="themas_links">
         <themas></themas>

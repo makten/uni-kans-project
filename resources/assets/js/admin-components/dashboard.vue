@@ -1,25 +1,37 @@
 <template>
-    <header-component/>
+    <header-component :user="{{$user}}"/>
     <div>this is template body</div>
     <other-component/>
 </template>
-<style>
-    body{
-        background-color:#ff0000;
-    }
-</style>
+
+
 <script>
-    import HeaderComponent from './components/header.vue'
-    import OtherComponent from './components/other.vue'
+
+//    import HeaderComponent from './components/header.vue'
+//    import OtherComponent from './components/other.vue'
     export default{
+
+        props: [
+                'user'
+        ],
+
         data(){
             return{
                 msg:'hello vue'
             }
         },
+
+        ready() {
+          this.getPros()
+            alert('hellos')
+        },
         components:{
-            'other-component':OtherComponent,
-            HeaderComponent,
-        }
+//            'other-component':OtherComponent,
+//            HeaderComponent,
+        },
+
+        methods: {
+
+        },
     }
 </script>

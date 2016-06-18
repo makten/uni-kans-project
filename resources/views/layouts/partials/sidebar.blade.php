@@ -19,38 +19,53 @@
 
 
             <!-- Sidebar Menu -->
-            <ul class="sidebar-menu">
+            <ul class="sidebar-menu" style="font-size: 15px; font-weight: 400">
                 <li class="header">ADMIN PANEL</li>
-                <li class="{{ (Request::is('home') ? 'active' : '') }}"><a href="{{ url('home') }}"><i
-                                class='fa fa-list'></i> <span>Overview</span></a></li>
-
-                <li class="treeview {{ (Request::is('user/create') ? 'active' : '') }}{{ (Request::is('client/create') ? 'active' : '') }}{{ (Request::is('product/create') ? 'active' : '') }}">
-                    <a href="#"><i class="fa fa-table"></i><span>CRUD</span><i class="fa fa-angle-left pull-right"></i>
+                <li class="{{ (Request::is('dashboard') ? 'active' : '') }}">
+                    <a v-link="{path: '/overview' }">
+                        <i class='fa fa-list pull-left'></i> <span>Overview</span>
                     </a>
-                    {{--<ul class="treeview-menu">--}}
-                        {{--<li class="{{ (Request::is('user/create') ? 'active' : '') }}"><a--}}
-                                    {{--href="{{route('user.create')}}"> &nbsp;&nbsp;&nbsp;<i class="fa fa-user"></i> Add--}}
-                                {{--User</a></li>--}}
-                        {{--<li class="{{ (Request::is('client/create') ? 'active' : '') }}"><a--}}
-                                    {{--href="{{route('client.create')}}"> &nbsp;&nbsp;&nbsp;<i class="fa fa-user-plus"></i>--}}
-                                {{--Add Client</a></li>--}}
-                        {{--<li class="{{ (Request::is('product/create') ? 'active' : '') }}"><a--}}
-                                    {{--href="{{route('product.create')}}"> &nbsp;&nbsp;&nbsp;<i--}}
-                                        {{--class="fa fa-shopping-cart"></i> Add Product</a>--}}
-                        {{--</li>--}}
-                    {{--</ul>--}}
                 </li>
 
-                <li class="{{ (Request::is('/openinghours') ? 'active' : '') }}"><a href="#"><i
-                                class='fa fa-calendar-o'></i> <span>Opening Hours</span></a></li>
-                <li class="{{ (Request::is('/discountmanager') ? 'active' : '') }}"><a href="#"><i
-                                class='fa fa-star'></i> <span>Discounts</span></a></li>
-                <li class="{{ (Request::is('/ordersmanager') ? 'active' : '') }}"><a href="#"><i
-                                class='fa fa-shopping-cart'></i> <span>Orders</span></a></li>
-                <li class="{{ (Request::is('/paymentmanager') ? 'active' : '') }}"><a href="#"><i
-                                class='fa fa-money'></i> <span>Payment</span></a></li>
-                <li class="{{ (Request::is('/servicesmanager') ? 'active' : '') }}"><a href="#"><i
-                                class='fa fa-sitemap'></i> <span>Services</span></a></li>
+                <li class="treeview {{ (Request::is('user/create') ? 'active' : '') }}{{ (Request::is('client/create') ? 'active' : '') }}{{ (Request::is('product/create') ? 'active' : '') }}">
+                    <a>
+                        <i class="fa fa-table pull-left"></i><span>Personsbeheer</span><i class="fa fa-angle-left pull-right"></i>
+                    </a>
+
+                    <ul class="treeview-menu">
+                        <li class="{{ (Request::is('user/create') ? 'active' : '') }}">
+                            <a v-link="{path: '/create_user' }">
+                                <i class="fa fa-user pull-left"></i> Gebruiker toevoegen
+                            </a>
+                        </li>
+                        <li class="{{ (Request::is('client/create') ? 'active' : '') }}">
+                            <a v-link="{path: '/create_team' }">
+                                &nbsp;&nbsp;&nbsp;<i class="fa fa-user-plus pull-left"></i>
+                                Team lid toevoegen
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </li>
+
+                <li class="{{ (Request::is('/openinghours') ? 'active' : '') }}">
+                    <a v-link="{path: '/create_propositie' }">
+                        <i class='fa fa-table pull-left'></i> <span>Propositie aanmaken</span>
+                    </a>
+                </li>
+
+                <li class="{{ (Request::is('/discountmanager') ? 'active' : '') }}">
+                    <a v-link="{path: '/create_thema' }">
+                        <i class='fa fa-deviantart pull-left'></i> <span>Thema toevoegen</span>
+                    </a>
+                </li>
+
+                <li class="{{ (Request::is('/servicesmanager') ? 'active' : '') }}">
+                    <a v-link="{path: '/create_markt' }">
+                        <i class='fa fa-sitemap pull-left'></i> <span>Markt toevoegen</span>
+                    </a>
+                </li>
             </ul><!-- /.sidebar-menu -->
 
 

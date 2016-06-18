@@ -167,6 +167,7 @@ return [
         Milon\Barcode\BarcodeServiceProvider::class,
         // Laravel\Socialite\SocialiteServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        'Laracasts\Utilities\JavaScript\JavaScriptServiceProvider',
 
 
         /*
