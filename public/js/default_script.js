@@ -33,9 +33,33 @@ $.material.ripples()
 //    }
 //});
 
-
+// Plugin calls ---------------------------
 $("#pro_status").dropdown({ "autoinit" : "#pro_status" });
 
+$('#input-tags3').selectize({
+    plugins: ['remove_button'],
+    delimiter: ',',
+    persist: false,
+    create: function(input) {
+        return {
+            value: input,
+            text: input
+        }
+    }
+});
+
+$('#datething').bootstrapMaterialDatePicker();
+
+
+//Tags remover funciton ----------
+function removeMe(sender){
+    $(sender).closest('span').remove();
+}
+
+//Show page tabs settings
+jQuery(function () {
+    jQuery('#myTab a:last').tab('show')
+})
 
 
 

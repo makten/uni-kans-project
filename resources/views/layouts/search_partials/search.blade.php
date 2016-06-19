@@ -9,7 +9,7 @@
 
 
     <div v-for="result in searchOutput" :class="'list-inline'">
-        <div class="col-md-3">
+        <div class="col-md-3"><!--Card-wrapper-->
 
             {{--<!--Card-->--}}
             <div class="card" style="padding: 3px; margin-bottom: 0.9%">

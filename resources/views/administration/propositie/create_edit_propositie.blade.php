@@ -11,13 +11,13 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">Overview</div>
+                    <div class="panel-heading">Create</div>
 
                     @if(isset($propositie))
-                        <create-propositie :propositie="{{$propositie}}" :user-id="{{ $user }}">
+                        <create-propositie propositie="{{$propositie}}" user-id="{{ $user }}" subject="Edit propositie">
                         </create-propositie>
                     @else
-                        <create-propositie :user-id="{{ $user }}">
+                        <create-propositie user-id="{{ $user }}" subject="Create propositie">
                         </create-propositie>
                     @endif
                 </div>
@@ -37,14 +37,21 @@
             <fieldset class="col-xs-12">
 
 
-                <form class="form-horizontal">
+
+
+                <form class="form-horizontal" @submit.prevent="createPropositie">
                     <fieldset>
-                        <legend>Legend</legend>
+                        <legend><h4>@{{ subject }}</h4></legend>
+
                         <div class="form-group">
                             <label for="pro_name" class="col-md-2 control-label">Naam</label>
 
                             <div class="col-md-10">
-                                <input type="text" class="form-control" v-model="pro_name" placeholder="Naam">
+                                <input type="text" class="form-control"
+                                       v-model="pro_name"
+                                       debounce="3000"
+                                       placeholder="Naam">
+                                <input type="hidden" v-model="hiddenName">
                             </div>
                         </div>
 
@@ -52,8 +59,10 @@
                             <label for="textArea" class="col-md-2 control-label">Bescrijving</label>
 
                             <div class="col-md-10">
-                                <textarea class="form-control" rows="3" id="textArea" v-model="pro_description" placeholder="Bescrijving"></textarea>
-                                <span class="help-block" :style="{color: red}">U mag hier max. <strong>@{{  num_char_desc - pro_description.length }} </strong>characters gebruiken</span>
+                                <textarea class="form-control" rows="3" id="textArea" v-model="pro_description"
+                                          placeholder="Bescrijving"></textarea>
+                                <span class="help-block"
+                                      :style="{color: red}">U mag hier max. <strong>@{{  num_char_desc - pro_description.length }} </strong>characters gebruiken</span>
 
                             </div>
                         </div>
@@ -63,19 +72,26 @@
                         <div class="form-group">
                             <label for="pro_unique" class="col-md-2 control-label">Unique</label>
                             <div class="col-md-10">
-                                <input type="text" class="form-control"
+                                <input id="pro_unique_input" type="text" class="form-control"
                                        v-model="pro_unique"
-                                       @click="getSuggestions"
                                        placeholder="Unique"
                                 >
                             </div>
-                            <div v-if="unique_suggest.length >= 1">
-                                <ul :class="'inline-list'" v-for="suggestion in unique_suggest">
-                                    <li><span class="label label-info">@{{ suggestion }}</span></li>
+                            <div v-if="unique_suggest.length >= 1" class="col-md-10 col-md-offset-2" id="tags_container">
+
+                                <ul :class="'inline-list'" v-for="suggestion in unique_suggest"
+                                    style="float: left;">
+                                    <li :class="{'bounceOut rm-item': suggestion.added }" transition="bounceOut" class="animated">
+                                        <span class="label label-info">@{{ suggestion.text }}
+                                            <a style="color: white;" @click="addToTags(suggestion)" href="javascript:void(0)" class="remove" tabindex="-1"
+                                               title="Add">+
+                                            </a>
+                                        </span>
+                                    </li>
                                 </ul>
+
                             </div>
                         </div>
-
 
                         <div class="form-group" style="margin-top: 0;">
                             <!-- inline style is just to demo custom css to put checkbox below input above -->
@@ -170,15 +186,33 @@
                             </div>
                         </div>
 
+                        <input id="datething">
+                        <input type="color">
+
 
                         <div class="form-group">
                             <div class="col-md-10 col-md-offset-2">
                                 <button type="button" class="btn btn-default">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="button" class="btn btn-primary">Submit</button>
                             </div>
                         </div>
                     </fieldset>
                 </form>
+
+                <style>
+                    .rm-item{
+                        display: none;
+                    }
+
+                    .tag
+                    {
+                        margin-right:2px;
+                        color:white;
+                        text-align:center;
+                        padding:3px;
+                        border-radius: 5px;
+                    }
+                    </style>
 
 
             {{--@if(isset($propositie))--}}

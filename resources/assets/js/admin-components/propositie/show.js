@@ -46,7 +46,14 @@ Vue.component('proposities-show', {
                     this.task = response.data;
                     this.nameme = response.data.pro_name;
                 });
-        }
+        },
+
+        humanReadable: function (value) {
+            var date = moment(value).fromNow(); // here u modify data
+            //this.el.innerText = date; // and set to the view
+            return date;
+
+        },
     },
 
     //computed: {

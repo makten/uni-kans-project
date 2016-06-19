@@ -54,4 +54,5 @@
         {!! Html::style('/css/landing.css') !!}
         {!! Html::style('/css/cust/selectize.css') !!}
         {!! Html::style('/css/cust/jquery.dropdown.css') !!}
+        {!! Html::style('/css/animate.css') !!}
 </head>
