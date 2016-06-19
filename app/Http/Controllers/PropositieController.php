@@ -48,7 +48,7 @@ class PropositieController extends Controller
 //        $teamMembers = $prop->team->users;
 
 //        return view('administration.content.show', compact('prop', 'team', 'teamMembers'));
-        return view('administration.content.show', compact('prop'));
+        return view('administration.propositie.show', compact('prop'));
     }
 
 
@@ -59,10 +59,11 @@ class PropositieController extends Controller
         $marktsegmenten = Marktsegment::lists('markt_naam', 'id')->all();
 
         $userSettings = UserProfile::whereUserId($request->user()->id)->first();
+        $user = User::findOrFail($request->user()->id);
 
         if ($request->user()->hasRole('admin') || $request->user()->hasRole('team member')) {
 
-            return view('administration.content.create_edit_propositie', compact('themas', 'marktsegmenten', 'userSettings'));
+            return view('administration.propositie.create_edit_propositie', compact('themas', 'marktsegmenten', 'userSettings', 'user'));
         } else {
             abort('You do not have permission', 403);
             flash()->overlay('U heeft geen rechten om deze actie uit te voeren. Neem contact op met de admin!');

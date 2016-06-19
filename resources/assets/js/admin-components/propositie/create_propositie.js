@@ -1,19 +1,27 @@
-//var Dropzone = require('dropzone');
+var Dropzone = require('dropzone');
+
+import StopWordsHelper from '../../mixins/StopWordsHelper';
 
 Vue.component('create-propositie', {
+
+    mixins: [StopWordsHelper],
+
     props: ['proId'],
 
     template: '#create_propositie_temp',
 
-    //components: [Dropzone],
+    components: [Dropzone],
     /**
      * All of the component's data.
      */
-    data: function() {
+    data: function () {
         return {
             viewers: [],
-            task: null,
-            name: ''
+            pro_name: '',
+            pro_description: '',
+            num_char_desc: 250,
+            pro_unique: '',
+            unique_suggest: [],
         };
     },
 
@@ -22,43 +30,30 @@ Vue.component('create-propositie', {
      * Prepare the component.
      */
     ready() {
+
+        //alert(this.getWords('This is the Name Section Test PHP Viber'));
+
         //this.listen();
 
         //this.getTask();
-        alert('arrived create template');
-        alert('and further');
 
     },
 
 
-
     methods: {
-        /**
-         * Listen to Echo channels.
-         */
-        //listen() {
-        //    echo.join('task.' + this.taskId)
-        //        .here(viewers => {
-        //            this.viewers = viewers;
-        //        });
-        //},
 
+        getSuggestions: function () {
 
-        /**
-         * Get the task being viewed.
-         */
-        getTask() {
+            if (this.pro_name.length >= 3) {
 
-            this.$http.post('/api/content/show')
-                .then(response => {
-                    this.task = response.data;
-                    this.nameme = response.data.pro_name;
+                var words = this.pro_name + this.pro_description;
+                this.unique_suggest = this.getWords(words);
 
-                    console.log(this.task);
+                alert(this.unique_suggest);
 
-                    alert(response.data.pro_name);
-                });
+            }
         }
+
     },
 
 
@@ -71,5 +66,3 @@ Vue.component('create-propositie', {
     //    }
     //}
 });
-
-var App = new Vue({});

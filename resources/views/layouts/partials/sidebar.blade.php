@@ -34,12 +34,12 @@
 
                     <ul class="treeview-menu">
                         <li class="{{ (Request::is('user/create') ? 'active' : '') }}">
-                            <a v-link="{path: '/create_user' }">
+                            <a href="/user/create">
                                 <i class="fa fa-user pull-left"></i> Gebruiker toevoegen
                             </a>
                         </li>
                         <li class="{{ (Request::is('client/create') ? 'active' : '') }}">
-                            <a v-link="{path: '/create_team' }">
+                            <a href="/team/create">
                                 &nbsp;&nbsp;&nbsp;<i class="fa fa-user-plus pull-left"></i>
                                 Team lid toevoegen
                             </a>
@@ -56,13 +56,13 @@
                 </li>
 
                 <li class="{{ (Request::is('/discountmanager') ? 'active' : '') }}">
-                    <a v-link="{path: '/create_thema' }">
+                    <a href="/thema/create">
                         <i class='fa fa-deviantart pull-left'></i> <span>Thema toevoegen</span>
                     </a>
                 </li>
 
                 <li class="{{ (Request::is('/servicesmanager') ? 'active' : '') }}">
-                    <a v-link="{path: '/create_markt' }">
+                    <a href="/markt/create">
                         <i class='fa fa-sitemap pull-left'></i> <span>Markt toevoegen</span>
                     </a>
                 </li>

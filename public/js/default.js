@@ -3,8 +3,7 @@
  */
 
 //Material stuff
-$.material.init()
-$.material.ripples()
+
 
 //Date formating stuff
 $('#test').bootstrapMaterialDatePicker({

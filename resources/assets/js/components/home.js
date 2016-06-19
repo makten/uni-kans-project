@@ -1,7 +1,3 @@
-/**
- * Created by Hafiz on 6/17/2016.
- */
-
 var Vue = require('vue');
 
 window.Vue = Vue;
@@ -148,18 +144,3 @@ new Vue({
     }
 });
 
-//var App = Vue.extend()
-//
-//var router = new VueRouter({
-//    saveScrollPosition: true
-//})
-//
-//
-//router.map({
-//
-//    '/': {
-//        component: Marktsegments
-//    }
-//})
-//
-//router.start(App, '#app');

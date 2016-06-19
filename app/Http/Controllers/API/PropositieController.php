@@ -54,7 +54,7 @@ class PropositieController extends Controller
 //        $teamMembers = $prop->team->users;
 
 //        return view('administration.content.show', compact('prop', 'team', 'teamMembers'));
-        return view('administration.content.show', compact('prop'));
+        return view('administration.propositie.show', compact('prop'));
     }
 
 
@@ -146,7 +146,7 @@ class PropositieController extends Controller
         $editThemas = explode(', ', $propositie->pro_themas);
         $editMarkt = explode(', ', $propositie->pro_marktsegmenten);
 
-        return view('administration.content.create_edit_propositie', compact('content', 'themas', 'editThemas', 'marktsegmenten', 'editMarkt'));
+        return view('administration.propositie.create_edit_propositie', compact('content', 'themas', 'editThemas', 'marktsegmenten', 'editMarkt'));
     }
 
 

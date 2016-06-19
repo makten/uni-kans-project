@@ -16,6 +16,8 @@
           type="text/css"/>
     <!-- Ionicons -->
     <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/square/blue.css" rel="stylesheet" type="text/css"/>
+
     <!-- Theme style -->
     <link href="{{ asset('/css/AdminDashboard.css') }}" rel="stylesheet" type="text/css"/>
     <!-- Skin -->
@@ -26,7 +28,7 @@
         <link href="{{ asset('/css/skins/skin-blue.css') }}" rel="stylesheet" type="text/css"/>
         @endif
                 <!-- iCheck -->
-        <link href="{{ asset('/plugins/iCheck/square/blue.css') }}" rel="stylesheet" type="text/css"/>
+        {{--<link href="{{ asset('/plugins/iCheck/square/blue.css') }}" rel="stylesheet" type="text/css"/>--}}
         <link href="{{ asset('/css/app.css') }}" rel="stylesheet" type="text/css"/>
         <link href="{{ asset('/css/jquery-ui.css') }}" rel="stylesheet" type="text/css"/>
         <link rel="stylesheet" type="text/css"
@@ -43,10 +45,13 @@
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
+        <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
         <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
         <!--Datatables-->
         {!! Html::style('/css/jquery-dataTable.min.css') !!}
         {!! Html::style('/css/landing.css') !!}
+        {!! Html::style('/css/cust/selectize.css') !!}
+        {!! Html::style('/css/cust/jquery.dropdown.css') !!}
 </head>

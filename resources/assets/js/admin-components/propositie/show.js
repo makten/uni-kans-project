@@ -1,7 +1,7 @@
 Vue.component('proposities-show', {
     props: ['proId'],
 
-    template: '#sheeeeje',
+    template: '#propositie_show',
 
     /**
      * All of the component's data.
@@ -22,12 +22,8 @@ Vue.component('proposities-show', {
         //this.listen();
 
         this.getTask();
-        alert('arrived')
 
     },
-
-
-
     methods: {
         /**
          * Listen to Echo channels.
@@ -49,14 +45,9 @@ Vue.component('proposities-show', {
                 .then(response => {
                     this.task = response.data;
                     this.nameme = response.data.pro_name;
-
-                    console.log(this.task);
-
-                    alert(response.data.pro_name);
                 });
         }
     },
-
 
     //computed: {
     //    /**

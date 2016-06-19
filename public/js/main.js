@@ -1,4 +1,1773 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+/*
+ *
+ * More info at [www.dropzonejs.com](http://www.dropzonejs.com)
+ *
+ * Copyright (c) 2012, Matias Meno
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
+(function() {
+  var Dropzone, Emitter, camelize, contentLoaded, detectVerticalSquash, drawImageIOSFix, noop, without,
+    __slice = [].slice,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  noop = function() {};
+
+  Emitter = (function() {
+    function Emitter() {}
+
+    Emitter.prototype.addEventListener = Emitter.prototype.on;
+
+    Emitter.prototype.on = function(event, fn) {
+      this._callbacks = this._callbacks || {};
+      if (!this._callbacks[event]) {
+        this._callbacks[event] = [];
+      }
+      this._callbacks[event].push(fn);
+      return this;
+    };
+
+    Emitter.prototype.emit = function() {
+      var args, callback, callbacks, event, _i, _len;
+      event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      this._callbacks = this._callbacks || {};
+      callbacks = this._callbacks[event];
+      if (callbacks) {
+        for (_i = 0, _len = callbacks.length; _i < _len; _i++) {
+          callback = callbacks[_i];
+          callback.apply(this, args);
+        }
+      }
+      return this;
+    };
+
+    Emitter.prototype.removeListener = Emitter.prototype.off;
+
+    Emitter.prototype.removeAllListeners = Emitter.prototype.off;
+
+    Emitter.prototype.removeEventListener = Emitter.prototype.off;
+
+    Emitter.prototype.off = function(event, fn) {
+      var callback, callbacks, i, _i, _len;
+      if (!this._callbacks || arguments.length === 0) {
+        this._callbacks = {};
+        return this;
+      }
+      callbacks = this._callbacks[event];
+      if (!callbacks) {
+        return this;
+      }
+      if (arguments.length === 1) {
+        delete this._callbacks[event];
+        return this;
+      }
+      for (i = _i = 0, _len = callbacks.length; _i < _len; i = ++_i) {
+        callback = callbacks[i];
+        if (callback === fn) {
+          callbacks.splice(i, 1);
+          break;
+        }
+      }
+      return this;
+    };
+
+    return Emitter;
+
+  })();
+
+  Dropzone = (function(_super) {
+    var extend, resolveOption;
+
+    __extends(Dropzone, _super);
+
+    Dropzone.prototype.Emitter = Emitter;
+
+
+    /*
+    This is a list of all available events you can register on a dropzone object.
+    
+    You can register an event handler like this:
+    
+        dropzone.on("dragEnter", function() { });
+     */
+
+    Dropzone.prototype.events = ["drop", "dragstart", "dragend", "dragenter", "dragover", "dragleave", "addedfile", "addedfiles", "removedfile", "thumbnail", "error", "errormultiple", "processing", "processingmultiple", "uploadprogress", "totaluploadprogress", "sending", "sendingmultiple", "success", "successmultiple", "canceled", "canceledmultiple", "complete", "completemultiple", "reset", "maxfilesexceeded", "maxfilesreached", "queuecomplete"];
+
+    Dropzone.prototype.defaultOptions = {
+      url: null,
+      method: "post",
+      withCredentials: false,
+      parallelUploads: 2,
+      uploadMultiple: false,
+      maxFilesize: 256,
+      paramName: "file",
+      createImageThumbnails: true,
+      maxThumbnailFilesize: 10,
+      thumbnailWidth: 120,
+      thumbnailHeight: 120,
+      filesizeBase: 1000,
+      maxFiles: null,
+      params: {},
+      clickable: true,
+      ignoreHiddenFiles: true,
+      acceptedFiles: null,
+      acceptedMimeTypes: null,
+      autoProcessQueue: true,
+      autoQueue: true,
+      addRemoveLinks: false,
+      previewsContainer: null,
+      hiddenInputContainer: "body",
+      capture: null,
+      renameFilename: null,
+      dictDefaultMessage: "Drop files here to upload",
+      dictFallbackMessage: "Your browser does not support drag'n'drop file uploads.",
+      dictFallbackText: "Please use the fallback form below to upload your files like in the olden days.",
+      dictFileTooBig: "File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.",
+      dictInvalidFileType: "You can't upload files of this type.",
+      dictResponseError: "Server responded with {{statusCode}} code.",
+      dictCancelUpload: "Cancel upload",
+      dictCancelUploadConfirmation: "Are you sure you want to cancel this upload?",
+      dictRemoveFile: "Remove file",
+      dictRemoveFileConfirmation: null,
+      dictMaxFilesExceeded: "You can not upload any more files.",
+      accept: function(file, done) {
+        return done();
+      },
+      init: function() {
+        return noop;
+      },
+      forceFallback: false,
+      fallback: function() {
+        var child, messageElement, span, _i, _len, _ref;
+        this.element.className = "" + this.element.className + " dz-browser-not-supported";
+        _ref = this.element.getElementsByTagName("div");
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          child = _ref[_i];
+          if (/(^| )dz-message($| )/.test(child.className)) {
+            messageElement = child;
+            child.className = "dz-message";
+            continue;
+          }
+        }
+        if (!messageElement) {
+          messageElement = Dropzone.createElement("<div class=\"dz-message\"><span></span></div>");
+          this.element.appendChild(messageElement);
+        }
+        span = messageElement.getElementsByTagName("span")[0];
+        if (span) {
+          if (span.textContent != null) {
+            span.textContent = this.options.dictFallbackMessage;
+          } else if (span.innerText != null) {
+            span.innerText = this.options.dictFallbackMessage;
+          }
+        }
+        return this.element.appendChild(this.getFallbackForm());
+      },
+      resize: function(file) {
+        var info, srcRatio, trgRatio;
+        info = {
+          srcX: 0,
+          srcY: 0,
+          srcWidth: file.width,
+          srcHeight: file.height
+        };
+        srcRatio = file.width / file.height;
+        info.optWidth = this.options.thumbnailWidth;
+        info.optHeight = this.options.thumbnailHeight;
+        if ((info.optWidth == null) && (info.optHeight == null)) {
+          info.optWidth = info.srcWidth;
+          info.optHeight = info.srcHeight;
+        } else if (info.optWidth == null) {
+          info.optWidth = srcRatio * info.optHeight;
+        } else if (info.optHeight == null) {
+          info.optHeight = (1 / srcRatio) * info.optWidth;
+        }
+        trgRatio = info.optWidth / info.optHeight;
+        if (file.height < info.optHeight || file.width < info.optWidth) {
+          info.trgHeight = info.srcHeight;
+          info.trgWidth = info.srcWidth;
+        } else {
+          if (srcRatio > trgRatio) {
+            info.srcHeight = file.height;
+            info.srcWidth = info.srcHeight * trgRatio;
+          } else {
+            info.srcWidth = file.width;
+            info.srcHeight = info.srcWidth / trgRatio;
+          }
+        }
+        info.srcX = (file.width - info.srcWidth) / 2;
+        info.srcY = (file.height - info.srcHeight) / 2;
+        return info;
+      },
+
+      /*
+      Those functions register themselves to the events on init and handle all
+      the user interface specific stuff. Overwriting them won't break the upload
+      but can break the way it's displayed.
+      You can overwrite them if you don't like the default behavior. If you just
+      want to add an additional event handler, register it on the dropzone object
+      and don't overwrite those options.
+       */
+      drop: function(e) {
+        return this.element.classList.remove("dz-drag-hover");
+      },
+      dragstart: noop,
+      dragend: function(e) {
+        return this.element.classList.remove("dz-drag-hover");
+      },
+      dragenter: function(e) {
+        return this.element.classList.add("dz-drag-hover");
+      },
+      dragover: function(e) {
+        return this.element.classList.add("dz-drag-hover");
+      },
+      dragleave: function(e) {
+        return this.element.classList.remove("dz-drag-hover");
+      },
+      paste: noop,
+      reset: function() {
+        return this.element.classList.remove("dz-started");
+      },
+      addedfile: function(file) {
+        var node, removeFileEvent, removeLink, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _results;
+        if (this.element === this.previewsContainer) {
+          this.element.classList.add("dz-started");
+        }
+        if (this.previewsContainer) {
+          file.previewElement = Dropzone.createElement(this.options.previewTemplate.trim());
+          file.previewTemplate = file.previewElement;
+          this.previewsContainer.appendChild(file.previewElement);
+          _ref = file.previewElement.querySelectorAll("[data-dz-name]");
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            node = _ref[_i];
+            node.textContent = this._renameFilename(file.name);
+          }
+          _ref1 = file.previewElement.querySelectorAll("[data-dz-size]");
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            node = _ref1[_j];
+            node.innerHTML = this.filesize(file.size);
+          }
+          if (this.options.addRemoveLinks) {
+            file._removeLink = Dropzone.createElement("<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>" + this.options.dictRemoveFile + "</a>");
+            file.previewElement.appendChild(file._removeLink);
+          }
+          removeFileEvent = (function(_this) {
+            return function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              if (file.status === Dropzone.UPLOADING) {
+                return Dropzone.confirm(_this.options.dictCancelUploadConfirmation, function() {
+                  return _this.removeFile(file);
+                });
+              } else {
+                if (_this.options.dictRemoveFileConfirmation) {
+                  return Dropzone.confirm(_this.options.dictRemoveFileConfirmation, function() {
+                    return _this.removeFile(file);
+                  });
+                } else {
+                  return _this.removeFile(file);
+                }
+              }
+            };
+          })(this);
+          _ref2 = file.previewElement.querySelectorAll("[data-dz-remove]");
+          _results = [];
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            removeLink = _ref2[_k];
+            _results.push(removeLink.addEventListener("click", removeFileEvent));
+          }
+          return _results;
+        }
+      },
+      removedfile: function(file) {
+        var _ref;
+        if (file.previewElement) {
+          if ((_ref = file.previewElement) != null) {
+            _ref.parentNode.removeChild(file.previewElement);
+          }
+        }
+        return this._updateMaxFilesReachedClass();
+      },
+      thumbnail: function(file, dataUrl) {
+        var thumbnailElement, _i, _len, _ref;
+        if (file.previewElement) {
+          file.previewElement.classList.remove("dz-file-preview");
+          _ref = file.previewElement.querySelectorAll("[data-dz-thumbnail]");
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            thumbnailElement = _ref[_i];
+            thumbnailElement.alt = file.name;
+            thumbnailElement.src = dataUrl;
+          }
+          return setTimeout(((function(_this) {
+            return function() {
+              return file.previewElement.classList.add("dz-image-preview");
+            };
+          })(this)), 1);
+        }
+      },
+      error: function(file, message) {
+        var node, _i, _len, _ref, _results;
+        if (file.previewElement) {
+          file.previewElement.classList.add("dz-error");
+          if (typeof message !== "String" && message.error) {
+            message = message.error;
+          }
+          _ref = file.previewElement.querySelectorAll("[data-dz-errormessage]");
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            node = _ref[_i];
+            _results.push(node.textContent = message);
+          }
+          return _results;
+        }
+      },
+      errormultiple: noop,
+      processing: function(file) {
+        if (file.previewElement) {
+          file.previewElement.classList.add("dz-processing");
+          if (file._removeLink) {
+            return file._removeLink.textContent = this.options.dictCancelUpload;
+          }
+        }
+      },
+      processingmultiple: noop,
+      uploadprogress: function(file, progress, bytesSent) {
+        var node, _i, _len, _ref, _results;
+        if (file.previewElement) {
+          _ref = file.previewElement.querySelectorAll("[data-dz-uploadprogress]");
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            node = _ref[_i];
+            if (node.nodeName === 'PROGRESS') {
+              _results.push(node.value = progress);
+            } else {
+              _results.push(node.style.width = "" + progress + "%");
+            }
+          }
+          return _results;
+        }
+      },
+      totaluploadprogress: noop,
+      sending: noop,
+      sendingmultiple: noop,
+      success: function(file) {
+        if (file.previewElement) {
+          return file.previewElement.classList.add("dz-success");
+        }
+      },
+      successmultiple: noop,
+      canceled: function(file) {
+        return this.emit("error", file, "Upload canceled.");
+      },
+      canceledmultiple: noop,
+      complete: function(file) {
+        if (file._removeLink) {
+          file._removeLink.textContent = this.options.dictRemoveFile;
+        }
+        if (file.previewElement) {
+          return file.previewElement.classList.add("dz-complete");
+        }
+      },
+      completemultiple: noop,
+      maxfilesexceeded: noop,
+      maxfilesreached: noop,
+      queuecomplete: noop,
+      addedfiles: noop,
+      previewTemplate: "<div class=\"dz-preview dz-file-preview\">\n  <div class=\"dz-image\"><img data-dz-thumbnail /></div>\n  <div class=\"dz-details\">\n    <div class=\"dz-size\"><span data-dz-size></span></div>\n    <div class=\"dz-filename\"><span data-dz-name></span></div>\n  </div>\n  <div class=\"dz-progress\"><span class=\"dz-upload\" data-dz-uploadprogress></span></div>\n  <div class=\"dz-error-message\"><span data-dz-errormessage></span></div>\n  <div class=\"dz-success-mark\">\n    <svg width=\"54px\" height=\"54px\" viewBox=\"0 0 54 54\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\">\n      <title>Check</title>\n      <defs></defs>\n      <g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\">\n        <path d=\"M23.5,31.8431458 L17.5852419,25.9283877 C16.0248253,24.3679711 13.4910294,24.366835 11.9289322,25.9289322 C10.3700136,27.4878508 10.3665912,30.0234455 11.9283877,31.5852419 L20.4147581,40.0716123 C20.5133999,40.1702541 20.6159315,40.2626649 20.7218615,40.3488435 C22.2835669,41.8725651 24.794234,41.8626202 26.3461564,40.3106978 L43.3106978,23.3461564 C44.8771021,21.7797521 44.8758057,19.2483887 43.3137085,17.6862915 C41.7547899,16.1273729 39.2176035,16.1255422 37.6538436,17.6893022 L23.5,31.8431458 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z\" id=\"Oval-2\" stroke-opacity=\"0.198794158\" stroke=\"#747474\" fill-opacity=\"0.816519475\" fill=\"#FFFFFF\" sketch:type=\"MSShapeGroup\"></path>\n      </g>\n    </svg>\n  </div>\n  <div class=\"dz-error-mark\">\n    <svg width=\"54px\" height=\"54px\" viewBox=\"0 0 54 54\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\">\n      <title>Error</title>\n      <defs></defs>\n      <g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\">\n        <g id=\"Check-+-Oval-2\" sketch:type=\"MSLayerGroup\" stroke=\"#747474\" stroke-opacity=\"0.198794158\" fill=\"#FFFFFF\" fill-opacity=\"0.816519475\">\n          <path d=\"M32.6568542,29 L38.3106978,23.3461564 C39.8771021,21.7797521 39.8758057,19.2483887 38.3137085,17.6862915 C36.7547899,16.1273729 34.2176035,16.1255422 32.6538436,17.6893022 L27,23.3431458 L21.3461564,17.6893022 C19.7823965,16.1255422 17.2452101,16.1273729 15.6862915,17.6862915 C14.1241943,19.2483887 14.1228979,21.7797521 15.6893022,23.3461564 L21.3431458,29 L15.6893022,34.6538436 C14.1228979,36.2202479 14.1241943,38.7516113 15.6862915,40.3137085 C17.2452101,41.8726271 19.7823965,41.8744578 21.3461564,40.3106978 L27,34.6568542 L32.6538436,40.3106978 C34.2176035,41.8744578 36.7547899,41.8726271 38.3137085,40.3137085 C39.8758057,38.7516113 39.8771021,36.2202479 38.3106978,34.6538436 L32.6568542,29 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z\" id=\"Oval-2\" sketch:type=\"MSShapeGroup\"></path>\n        </g>\n      </g>\n    </svg>\n  </div>\n</div>"
+    };
+
+    extend = function() {
+      var key, object, objects, target, val, _i, _len;
+      target = arguments[0], objects = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      for (_i = 0, _len = objects.length; _i < _len; _i++) {
+        object = objects[_i];
+        for (key in object) {
+          val = object[key];
+          target[key] = val;
+        }
+      }
+      return target;
+    };
+
+    function Dropzone(element, options) {
+      var elementOptions, fallback, _ref;
+      this.element = element;
+      this.version = Dropzone.version;
+      this.defaultOptions.previewTemplate = this.defaultOptions.previewTemplate.replace(/\n*/g, "");
+      this.clickableElements = [];
+      this.listeners = [];
+      this.files = [];
+      if (typeof this.element === "string") {
+        this.element = document.querySelector(this.element);
+      }
+      if (!(this.element && (this.element.nodeType != null))) {
+        throw new Error("Invalid dropzone element.");
+      }
+      if (this.element.dropzone) {
+        throw new Error("Dropzone already attached.");
+      }
+      Dropzone.instances.push(this);
+      this.element.dropzone = this;
+      elementOptions = (_ref = Dropzone.optionsForElement(this.element)) != null ? _ref : {};
+      this.options = extend({}, this.defaultOptions, elementOptions, options != null ? options : {});
+      if (this.options.forceFallback || !Dropzone.isBrowserSupported()) {
+        return this.options.fallback.call(this);
+      }
+      if (this.options.url == null) {
+        this.options.url = this.element.getAttribute("action");
+      }
+      if (!this.options.url) {
+        throw new Error("No URL provided.");
+      }
+      if (this.options.acceptedFiles && this.options.acceptedMimeTypes) {
+        throw new Error("You can't provide both 'acceptedFiles' and 'acceptedMimeTypes'. 'acceptedMimeTypes' is deprecated.");
+      }
+      if (this.options.acceptedMimeTypes) {
+        this.options.acceptedFiles = this.options.acceptedMimeTypes;
+        delete this.options.acceptedMimeTypes;
+      }
+      this.options.method = this.options.method.toUpperCase();
+      if ((fallback = this.getExistingFallback()) && fallback.parentNode) {
+        fallback.parentNode.removeChild(fallback);
+      }
+      if (this.options.previewsContainer !== false) {
+        if (this.options.previewsContainer) {
+          this.previewsContainer = Dropzone.getElement(this.options.previewsContainer, "previewsContainer");
+        } else {
+          this.previewsContainer = this.element;
+        }
+      }
+      if (this.options.clickable) {
+        if (this.options.clickable === true) {
+          this.clickableElements = [this.element];
+        } else {
+          this.clickableElements = Dropzone.getElements(this.options.clickable, "clickable");
+        }
+      }
+      this.init();
+    }
+
+    Dropzone.prototype.getAcceptedFiles = function() {
+      var file, _i, _len, _ref, _results;
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (file.accepted) {
+          _results.push(file);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.getRejectedFiles = function() {
+      var file, _i, _len, _ref, _results;
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (!file.accepted) {
+          _results.push(file);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.getFilesWithStatus = function(status) {
+      var file, _i, _len, _ref, _results;
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (file.status === status) {
+          _results.push(file);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.getQueuedFiles = function() {
+      return this.getFilesWithStatus(Dropzone.QUEUED);
+    };
+
+    Dropzone.prototype.getUploadingFiles = function() {
+      return this.getFilesWithStatus(Dropzone.UPLOADING);
+    };
+
+    Dropzone.prototype.getAddedFiles = function() {
+      return this.getFilesWithStatus(Dropzone.ADDED);
+    };
+
+    Dropzone.prototype.getActiveFiles = function() {
+      var file, _i, _len, _ref, _results;
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (file.status === Dropzone.UPLOADING || file.status === Dropzone.QUEUED) {
+          _results.push(file);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.init = function() {
+      var eventName, noPropagation, setupHiddenFileInput, _i, _len, _ref, _ref1;
+      if (this.element.tagName === "form") {
+        this.element.setAttribute("enctype", "multipart/form-data");
+      }
+      if (this.element.classList.contains("dropzone") && !this.element.querySelector(".dz-message")) {
+        this.element.appendChild(Dropzone.createElement("<div class=\"dz-default dz-message\"><span>" + this.options.dictDefaultMessage + "</span></div>"));
+      }
+      if (this.clickableElements.length) {
+        setupHiddenFileInput = (function(_this) {
+          return function() {
+            if (_this.hiddenFileInput) {
+              _this.hiddenFileInput.parentNode.removeChild(_this.hiddenFileInput);
+            }
+            _this.hiddenFileInput = document.createElement("input");
+            _this.hiddenFileInput.setAttribute("type", "file");
+            if ((_this.options.maxFiles == null) || _this.options.maxFiles > 1) {
+              _this.hiddenFileInput.setAttribute("multiple", "multiple");
+            }
+            _this.hiddenFileInput.className = "dz-hidden-input";
+            if (_this.options.acceptedFiles != null) {
+              _this.hiddenFileInput.setAttribute("accept", _this.options.acceptedFiles);
+            }
+            if (_this.options.capture != null) {
+              _this.hiddenFileInput.setAttribute("capture", _this.options.capture);
+            }
+            _this.hiddenFileInput.style.visibility = "hidden";
+            _this.hiddenFileInput.style.position = "absolute";
+            _this.hiddenFileInput.style.top = "0";
+            _this.hiddenFileInput.style.left = "0";
+            _this.hiddenFileInput.style.height = "0";
+            _this.hiddenFileInput.style.width = "0";
+            document.querySelector(_this.options.hiddenInputContainer).appendChild(_this.hiddenFileInput);
+            return _this.hiddenFileInput.addEventListener("change", function() {
+              var file, files, _i, _len;
+              files = _this.hiddenFileInput.files;
+              if (files.length) {
+                for (_i = 0, _len = files.length; _i < _len; _i++) {
+                  file = files[_i];
+                  _this.addFile(file);
+                }
+              }
+              _this.emit("addedfiles", files);
+              return setupHiddenFileInput();
+            });
+          };
+        })(this);
+        setupHiddenFileInput();
+      }
+      this.URL = (_ref = window.URL) != null ? _ref : window.webkitURL;
+      _ref1 = this.events;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        eventName = _ref1[_i];
+        this.on(eventName, this.options[eventName]);
+      }
+      this.on("uploadprogress", (function(_this) {
+        return function() {
+          return _this.updateTotalUploadProgress();
+        };
+      })(this));
+      this.on("removedfile", (function(_this) {
+        return function() {
+          return _this.updateTotalUploadProgress();
+        };
+      })(this));
+      this.on("canceled", (function(_this) {
+        return function(file) {
+          return _this.emit("complete", file);
+        };
+      })(this));
+      this.on("complete", (function(_this) {
+        return function(file) {
+          if (_this.getAddedFiles().length === 0 && _this.getUploadingFiles().length === 0 && _this.getQueuedFiles().length === 0) {
+            return setTimeout((function() {
+              return _this.emit("queuecomplete");
+            }), 0);
+          }
+        };
+      })(this));
+      noPropagation = function(e) {
+        e.stopPropagation();
+        if (e.preventDefault) {
+          return e.preventDefault();
+        } else {
+          return e.returnValue = false;
+        }
+      };
+      this.listeners = [
+        {
+          element: this.element,
+          events: {
+            "dragstart": (function(_this) {
+              return function(e) {
+                return _this.emit("dragstart", e);
+              };
+            })(this),
+            "dragenter": (function(_this) {
+              return function(e) {
+                noPropagation(e);
+                return _this.emit("dragenter", e);
+              };
+            })(this),
+            "dragover": (function(_this) {
+              return function(e) {
+                var efct;
+                try {
+                  efct = e.dataTransfer.effectAllowed;
+                } catch (_error) {}
+                e.dataTransfer.dropEffect = 'move' === efct || 'linkMove' === efct ? 'move' : 'copy';
+                noPropagation(e);
+                return _this.emit("dragover", e);
+              };
+            })(this),
+            "dragleave": (function(_this) {
+              return function(e) {
+                return _this.emit("dragleave", e);
+              };
+            })(this),
+            "drop": (function(_this) {
+              return function(e) {
+                noPropagation(e);
+                return _this.drop(e);
+              };
+            })(this),
+            "dragend": (function(_this) {
+              return function(e) {
+                return _this.emit("dragend", e);
+              };
+            })(this)
+          }
+        }
+      ];
+      this.clickableElements.forEach((function(_this) {
+        return function(clickableElement) {
+          return _this.listeners.push({
+            element: clickableElement,
+            events: {
+              "click": function(evt) {
+                if ((clickableElement !== _this.element) || (evt.target === _this.element || Dropzone.elementInside(evt.target, _this.element.querySelector(".dz-message")))) {
+                  _this.hiddenFileInput.click();
+                }
+                return true;
+              }
+            }
+          });
+        };
+      })(this));
+      this.enable();
+      return this.options.init.call(this);
+    };
+
+    Dropzone.prototype.destroy = function() {
+      var _ref;
+      this.disable();
+      this.removeAllFiles(true);
+      if ((_ref = this.hiddenFileInput) != null ? _ref.parentNode : void 0) {
+        this.hiddenFileInput.parentNode.removeChild(this.hiddenFileInput);
+        this.hiddenFileInput = null;
+      }
+      delete this.element.dropzone;
+      return Dropzone.instances.splice(Dropzone.instances.indexOf(this), 1);
+    };
+
+    Dropzone.prototype.updateTotalUploadProgress = function() {
+      var activeFiles, file, totalBytes, totalBytesSent, totalUploadProgress, _i, _len, _ref;
+      totalBytesSent = 0;
+      totalBytes = 0;
+      activeFiles = this.getActiveFiles();
+      if (activeFiles.length) {
+        _ref = this.getActiveFiles();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          file = _ref[_i];
+          totalBytesSent += file.upload.bytesSent;
+          totalBytes += file.upload.total;
+        }
+        totalUploadProgress = 100 * totalBytesSent / totalBytes;
+      } else {
+        totalUploadProgress = 100;
+      }
+      return this.emit("totaluploadprogress", totalUploadProgress, totalBytes, totalBytesSent);
+    };
+
+    Dropzone.prototype._getParamName = function(n) {
+      if (typeof this.options.paramName === "function") {
+        return this.options.paramName(n);
+      } else {
+        return "" + this.options.paramName + (this.options.uploadMultiple ? "[" + n + "]" : "");
+      }
+    };
+
+    Dropzone.prototype._renameFilename = function(name) {
+      if (typeof this.options.renameFilename !== "function") {
+        return name;
+      }
+      return this.options.renameFilename(name);
+    };
+
+    Dropzone.prototype.getFallbackForm = function() {
+      var existingFallback, fields, fieldsString, form;
+      if (existingFallback = this.getExistingFallback()) {
+        return existingFallback;
+      }
+      fieldsString = "<div class=\"dz-fallback\">";
+      if (this.options.dictFallbackText) {
+        fieldsString += "<p>" + this.options.dictFallbackText + "</p>";
+      }
+      fieldsString += "<input type=\"file\" name=\"" + (this._getParamName(0)) + "\" " + (this.options.uploadMultiple ? 'multiple="multiple"' : void 0) + " /><input type=\"submit\" value=\"Upload!\"></div>";
+      fields = Dropzone.createElement(fieldsString);
+      if (this.element.tagName !== "FORM") {
+        form = Dropzone.createElement("<form action=\"" + this.options.url + "\" enctype=\"multipart/form-data\" method=\"" + this.options.method + "\"></form>");
+        form.appendChild(fields);
+      } else {
+        this.element.setAttribute("enctype", "multipart/form-data");
+        this.element.setAttribute("method", this.options.method);
+      }
+      return form != null ? form : fields;
+    };
+
+    Dropzone.prototype.getExistingFallback = function() {
+      var fallback, getFallback, tagName, _i, _len, _ref;
+      getFallback = function(elements) {
+        var el, _i, _len;
+        for (_i = 0, _len = elements.length; _i < _len; _i++) {
+          el = elements[_i];
+          if (/(^| )fallback($| )/.test(el.className)) {
+            return el;
+          }
+        }
+      };
+      _ref = ["div", "form"];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tagName = _ref[_i];
+        if (fallback = getFallback(this.element.getElementsByTagName(tagName))) {
+          return fallback;
+        }
+      }
+    };
+
+    Dropzone.prototype.setupEventListeners = function() {
+      var elementListeners, event, listener, _i, _len, _ref, _results;
+      _ref = this.listeners;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elementListeners = _ref[_i];
+        _results.push((function() {
+          var _ref1, _results1;
+          _ref1 = elementListeners.events;
+          _results1 = [];
+          for (event in _ref1) {
+            listener = _ref1[event];
+            _results1.push(elementListeners.element.addEventListener(event, listener, false));
+          }
+          return _results1;
+        })());
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.removeEventListeners = function() {
+      var elementListeners, event, listener, _i, _len, _ref, _results;
+      _ref = this.listeners;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elementListeners = _ref[_i];
+        _results.push((function() {
+          var _ref1, _results1;
+          _ref1 = elementListeners.events;
+          _results1 = [];
+          for (event in _ref1) {
+            listener = _ref1[event];
+            _results1.push(elementListeners.element.removeEventListener(event, listener, false));
+          }
+          return _results1;
+        })());
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.disable = function() {
+      var file, _i, _len, _ref, _results;
+      this.clickableElements.forEach(function(element) {
+        return element.classList.remove("dz-clickable");
+      });
+      this.removeEventListeners();
+      _ref = this.files;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        _results.push(this.cancelUpload(file));
+      }
+      return _results;
+    };
+
+    Dropzone.prototype.enable = function() {
+      this.clickableElements.forEach(function(element) {
+        return element.classList.add("dz-clickable");
+      });
+      return this.setupEventListeners();
+    };
+
+    Dropzone.prototype.filesize = function(size) {
+      var cutoff, i, selectedSize, selectedUnit, unit, units, _i, _len;
+      selectedSize = 0;
+      selectedUnit = "b";
+      if (size > 0) {
+        units = ['TB', 'GB', 'MB', 'KB', 'b'];
+        for (i = _i = 0, _len = units.length; _i < _len; i = ++_i) {
+          unit = units[i];
+          cutoff = Math.pow(this.options.filesizeBase, 4 - i) / 10;
+          if (size >= cutoff) {
+            selectedSize = size / Math.pow(this.options.filesizeBase, 4 - i);
+            selectedUnit = unit;
+            break;
+          }
+        }
+        selectedSize = Math.round(10 * selectedSize) / 10;
+      }
+      return "<strong>" + selectedSize + "</strong> " + selectedUnit;
+    };
+
+    Dropzone.prototype._updateMaxFilesReachedClass = function() {
+      if ((this.options.maxFiles != null) && this.getAcceptedFiles().length >= this.options.maxFiles) {
+        if (this.getAcceptedFiles().length === this.options.maxFiles) {
+          this.emit('maxfilesreached', this.files);
+        }
+        return this.element.classList.add("dz-max-files-reached");
+      } else {
+        return this.element.classList.remove("dz-max-files-reached");
+      }
+    };
+
+    Dropzone.prototype.drop = function(e) {
+      var files, items;
+      if (!e.dataTransfer) {
+        return;
+      }
+      this.emit("drop", e);
+      files = e.dataTransfer.files;
+      this.emit("addedfiles", files);
+      if (files.length) {
+        items = e.dataTransfer.items;
+        if (items && items.length && (items[0].webkitGetAsEntry != null)) {
+          this._addFilesFromItems(items);
+        } else {
+          this.handleFiles(files);
+        }
+      }
+    };
+
+    Dropzone.prototype.paste = function(e) {
+      var items, _ref;
+      if ((e != null ? (_ref = e.clipboardData) != null ? _ref.items : void 0 : void 0) == null) {
+        return;
+      }
+      this.emit("paste", e);
+      items = e.clipboardData.items;
+      if (items.length) {
+        return this._addFilesFromItems(items);
+      }
+    };
+
+    Dropzone.prototype.handleFiles = function(files) {
+      var file, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        _results.push(this.addFile(file));
+      }
+      return _results;
+    };
+
+    Dropzone.prototype._addFilesFromItems = function(items) {
+      var entry, item, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = items.length; _i < _len; _i++) {
+        item = items[_i];
+        if ((item.webkitGetAsEntry != null) && (entry = item.webkitGetAsEntry())) {
+          if (entry.isFile) {
+            _results.push(this.addFile(item.getAsFile()));
+          } else if (entry.isDirectory) {
+            _results.push(this._addFilesFromDirectory(entry, entry.name));
+          } else {
+            _results.push(void 0);
+          }
+        } else if (item.getAsFile != null) {
+          if ((item.kind == null) || item.kind === "file") {
+            _results.push(this.addFile(item.getAsFile()));
+          } else {
+            _results.push(void 0);
+          }
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    Dropzone.prototype._addFilesFromDirectory = function(directory, path) {
+      var dirReader, errorHandler, readEntries;
+      dirReader = directory.createReader();
+      errorHandler = function(error) {
+        return typeof console !== "undefined" && console !== null ? typeof console.log === "function" ? console.log(error) : void 0 : void 0;
+      };
+      readEntries = (function(_this) {
+        return function() {
+          return dirReader.readEntries(function(entries) {
+            var entry, _i, _len;
+            if (entries.length > 0) {
+              for (_i = 0, _len = entries.length; _i < _len; _i++) {
+                entry = entries[_i];
+                if (entry.isFile) {
+                  entry.file(function(file) {
+                    if (_this.options.ignoreHiddenFiles && file.name.substring(0, 1) === '.') {
+                      return;
+                    }
+                    file.fullPath = "" + path + "/" + file.name;
+                    return _this.addFile(file);
+                  });
+                } else if (entry.isDirectory) {
+                  _this._addFilesFromDirectory(entry, "" + path + "/" + entry.name);
+                }
+              }
+              readEntries();
+            }
+            return null;
+          }, errorHandler);
+        };
+      })(this);
+      return readEntries();
+    };
+
+    Dropzone.prototype.accept = function(file, done) {
+      if (file.size > this.options.maxFilesize * 1024 * 1024) {
+        return done(this.options.dictFileTooBig.replace("{{filesize}}", Math.round(file.size / 1024 / 10.24) / 100).replace("{{maxFilesize}}", this.options.maxFilesize));
+      } else if (!Dropzone.isValidFile(file, this.options.acceptedFiles)) {
+        return done(this.options.dictInvalidFileType);
+      } else if ((this.options.maxFiles != null) && this.getAcceptedFiles().length >= this.options.maxFiles) {
+        done(this.options.dictMaxFilesExceeded.replace("{{maxFiles}}", this.options.maxFiles));
+        return this.emit("maxfilesexceeded", file);
+      } else {
+        return this.options.accept.call(this, file, done);
+      }
+    };
+
+    Dropzone.prototype.addFile = function(file) {
+      file.upload = {
+        progress: 0,
+        total: file.size,
+        bytesSent: 0
+      };
+      this.files.push(file);
+      file.status = Dropzone.ADDED;
+      this.emit("addedfile", file);
+      this._enqueueThumbnail(file);
+      return this.accept(file, (function(_this) {
+        return function(error) {
+          if (error) {
+            file.accepted = false;
+            _this._errorProcessing([file], error);
+          } else {
+            file.accepted = true;
+            if (_this.options.autoQueue) {
+              _this.enqueueFile(file);
+            }
+          }
+          return _this._updateMaxFilesReachedClass();
+        };
+      })(this));
+    };
+
+    Dropzone.prototype.enqueueFiles = function(files) {
+      var file, _i, _len;
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        this.enqueueFile(file);
+      }
+      return null;
+    };
+
+    Dropzone.prototype.enqueueFile = function(file) {
+      if (file.status === Dropzone.ADDED && file.accepted === true) {
+        file.status = Dropzone.QUEUED;
+        if (this.options.autoProcessQueue) {
+          return setTimeout(((function(_this) {
+            return function() {
+              return _this.processQueue();
+            };
+          })(this)), 0);
+        }
+      } else {
+        throw new Error("This file can't be queued because it has already been processed or was rejected.");
+      }
+    };
+
+    Dropzone.prototype._thumbnailQueue = [];
+
+    Dropzone.prototype._processingThumbnail = false;
+
+    Dropzone.prototype._enqueueThumbnail = function(file) {
+      if (this.options.createImageThumbnails && file.type.match(/image.*/) && file.size <= this.options.maxThumbnailFilesize * 1024 * 1024) {
+        this._thumbnailQueue.push(file);
+        return setTimeout(((function(_this) {
+          return function() {
+            return _this._processThumbnailQueue();
+          };
+        })(this)), 0);
+      }
+    };
+
+    Dropzone.prototype._processThumbnailQueue = function() {
+      if (this._processingThumbnail || this._thumbnailQueue.length === 0) {
+        return;
+      }
+      this._processingThumbnail = true;
+      return this.createThumbnail(this._thumbnailQueue.shift(), (function(_this) {
+        return function() {
+          _this._processingThumbnail = false;
+          return _this._processThumbnailQueue();
+        };
+      })(this));
+    };
+
+    Dropzone.prototype.removeFile = function(file) {
+      if (file.status === Dropzone.UPLOADING) {
+        this.cancelUpload(file);
+      }
+      this.files = without(this.files, file);
+      this.emit("removedfile", file);
+      if (this.files.length === 0) {
+        return this.emit("reset");
+      }
+    };
+
+    Dropzone.prototype.removeAllFiles = function(cancelIfNecessary) {
+      var file, _i, _len, _ref;
+      if (cancelIfNecessary == null) {
+        cancelIfNecessary = false;
+      }
+      _ref = this.files.slice();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        file = _ref[_i];
+        if (file.status !== Dropzone.UPLOADING || cancelIfNecessary) {
+          this.removeFile(file);
+        }
+      }
+      return null;
+    };
+
+    Dropzone.prototype.createThumbnail = function(file, callback) {
+      var fileReader;
+      fileReader = new FileReader;
+      fileReader.onload = (function(_this) {
+        return function() {
+          if (file.type === "image/svg+xml") {
+            _this.emit("thumbnail", file, fileReader.result);
+            if (callback != null) {
+              callback();
+            }
+            return;
+          }
+          return _this.createThumbnailFromUrl(file, fileReader.result, callback);
+        };
+      })(this);
+      return fileReader.readAsDataURL(file);
+    };
+
+    Dropzone.prototype.createThumbnailFromUrl = function(file, imageUrl, callback, crossOrigin) {
+      var img;
+      img = document.createElement("img");
+      if (crossOrigin) {
+        img.crossOrigin = crossOrigin;
+      }
+      img.onload = (function(_this) {
+        return function() {
+          var canvas, ctx, resizeInfo, thumbnail, _ref, _ref1, _ref2, _ref3;
+          file.width = img.width;
+          file.height = img.height;
+          resizeInfo = _this.options.resize.call(_this, file);
+          if (resizeInfo.trgWidth == null) {
+            resizeInfo.trgWidth = resizeInfo.optWidth;
+          }
+          if (resizeInfo.trgHeight == null) {
+            resizeInfo.trgHeight = resizeInfo.optHeight;
+          }
+          canvas = document.createElement("canvas");
+          ctx = canvas.getContext("2d");
+          canvas.width = resizeInfo.trgWidth;
+          canvas.height = resizeInfo.trgHeight;
+          drawImageIOSFix(ctx, img, (_ref = resizeInfo.srcX) != null ? _ref : 0, (_ref1 = resizeInfo.srcY) != null ? _ref1 : 0, resizeInfo.srcWidth, resizeInfo.srcHeight, (_ref2 = resizeInfo.trgX) != null ? _ref2 : 0, (_ref3 = resizeInfo.trgY) != null ? _ref3 : 0, resizeInfo.trgWidth, resizeInfo.trgHeight);
+          thumbnail = canvas.toDataURL("image/png");
+          _this.emit("thumbnail", file, thumbnail);
+          if (callback != null) {
+            return callback();
+          }
+        };
+      })(this);
+      if (callback != null) {
+        img.onerror = callback;
+      }
+      return img.src = imageUrl;
+    };
+
+    Dropzone.prototype.processQueue = function() {
+      var i, parallelUploads, processingLength, queuedFiles;
+      parallelUploads = this.options.parallelUploads;
+      processingLength = this.getUploadingFiles().length;
+      i = processingLength;
+      if (processingLength >= parallelUploads) {
+        return;
+      }
+      queuedFiles = this.getQueuedFiles();
+      if (!(queuedFiles.length > 0)) {
+        return;
+      }
+      if (this.options.uploadMultiple) {
+        return this.processFiles(queuedFiles.slice(0, parallelUploads - processingLength));
+      } else {
+        while (i < parallelUploads) {
+          if (!queuedFiles.length) {
+            return;
+          }
+          this.processFile(queuedFiles.shift());
+          i++;
+        }
+      }
+    };
+
+    Dropzone.prototype.processFile = function(file) {
+      return this.processFiles([file]);
+    };
+
+    Dropzone.prototype.processFiles = function(files) {
+      var file, _i, _len;
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        file.processing = true;
+        file.status = Dropzone.UPLOADING;
+        this.emit("processing", file);
+      }
+      if (this.options.uploadMultiple) {
+        this.emit("processingmultiple", files);
+      }
+      return this.uploadFiles(files);
+    };
+
+    Dropzone.prototype._getFilesWithXhr = function(xhr) {
+      var file, files;
+      return files = (function() {
+        var _i, _len, _ref, _results;
+        _ref = this.files;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          file = _ref[_i];
+          if (file.xhr === xhr) {
+            _results.push(file);
+          }
+        }
+        return _results;
+      }).call(this);
+    };
+
+    Dropzone.prototype.cancelUpload = function(file) {
+      var groupedFile, groupedFiles, _i, _j, _len, _len1, _ref;
+      if (file.status === Dropzone.UPLOADING) {
+        groupedFiles = this._getFilesWithXhr(file.xhr);
+        for (_i = 0, _len = groupedFiles.length; _i < _len; _i++) {
+          groupedFile = groupedFiles[_i];
+          groupedFile.status = Dropzone.CANCELED;
+        }
+        file.xhr.abort();
+        for (_j = 0, _len1 = groupedFiles.length; _j < _len1; _j++) {
+          groupedFile = groupedFiles[_j];
+          this.emit("canceled", groupedFile);
+        }
+        if (this.options.uploadMultiple) {
+          this.emit("canceledmultiple", groupedFiles);
+        }
+      } else if ((_ref = file.status) === Dropzone.ADDED || _ref === Dropzone.QUEUED) {
+        file.status = Dropzone.CANCELED;
+        this.emit("canceled", file);
+        if (this.options.uploadMultiple) {
+          this.emit("canceledmultiple", [file]);
+        }
+      }
+      if (this.options.autoProcessQueue) {
+        return this.processQueue();
+      }
+    };
+
+    resolveOption = function() {
+      var args, option;
+      option = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      if (typeof option === 'function') {
+        return option.apply(this, args);
+      }
+      return option;
+    };
+
+    Dropzone.prototype.uploadFile = function(file) {
+      return this.uploadFiles([file]);
+    };
+
+    Dropzone.prototype.uploadFiles = function(files) {
+      var file, formData, handleError, headerName, headerValue, headers, i, input, inputName, inputType, key, method, option, progressObj, response, updateProgress, url, value, xhr, _i, _j, _k, _l, _len, _len1, _len2, _len3, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+      xhr = new XMLHttpRequest();
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        file.xhr = xhr;
+      }
+      method = resolveOption(this.options.method, files);
+      url = resolveOption(this.options.url, files);
+      xhr.open(method, url, true);
+      xhr.withCredentials = !!this.options.withCredentials;
+      response = null;
+      handleError = (function(_this) {
+        return function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = files.length; _j < _len1; _j++) {
+            file = files[_j];
+            _results.push(_this._errorProcessing(files, response || _this.options.dictResponseError.replace("{{statusCode}}", xhr.status), xhr));
+          }
+          return _results;
+        };
+      })(this);
+      updateProgress = (function(_this) {
+        return function(e) {
+          var allFilesFinished, progress, _j, _k, _l, _len1, _len2, _len3, _results;
+          if (e != null) {
+            progress = 100 * e.loaded / e.total;
+            for (_j = 0, _len1 = files.length; _j < _len1; _j++) {
+              file = files[_j];
+              file.upload = {
+                progress: progress,
+                total: e.total,
+                bytesSent: e.loaded
+              };
+            }
+          } else {
+            allFilesFinished = true;
+            progress = 100;
+            for (_k = 0, _len2 = files.length; _k < _len2; _k++) {
+              file = files[_k];
+              if (!(file.upload.progress === 100 && file.upload.bytesSent === file.upload.total)) {
+                allFilesFinished = false;
+              }
+              file.upload.progress = progress;
+              file.upload.bytesSent = file.upload.total;
+            }
+            if (allFilesFinished) {
+              return;
+            }
+          }
+          _results = [];
+          for (_l = 0, _len3 = files.length; _l < _len3; _l++) {
+            file = files[_l];
+            _results.push(_this.emit("uploadprogress", file, progress, file.upload.bytesSent));
+          }
+          return _results;
+        };
+      })(this);
+      xhr.onload = (function(_this) {
+        return function(e) {
+          var _ref;
+          if (files[0].status === Dropzone.CANCELED) {
+            return;
+          }
+          if (xhr.readyState !== 4) {
+            return;
+          }
+          response = xhr.responseText;
+          if (xhr.getResponseHeader("content-type") && ~xhr.getResponseHeader("content-type").indexOf("application/json")) {
+            try {
+              response = JSON.parse(response);
+            } catch (_error) {
+              e = _error;
+              response = "Invalid JSON response from server.";
+            }
+          }
+          updateProgress();
+          if (!((200 <= (_ref = xhr.status) && _ref < 300))) {
+            return handleError();
+          } else {
+            return _this._finished(files, response, e);
+          }
+        };
+      })(this);
+      xhr.onerror = (function(_this) {
+        return function() {
+          if (files[0].status === Dropzone.CANCELED) {
+            return;
+          }
+          return handleError();
+        };
+      })(this);
+      progressObj = (_ref = xhr.upload) != null ? _ref : xhr;
+      progressObj.onprogress = updateProgress;
+      headers = {
+        "Accept": "application/json",
+        "Cache-Control": "no-cache",
+        "X-Requested-With": "XMLHttpRequest"
+      };
+      if (this.options.headers) {
+        extend(headers, this.options.headers);
+      }
+      for (headerName in headers) {
+        headerValue = headers[headerName];
+        if (headerValue) {
+          xhr.setRequestHeader(headerName, headerValue);
+        }
+      }
+      formData = new FormData();
+      if (this.options.params) {
+        _ref1 = this.options.params;
+        for (key in _ref1) {
+          value = _ref1[key];
+          formData.append(key, value);
+        }
+      }
+      for (_j = 0, _len1 = files.length; _j < _len1; _j++) {
+        file = files[_j];
+        this.emit("sending", file, xhr, formData);
+      }
+      if (this.options.uploadMultiple) {
+        this.emit("sendingmultiple", files, xhr, formData);
+      }
+      if (this.element.tagName === "FORM") {
+        _ref2 = this.element.querySelectorAll("input, textarea, select, button");
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          input = _ref2[_k];
+          inputName = input.getAttribute("name");
+          inputType = input.getAttribute("type");
+          if (input.tagName === "SELECT" && input.hasAttribute("multiple")) {
+            _ref3 = input.options;
+            for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+              option = _ref3[_l];
+              if (option.selected) {
+                formData.append(inputName, option.value);
+              }
+            }
+          } else if (!inputType || ((_ref4 = inputType.toLowerCase()) !== "checkbox" && _ref4 !== "radio") || input.checked) {
+            formData.append(inputName, input.value);
+          }
+        }
+      }
+      for (i = _m = 0, _ref5 = files.length - 1; 0 <= _ref5 ? _m <= _ref5 : _m >= _ref5; i = 0 <= _ref5 ? ++_m : --_m) {
+        formData.append(this._getParamName(i), files[i], this._renameFilename(files[i].name));
+      }
+      return this.submitRequest(xhr, formData, files);
+    };
+
+    Dropzone.prototype.submitRequest = function(xhr, formData, files) {
+      return xhr.send(formData);
+    };
+
+    Dropzone.prototype._finished = function(files, responseText, e) {
+      var file, _i, _len;
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        file.status = Dropzone.SUCCESS;
+        this.emit("success", file, responseText, e);
+        this.emit("complete", file);
+      }
+      if (this.options.uploadMultiple) {
+        this.emit("successmultiple", files, responseText, e);
+        this.emit("completemultiple", files);
+      }
+      if (this.options.autoProcessQueue) {
+        return this.processQueue();
+      }
+    };
+
+    Dropzone.prototype._errorProcessing = function(files, message, xhr) {
+      var file, _i, _len;
+      for (_i = 0, _len = files.length; _i < _len; _i++) {
+        file = files[_i];
+        file.status = Dropzone.ERROR;
+        this.emit("error", file, message, xhr);
+        this.emit("complete", file);
+      }
+      if (this.options.uploadMultiple) {
+        this.emit("errormultiple", files, message, xhr);
+        this.emit("completemultiple", files);
+      }
+      if (this.options.autoProcessQueue) {
+        return this.processQueue();
+      }
+    };
+
+    return Dropzone;
+
+  })(Emitter);
+
+  Dropzone.version = "4.3.0";
+
+  Dropzone.options = {};
+
+  Dropzone.optionsForElement = function(element) {
+    if (element.getAttribute("id")) {
+      return Dropzone.options[camelize(element.getAttribute("id"))];
+    } else {
+      return void 0;
+    }
+  };
+
+  Dropzone.instances = [];
+
+  Dropzone.forElement = function(element) {
+    if (typeof element === "string") {
+      element = document.querySelector(element);
+    }
+    if ((element != null ? element.dropzone : void 0) == null) {
+      throw new Error("No Dropzone found for given element. This is probably because you're trying to access it before Dropzone had the time to initialize. Use the `init` option to setup any additional observers on your Dropzone.");
+    }
+    return element.dropzone;
+  };
+
+  Dropzone.autoDiscover = true;
+
+  Dropzone.discover = function() {
+    var checkElements, dropzone, dropzones, _i, _len, _results;
+    if (document.querySelectorAll) {
+      dropzones = document.querySelectorAll(".dropzone");
+    } else {
+      dropzones = [];
+      checkElements = function(elements) {
+        var el, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = elements.length; _i < _len; _i++) {
+          el = elements[_i];
+          if (/(^| )dropzone($| )/.test(el.className)) {
+            _results.push(dropzones.push(el));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+      checkElements(document.getElementsByTagName("div"));
+      checkElements(document.getElementsByTagName("form"));
+    }
+    _results = [];
+    for (_i = 0, _len = dropzones.length; _i < _len; _i++) {
+      dropzone = dropzones[_i];
+      if (Dropzone.optionsForElement(dropzone) !== false) {
+        _results.push(new Dropzone(dropzone));
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
+  };
+
+  Dropzone.blacklistedBrowsers = [/opera.*Macintosh.*version\/12/i];
+
+  Dropzone.isBrowserSupported = function() {
+    var capableBrowser, regex, _i, _len, _ref;
+    capableBrowser = true;
+    if (window.File && window.FileReader && window.FileList && window.Blob && window.FormData && document.querySelector) {
+      if (!("classList" in document.createElement("a"))) {
+        capableBrowser = false;
+      } else {
+        _ref = Dropzone.blacklistedBrowsers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          regex = _ref[_i];
+          if (regex.test(navigator.userAgent)) {
+            capableBrowser = false;
+            continue;
+          }
+        }
+      }
+    } else {
+      capableBrowser = false;
+    }
+    return capableBrowser;
+  };
+
+  without = function(list, rejectedItem) {
+    var item, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = list.length; _i < _len; _i++) {
+      item = list[_i];
+      if (item !== rejectedItem) {
+        _results.push(item);
+      }
+    }
+    return _results;
+  };
+
+  camelize = function(str) {
+    return str.replace(/[\-_](\w)/g, function(match) {
+      return match.charAt(1).toUpperCase();
+    });
+  };
+
+  Dropzone.createElement = function(string) {
+    var div;
+    div = document.createElement("div");
+    div.innerHTML = string;
+    return div.childNodes[0];
+  };
+
+  Dropzone.elementInside = function(element, container) {
+    if (element === container) {
+      return true;
+    }
+    while (element = element.parentNode) {
+      if (element === container) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  Dropzone.getElement = function(el, name) {
+    var element;
+    if (typeof el === "string") {
+      element = document.querySelector(el);
+    } else if (el.nodeType != null) {
+      element = el;
+    }
+    if (element == null) {
+      throw new Error("Invalid `" + name + "` option provided. Please provide a CSS selector or a plain HTML element.");
+    }
+    return element;
+  };
+
+  Dropzone.getElements = function(els, name) {
+    var e, el, elements, _i, _j, _len, _len1, _ref;
+    if (els instanceof Array) {
+      elements = [];
+      try {
+        for (_i = 0, _len = els.length; _i < _len; _i++) {
+          el = els[_i];
+          elements.push(this.getElement(el, name));
+        }
+      } catch (_error) {
+        e = _error;
+        elements = null;
+      }
+    } else if (typeof els === "string") {
+      elements = [];
+      _ref = document.querySelectorAll(els);
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        el = _ref[_j];
+        elements.push(el);
+      }
+    } else if (els.nodeType != null) {
+      elements = [els];
+    }
+    if (!((elements != null) && elements.length)) {
+      throw new Error("Invalid `" + name + "` option provided. Please provide a CSS selector, a plain HTML element or a list of those.");
+    }
+    return elements;
+  };
+
+  Dropzone.confirm = function(question, accepted, rejected) {
+    if (window.confirm(question)) {
+      return accepted();
+    } else if (rejected != null) {
+      return rejected();
+    }
+  };
+
+  Dropzone.isValidFile = function(file, acceptedFiles) {
+    var baseMimeType, mimeType, validType, _i, _len;
+    if (!acceptedFiles) {
+      return true;
+    }
+    acceptedFiles = acceptedFiles.split(",");
+    mimeType = file.type;
+    baseMimeType = mimeType.replace(/\/.*$/, "");
+    for (_i = 0, _len = acceptedFiles.length; _i < _len; _i++) {
+      validType = acceptedFiles[_i];
+      validType = validType.trim();
+      if (validType.charAt(0) === ".") {
+        if (file.name.toLowerCase().indexOf(validType.toLowerCase(), file.name.length - validType.length) !== -1) {
+          return true;
+        }
+      } else if (/\/\*$/.test(validType)) {
+        if (baseMimeType === validType.replace(/\/.*$/, "")) {
+          return true;
+        }
+      } else {
+        if (mimeType === validType) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  if (typeof jQuery !== "undefined" && jQuery !== null) {
+    jQuery.fn.dropzone = function(options) {
+      return this.each(function() {
+        return new Dropzone(this, options);
+      });
+    };
+  }
+
+  if (typeof module !== "undefined" && module !== null) {
+    module.exports = Dropzone;
+  } else {
+    window.Dropzone = Dropzone;
+  }
+
+  Dropzone.ADDED = "added";
+
+  Dropzone.QUEUED = "queued";
+
+  Dropzone.ACCEPTED = Dropzone.QUEUED;
+
+  Dropzone.UPLOADING = "uploading";
+
+  Dropzone.PROCESSING = Dropzone.UPLOADING;
+
+  Dropzone.CANCELED = "canceled";
+
+  Dropzone.ERROR = "error";
+
+  Dropzone.SUCCESS = "success";
+
+
+  /*
+  
+  Bugfix for iOS 6 and 7
+  Source: http://stackoverflow.com/questions/11929099/html5-canvas-drawimage-ratio-bug-ios
+  based on the work of https://github.com/stomita/ios-imagefile-megapixel
+   */
+
+  detectVerticalSquash = function(img) {
+    var alpha, canvas, ctx, data, ey, ih, iw, py, ratio, sy;
+    iw = img.naturalWidth;
+    ih = img.naturalHeight;
+    canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = ih;
+    ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    data = ctx.getImageData(0, 0, 1, ih).data;
+    sy = 0;
+    ey = ih;
+    py = ih;
+    while (py > sy) {
+      alpha = data[(py - 1) * 4 + 3];
+      if (alpha === 0) {
+        ey = py;
+      } else {
+        sy = py;
+      }
+      py = (ey + sy) >> 1;
+    }
+    ratio = py / ih;
+    if (ratio === 0) {
+      return 1;
+    } else {
+      return ratio;
+    }
+  };
+
+  drawImageIOSFix = function(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {
+    var vertSquashRatio;
+    vertSquashRatio = detectVerticalSquash(img);
+    return ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh / vertSquashRatio);
+  };
+
+
+  /*
+   * contentloaded.js
+   *
+   * Author: Diego Perini (diego.perini at gmail.com)
+   * Summary: cross-browser wrapper for DOMContentLoaded
+   * Updated: 20101020
+   * License: MIT
+   * Version: 1.2
+   *
+   * URL:
+   * http://javascript.nwbox.com/ContentLoaded/
+   * http://javascript.nwbox.com/ContentLoaded/MIT-LICENSE
+   */
+
+  contentLoaded = function(win, fn) {
+    var add, doc, done, init, poll, pre, rem, root, top;
+    done = false;
+    top = true;
+    doc = win.document;
+    root = doc.documentElement;
+    add = (doc.addEventListener ? "addEventListener" : "attachEvent");
+    rem = (doc.addEventListener ? "removeEventListener" : "detachEvent");
+    pre = (doc.addEventListener ? "" : "on");
+    init = function(e) {
+      if (e.type === "readystatechange" && doc.readyState !== "complete") {
+        return;
+      }
+      (e.type === "load" ? win : doc)[rem](pre + e.type, init, false);
+      if (!done && (done = true)) {
+        return fn.call(win, e.type || e);
+      }
+    };
+    poll = function() {
+      var e;
+      try {
+        root.doScroll("left");
+      } catch (_error) {
+        e = _error;
+        setTimeout(poll, 50);
+        return;
+      }
+      return init("poll");
+    };
+    if (doc.readyState !== "complete") {
+      if (doc.createEventObject && root.doScroll) {
+        try {
+          top = !win.frameElement;
+        } catch (_error) {}
+        if (top) {
+          poll();
+        }
+      }
+      doc[add](pre + "DOMContentLoaded", init, false);
+      doc[add](pre + "readystatechange", init, false);
+      return win[add](pre + "load", init, false);
+    }
+  };
+
+  Dropzone._autoDiscoverFunction = function() {
+    if (Dropzone.autoDiscover) {
+      return Dropzone.discover();
+    }
+  };
+
+  contentLoaded(window, Dropzone._autoDiscoverFunction);
+
+}).call(this);
+
+},{}],2:[function(require,module,exports){
 //! moment.js
 //! version : 2.13.0
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -4039,7 +5808,7 @@
     return _moment;
 
 }));
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -4160,7 +5929,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var Vue // late bind
 var map = Object.create(null)
 var shimmed = false
@@ -4460,7 +6229,7 @@ function format (id) {
   return id.match(/[^\/]+\.vue$/)[0]
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var moment = require('moment');
 
 module.exports = {
@@ -4587,7 +6356,7 @@ module.exports = {
 	},
 };
 
-},{"moment":1}],5:[function(require,module,exports){
+},{"moment":2}],6:[function(require,module,exports){
 /*!
  * vue-resource v0.7.4
  * https://github.com/vuejs/vue-resource
@@ -5964,2716 +7733,6 @@ if (typeof window !== 'undefined' && window.Vue) {
 }
 
 module.exports = plugin;
-},{}],6:[function(require,module,exports){
-/*!
- * vue-router v0.7.13
- * (c) 2016 Evan You
- * Released under the MIT License.
- */
-(function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  global.VueRouter = factory();
-}(this, function () { 'use strict';
-
-  var babelHelpers = {};
-
-  babelHelpers.classCallCheck = function (instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  };
-  function Target(path, matcher, delegate) {
-    this.path = path;
-    this.matcher = matcher;
-    this.delegate = delegate;
-  }
-
-  Target.prototype = {
-    to: function to(target, callback) {
-      var delegate = this.delegate;
-
-      if (delegate && delegate.willAddRoute) {
-        target = delegate.willAddRoute(this.matcher.target, target);
-      }
-
-      this.matcher.add(this.path, target);
-
-      if (callback) {
-        if (callback.length === 0) {
-          throw new Error("You must have an argument in the function passed to `to`");
-        }
-        this.matcher.addChild(this.path, target, callback, this.delegate);
-      }
-      return this;
-    }
-  };
-
-  function Matcher(target) {
-    this.routes = {};
-    this.children = {};
-    this.target = target;
-  }
-
-  Matcher.prototype = {
-    add: function add(path, handler) {
-      this.routes[path] = handler;
-    },
-
-    addChild: function addChild(path, target, callback, delegate) {
-      var matcher = new Matcher(target);
-      this.children[path] = matcher;
-
-      var match = generateMatch(path, matcher, delegate);
-
-      if (delegate && delegate.contextEntered) {
-        delegate.contextEntered(target, match);
-      }
-
-      callback(match);
-    }
-  };
-
-  function generateMatch(startingPath, matcher, delegate) {
-    return function (path, nestedCallback) {
-      var fullPath = startingPath + path;
-
-      if (nestedCallback) {
-        nestedCallback(generateMatch(fullPath, matcher, delegate));
-      } else {
-        return new Target(startingPath + path, matcher, delegate);
-      }
-    };
-  }
-
-  function addRoute(routeArray, path, handler) {
-    var len = 0;
-    for (var i = 0, l = routeArray.length; i < l; i++) {
-      len += routeArray[i].path.length;
-    }
-
-    path = path.substr(len);
-    var route = { path: path, handler: handler };
-    routeArray.push(route);
-  }
-
-  function eachRoute(baseRoute, matcher, callback, binding) {
-    var routes = matcher.routes;
-
-    for (var path in routes) {
-      if (routes.hasOwnProperty(path)) {
-        var routeArray = baseRoute.slice();
-        addRoute(routeArray, path, routes[path]);
-
-        if (matcher.children[path]) {
-          eachRoute(routeArray, matcher.children[path], callback, binding);
-        } else {
-          callback.call(binding, routeArray);
-        }
-      }
-    }
-  }
-
-  function map (callback, addRouteCallback) {
-    var matcher = new Matcher();
-
-    callback(generateMatch("", matcher, this.delegate));
-
-    eachRoute([], matcher, function (route) {
-      if (addRouteCallback) {
-        addRouteCallback(this, route);
-      } else {
-        this.add(route);
-      }
-    }, this);
-  }
-
-  var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
-
-  var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
-
-  var noWarning = false;
-  function warn(msg) {
-    if (!noWarning && typeof console !== 'undefined') {
-      console.error('[vue-router] ' + msg);
-    }
-  }
-
-  function tryDecode(uri, asComponent) {
-    try {
-      return asComponent ? decodeURIComponent(uri) : decodeURI(uri);
-    } catch (e) {
-      warn('malformed URI' + (asComponent ? ' component: ' : ': ') + uri);
-    }
-  }
-
-  function isArray(test) {
-    return Object.prototype.toString.call(test) === "[object Array]";
-  }
-
-  // A Segment represents a segment in the original route description.
-  // Each Segment type provides an `eachChar` and `regex` method.
-  //
-  // The `eachChar` method invokes the callback with one or more character
-  // specifications. A character specification consumes one or more input
-  // characters.
-  //
-  // The `regex` method returns a regex fragment for the segment. If the
-  // segment is a dynamic of star segment, the regex fragment also includes
-  // a capture.
-  //
-  // A character specification contains:
-  //
-  // * `validChars`: a String with a list of all valid characters, or
-  // * `invalidChars`: a String with a list of all invalid characters
-  // * `repeat`: true if the character specification can repeat
-
-  function StaticSegment(string) {
-    this.string = string;
-  }
-  StaticSegment.prototype = {
-    eachChar: function eachChar(callback) {
-      var string = this.string,
-          ch;
-
-      for (var i = 0, l = string.length; i < l; i++) {
-        ch = string.charAt(i);
-        callback({ validChars: ch });
-      }
-    },
-
-    regex: function regex() {
-      return this.string.replace(escapeRegex, '\\$1');
-    },
-
-    generate: function generate() {
-      return this.string;
-    }
-  };
-
-  function DynamicSegment(name) {
-    this.name = name;
-  }
-  DynamicSegment.prototype = {
-    eachChar: function eachChar(callback) {
-      callback({ invalidChars: "/", repeat: true });
-    },
-
-    regex: function regex() {
-      return "([^/]+)";
-    },
-
-    generate: function generate(params) {
-      var val = params[this.name];
-      return val == null ? ":" + this.name : val;
-    }
-  };
-
-  function StarSegment(name) {
-    this.name = name;
-  }
-  StarSegment.prototype = {
-    eachChar: function eachChar(callback) {
-      callback({ invalidChars: "", repeat: true });
-    },
-
-    regex: function regex() {
-      return "(.+)";
-    },
-
-    generate: function generate(params) {
-      var val = params[this.name];
-      return val == null ? ":" + this.name : val;
-    }
-  };
-
-  function EpsilonSegment() {}
-  EpsilonSegment.prototype = {
-    eachChar: function eachChar() {},
-    regex: function regex() {
-      return "";
-    },
-    generate: function generate() {
-      return "";
-    }
-  };
-
-  function parse(route, names, specificity) {
-    // normalize route as not starting with a "/". Recognition will
-    // also normalize.
-    if (route.charAt(0) === "/") {
-      route = route.substr(1);
-    }
-
-    var segments = route.split("/"),
-        results = [];
-
-    // A routes has specificity determined by the order that its different segments
-    // appear in. This system mirrors how the magnitude of numbers written as strings
-    // works.
-    // Consider a number written as: "abc". An example would be "200". Any other number written
-    // "xyz" will be smaller than "abc" so long as `a > z`. For instance, "199" is smaller
-    // then "200", even though "y" and "z" (which are both 9) are larger than "0" (the value
-    // of (`b` and `c`). This is because the leading symbol, "2", is larger than the other
-    // leading symbol, "1".
-    // The rule is that symbols to the left carry more weight than symbols to the right
-    // when a number is written out as a string. In the above strings, the leading digit
-    // represents how many 100's are in the number, and it carries more weight than the middle
-    // number which represents how many 10's are in the number.
-    // This system of number magnitude works well for route specificity, too. A route written as
-    // `a/b/c` will be more specific than `x/y/z` as long as `a` is more specific than
-    // `x`, irrespective of the other parts.
-    // Because of this similarity, we assign each type of segment a number value written as a
-    // string. We can find the specificity of compound routes by concatenating these strings
-    // together, from left to right. After we have looped through all of the segments,
-    // we convert the string to a number.
-    specificity.val = '';
-
-    for (var i = 0, l = segments.length; i < l; i++) {
-      var segment = segments[i],
-          match;
-
-      if (match = segment.match(/^:([^\/]+)$/)) {
-        results.push(new DynamicSegment(match[1]));
-        names.push(match[1]);
-        specificity.val += '3';
-      } else if (match = segment.match(/^\*([^\/]+)$/)) {
-        results.push(new StarSegment(match[1]));
-        specificity.val += '2';
-        names.push(match[1]);
-      } else if (segment === "") {
-        results.push(new EpsilonSegment());
-        specificity.val += '1';
-      } else {
-        results.push(new StaticSegment(segment));
-        specificity.val += '4';
-      }
-    }
-
-    specificity.val = +specificity.val;
-
-    return results;
-  }
-
-  // A State has a character specification and (`charSpec`) and a list of possible
-  // subsequent states (`nextStates`).
-  //
-  // If a State is an accepting state, it will also have several additional
-  // properties:
-  //
-  // * `regex`: A regular expression that is used to extract parameters from paths
-  //   that reached this accepting state.
-  // * `handlers`: Information on how to convert the list of captures into calls
-  //   to registered handlers with the specified parameters
-  // * `types`: How many static, dynamic or star segments in this route. Used to
-  //   decide which route to use if multiple registered routes match a path.
-  //
-  // Currently, State is implemented naively by looping over `nextStates` and
-  // comparing a character specification against a character. A more efficient
-  // implementation would use a hash of keys pointing at one or more next states.
-
-  function State(charSpec) {
-    this.charSpec = charSpec;
-    this.nextStates = [];
-  }
-
-  State.prototype = {
-    get: function get(charSpec) {
-      var nextStates = this.nextStates;
-
-      for (var i = 0, l = nextStates.length; i < l; i++) {
-        var child = nextStates[i];
-
-        var isEqual = child.charSpec.validChars === charSpec.validChars;
-        isEqual = isEqual && child.charSpec.invalidChars === charSpec.invalidChars;
-
-        if (isEqual) {
-          return child;
-        }
-      }
-    },
-
-    put: function put(charSpec) {
-      var state;
-
-      // If the character specification already exists in a child of the current
-      // state, just return that state.
-      if (state = this.get(charSpec)) {
-        return state;
-      }
-
-      // Make a new state for the character spec
-      state = new State(charSpec);
-
-      // Insert the new state as a child of the current state
-      this.nextStates.push(state);
-
-      // If this character specification repeats, insert the new state as a child
-      // of itself. Note that this will not trigger an infinite loop because each
-      // transition during recognition consumes a character.
-      if (charSpec.repeat) {
-        state.nextStates.push(state);
-      }
-
-      // Return the new state
-      return state;
-    },
-
-    // Find a list of child states matching the next character
-    match: function match(ch) {
-      // DEBUG "Processing `" + ch + "`:"
-      var nextStates = this.nextStates,
-          child,
-          charSpec,
-          chars;
-
-      // DEBUG "  " + debugState(this)
-      var returned = [];
-
-      for (var i = 0, l = nextStates.length; i < l; i++) {
-        child = nextStates[i];
-
-        charSpec = child.charSpec;
-
-        if (typeof (chars = charSpec.validChars) !== 'undefined') {
-          if (chars.indexOf(ch) !== -1) {
-            returned.push(child);
-          }
-        } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
-          if (chars.indexOf(ch) === -1) {
-            returned.push(child);
-          }
-        }
-      }
-
-      return returned;
-    }
-
-    /** IF DEBUG
-    , debug: function() {
-      var charSpec = this.charSpec,
-          debug = "[",
-          chars = charSpec.validChars || charSpec.invalidChars;
-       if (charSpec.invalidChars) { debug += "^"; }
-      debug += chars;
-      debug += "]";
-       if (charSpec.repeat) { debug += "+"; }
-       return debug;
-    }
-    END IF **/
-  };
-
-  /** IF DEBUG
-  function debug(log) {
-    console.log(log);
-  }
-
-  function debugState(state) {
-    return state.nextStates.map(function(n) {
-      if (n.nextStates.length === 0) { return "( " + n.debug() + " [accepting] )"; }
-      return "( " + n.debug() + " <then> " + n.nextStates.map(function(s) { return s.debug() }).join(" or ") + " )";
-    }).join(", ")
-  }
-  END IF **/
-
-  // Sort the routes by specificity
-  function sortSolutions(states) {
-    return states.sort(function (a, b) {
-      return b.specificity.val - a.specificity.val;
-    });
-  }
-
-  function recognizeChar(states, ch) {
-    var nextStates = [];
-
-    for (var i = 0, l = states.length; i < l; i++) {
-      var state = states[i];
-
-      nextStates = nextStates.concat(state.match(ch));
-    }
-
-    return nextStates;
-  }
-
-  var oCreate = Object.create || function (proto) {
-    function F() {}
-    F.prototype = proto;
-    return new F();
-  };
-
-  function RecognizeResults(queryParams) {
-    this.queryParams = queryParams || {};
-  }
-  RecognizeResults.prototype = oCreate({
-    splice: Array.prototype.splice,
-    slice: Array.prototype.slice,
-    push: Array.prototype.push,
-    length: 0,
-    queryParams: null
-  });
-
-  function findHandler(state, path, queryParams) {
-    var handlers = state.handlers,
-        regex = state.regex;
-    var captures = path.match(regex),
-        currentCapture = 1;
-    var result = new RecognizeResults(queryParams);
-
-    for (var i = 0, l = handlers.length; i < l; i++) {
-      var handler = handlers[i],
-          names = handler.names,
-          params = {};
-
-      for (var j = 0, m = names.length; j < m; j++) {
-        params[names[j]] = captures[currentCapture++];
-      }
-
-      result.push({ handler: handler.handler, params: params, isDynamic: !!names.length });
-    }
-
-    return result;
-  }
-
-  function addSegment(currentState, segment) {
-    segment.eachChar(function (ch) {
-      var state;
-
-      currentState = currentState.put(ch);
-    });
-
-    return currentState;
-  }
-
-  function decodeQueryParamPart(part) {
-    // http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
-    part = part.replace(/\+/gm, '%20');
-    return tryDecode(part, true);
-  }
-
-  // The main interface
-
-  var RouteRecognizer = function RouteRecognizer() {
-    this.rootState = new State();
-    this.names = {};
-  };
-
-  RouteRecognizer.prototype = {
-    add: function add(routes, options) {
-      var currentState = this.rootState,
-          regex = "^",
-          specificity = {},
-          handlers = [],
-          allSegments = [],
-          name;
-
-      var isEmpty = true;
-
-      for (var i = 0, l = routes.length; i < l; i++) {
-        var route = routes[i],
-            names = [];
-
-        var segments = parse(route.path, names, specificity);
-
-        allSegments = allSegments.concat(segments);
-
-        for (var j = 0, m = segments.length; j < m; j++) {
-          var segment = segments[j];
-
-          if (segment instanceof EpsilonSegment) {
-            continue;
-          }
-
-          isEmpty = false;
-
-          // Add a "/" for the new segment
-          currentState = currentState.put({ validChars: "/" });
-          regex += "/";
-
-          // Add a representation of the segment to the NFA and regex
-          currentState = addSegment(currentState, segment);
-          regex += segment.regex();
-        }
-
-        var handler = { handler: route.handler, names: names };
-        handlers.push(handler);
-      }
-
-      if (isEmpty) {
-        currentState = currentState.put({ validChars: "/" });
-        regex += "/";
-      }
-
-      currentState.handlers = handlers;
-      currentState.regex = new RegExp(regex + "$");
-      currentState.specificity = specificity;
-
-      if (name = options && options.as) {
-        this.names[name] = {
-          segments: allSegments,
-          handlers: handlers
-        };
-      }
-    },
-
-    handlersFor: function handlersFor(name) {
-      var route = this.names[name],
-          result = [];
-      if (!route) {
-        throw new Error("There is no route named " + name);
-      }
-
-      for (var i = 0, l = route.handlers.length; i < l; i++) {
-        result.push(route.handlers[i]);
-      }
-
-      return result;
-    },
-
-    hasRoute: function hasRoute(name) {
-      return !!this.names[name];
-    },
-
-    generate: function generate(name, params) {
-      var route = this.names[name],
-          output = "";
-      if (!route) {
-        throw new Error("There is no route named " + name);
-      }
-
-      var segments = route.segments;
-
-      for (var i = 0, l = segments.length; i < l; i++) {
-        var segment = segments[i];
-
-        if (segment instanceof EpsilonSegment) {
-          continue;
-        }
-
-        output += "/";
-        output += segment.generate(params);
-      }
-
-      if (output.charAt(0) !== '/') {
-        output = '/' + output;
-      }
-
-      if (params && params.queryParams) {
-        output += this.generateQueryString(params.queryParams);
-      }
-
-      return output;
-    },
-
-    generateQueryString: function generateQueryString(params) {
-      var pairs = [];
-      var keys = [];
-      for (var key in params) {
-        if (params.hasOwnProperty(key)) {
-          keys.push(key);
-        }
-      }
-      keys.sort();
-      for (var i = 0, len = keys.length; i < len; i++) {
-        key = keys[i];
-        var value = params[key];
-        if (value == null) {
-          continue;
-        }
-        var pair = encodeURIComponent(key);
-        if (isArray(value)) {
-          for (var j = 0, l = value.length; j < l; j++) {
-            var arrayPair = key + '[]' + '=' + encodeURIComponent(value[j]);
-            pairs.push(arrayPair);
-          }
-        } else {
-          pair += "=" + encodeURIComponent(value);
-          pairs.push(pair);
-        }
-      }
-
-      if (pairs.length === 0) {
-        return '';
-      }
-
-      return "?" + pairs.join("&");
-    },
-
-    parseQueryString: function parseQueryString(queryString) {
-      var pairs = queryString.split("&"),
-          queryParams = {};
-      for (var i = 0; i < pairs.length; i++) {
-        var pair = pairs[i].split('='),
-            key = decodeQueryParamPart(pair[0]),
-            keyLength = key.length,
-            isArray = false,
-            value;
-        if (pair.length === 1) {
-          value = 'true';
-        } else {
-          //Handle arrays
-          if (keyLength > 2 && key.slice(keyLength - 2) === '[]') {
-            isArray = true;
-            key = key.slice(0, keyLength - 2);
-            if (!queryParams[key]) {
-              queryParams[key] = [];
-            }
-          }
-          value = pair[1] ? decodeQueryParamPart(pair[1]) : '';
-        }
-        if (isArray) {
-          queryParams[key].push(value);
-        } else {
-          queryParams[key] = value;
-        }
-      }
-      return queryParams;
-    },
-
-    recognize: function recognize(path, silent) {
-      noWarning = silent;
-      var states = [this.rootState],
-          pathLen,
-          i,
-          l,
-          queryStart,
-          queryParams = {},
-          isSlashDropped = false;
-
-      queryStart = path.indexOf('?');
-      if (queryStart !== -1) {
-        var queryString = path.substr(queryStart + 1, path.length);
-        path = path.substr(0, queryStart);
-        if (queryString) {
-          queryParams = this.parseQueryString(queryString);
-        }
-      }
-
-      path = tryDecode(path);
-      if (!path) return;
-
-      // DEBUG GROUP path
-
-      if (path.charAt(0) !== "/") {
-        path = "/" + path;
-      }
-
-      pathLen = path.length;
-      if (pathLen > 1 && path.charAt(pathLen - 1) === "/") {
-        path = path.substr(0, pathLen - 1);
-        isSlashDropped = true;
-      }
-
-      for (i = 0, l = path.length; i < l; i++) {
-        states = recognizeChar(states, path.charAt(i));
-        if (!states.length) {
-          break;
-        }
-      }
-
-      // END DEBUG GROUP
-
-      var solutions = [];
-      for (i = 0, l = states.length; i < l; i++) {
-        if (states[i].handlers) {
-          solutions.push(states[i]);
-        }
-      }
-
-      states = sortSolutions(solutions);
-
-      var state = solutions[0];
-
-      if (state && state.handlers) {
-        // if a trailing slash was dropped and a star segment is the last segment
-        // specified, put the trailing slash back
-        if (isSlashDropped && state.regex.source.slice(-5) === "(.+)$") {
-          path = path + "/";
-        }
-        return findHandler(state, path, queryParams);
-      }
-    }
-  };
-
-  RouteRecognizer.prototype.map = map;
-
-  var genQuery = RouteRecognizer.prototype.generateQueryString;
-
-  // export default for holding the Vue reference
-  var exports$1 = {};
-  /**
-   * Warn stuff.
-   *
-   * @param {String} msg
-   */
-
-  function warn$1(msg) {
-    /* istanbul ignore next */
-    if (typeof console !== 'undefined') {
-      console.error('[vue-router] ' + msg);
-    }
-  }
-
-  /**
-   * Resolve a relative path.
-   *
-   * @param {String} base
-   * @param {String} relative
-   * @param {Boolean} append
-   * @return {String}
-   */
-
-  function resolvePath(base, relative, append) {
-    var query = base.match(/(\?.*)$/);
-    if (query) {
-      query = query[1];
-      base = base.slice(0, -query.length);
-    }
-    // a query!
-    if (relative.charAt(0) === '?') {
-      return base + relative;
-    }
-    var stack = base.split('/');
-    // remove trailing segment if:
-    // - not appending
-    // - appending to trailing slash (last segment is empty)
-    if (!append || !stack[stack.length - 1]) {
-      stack.pop();
-    }
-    // resolve relative path
-    var segments = relative.replace(/^\//, '').split('/');
-    for (var i = 0; i < segments.length; i++) {
-      var segment = segments[i];
-      if (segment === '.') {
-        continue;
-      } else if (segment === '..') {
-        stack.pop();
-      } else {
-        stack.push(segment);
-      }
-    }
-    // ensure leading slash
-    if (stack[0] !== '') {
-      stack.unshift('');
-    }
-    return stack.join('/');
-  }
-
-  /**
-   * Forgiving check for a promise
-   *
-   * @param {Object} p
-   * @return {Boolean}
-   */
-
-  function isPromise(p) {
-    return p && typeof p.then === 'function';
-  }
-
-  /**
-   * Retrive a route config field from a component instance
-   * OR a component contructor.
-   *
-   * @param {Function|Vue} component
-   * @param {String} name
-   * @return {*}
-   */
-
-  function getRouteConfig(component, name) {
-    var options = component && (component.$options || component.options);
-    return options && options.route && options.route[name];
-  }
-
-  /**
-   * Resolve an async component factory. Have to do a dirty
-   * mock here because of Vue core's internal API depends on
-   * an ID check.
-   *
-   * @param {Object} handler
-   * @param {Function} cb
-   */
-
-  var resolver = undefined;
-
-  function resolveAsyncComponent(handler, cb) {
-    if (!resolver) {
-      resolver = {
-        resolve: exports$1.Vue.prototype._resolveComponent,
-        $options: {
-          components: {
-            _: handler.component
-          }
-        }
-      };
-    } else {
-      resolver.$options.components._ = handler.component;
-    }
-    resolver.resolve('_', function (Component) {
-      handler.component = Component;
-      cb(Component);
-    });
-  }
-
-  /**
-   * Map the dynamic segments in a path to params.
-   *
-   * @param {String} path
-   * @param {Object} params
-   * @param {Object} query
-   */
-
-  function mapParams(path, params, query) {
-    if (params === undefined) params = {};
-
-    path = path.replace(/:([^\/]+)/g, function (_, key) {
-      var val = params[key];
-      /* istanbul ignore if */
-      if (!val) {
-        warn$1('param "' + key + '" not found when generating ' + 'path for "' + path + '" with params ' + JSON.stringify(params));
-      }
-      return val || '';
-    });
-    if (query) {
-      path += genQuery(query);
-    }
-    return path;
-  }
-
-  var hashRE = /#.*$/;
-
-  var HTML5History = (function () {
-    function HTML5History(_ref) {
-      var root = _ref.root;
-      var onChange = _ref.onChange;
-      babelHelpers.classCallCheck(this, HTML5History);
-
-      if (root && root !== '/') {
-        // make sure there's the starting slash
-        if (root.charAt(0) !== '/') {
-          root = '/' + root;
-        }
-        // remove trailing slash
-        this.root = root.replace(/\/$/, '');
-        this.rootRE = new RegExp('^\\' + this.root);
-      } else {
-        this.root = null;
-      }
-      this.onChange = onChange;
-      // check base tag
-      var baseEl = document.querySelector('base');
-      this.base = baseEl && baseEl.getAttribute('href');
-    }
-
-    HTML5History.prototype.start = function start() {
-      var _this = this;
-
-      this.listener = function (e) {
-        var url = location.pathname + location.search;
-        if (_this.root) {
-          url = url.replace(_this.rootRE, '');
-        }
-        _this.onChange(url, e && e.state, location.hash);
-      };
-      window.addEventListener('popstate', this.listener);
-      this.listener();
-    };
-
-    HTML5History.prototype.stop = function stop() {
-      window.removeEventListener('popstate', this.listener);
-    };
-
-    HTML5History.prototype.go = function go(path, replace, append) {
-      var url = this.formatPath(path, append);
-      if (replace) {
-        history.replaceState({}, '', url);
-      } else {
-        // record scroll position by replacing current state
-        history.replaceState({
-          pos: {
-            x: window.pageXOffset,
-            y: window.pageYOffset
-          }
-        }, '', location.href);
-        // then push new state
-        history.pushState({}, '', url);
-      }
-      var hashMatch = path.match(hashRE);
-      var hash = hashMatch && hashMatch[0];
-      path = url
-      // strip hash so it doesn't mess up params
-      .replace(hashRE, '')
-      // remove root before matching
-      .replace(this.rootRE, '');
-      this.onChange(path, null, hash);
-    };
-
-    HTML5History.prototype.formatPath = function formatPath(path, append) {
-      return path.charAt(0) === '/'
-      // absolute path
-      ? this.root ? this.root + '/' + path.replace(/^\//, '') : path : resolvePath(this.base || location.pathname, path, append);
-    };
-
-    return HTML5History;
-  })();
-
-  var HashHistory = (function () {
-    function HashHistory(_ref) {
-      var hashbang = _ref.hashbang;
-      var onChange = _ref.onChange;
-      babelHelpers.classCallCheck(this, HashHistory);
-
-      this.hashbang = hashbang;
-      this.onChange = onChange;
-    }
-
-    HashHistory.prototype.start = function start() {
-      var self = this;
-      this.listener = function () {
-        var path = location.hash;
-        var raw = path.replace(/^#!?/, '');
-        // always
-        if (raw.charAt(0) !== '/') {
-          raw = '/' + raw;
-        }
-        var formattedPath = self.formatPath(raw);
-        if (formattedPath !== path) {
-          location.replace(formattedPath);
-          return;
-        }
-        // determine query
-        // note it's possible to have queries in both the actual URL
-        // and the hash fragment itself.
-        var query = location.search && path.indexOf('?') > -1 ? '&' + location.search.slice(1) : location.search;
-        self.onChange(path.replace(/^#!?/, '') + query);
-      };
-      window.addEventListener('hashchange', this.listener);
-      this.listener();
-    };
-
-    HashHistory.prototype.stop = function stop() {
-      window.removeEventListener('hashchange', this.listener);
-    };
-
-    HashHistory.prototype.go = function go(path, replace, append) {
-      path = this.formatPath(path, append);
-      if (replace) {
-        location.replace(path);
-      } else {
-        location.hash = path;
-      }
-    };
-
-    HashHistory.prototype.formatPath = function formatPath(path, append) {
-      var isAbsoloute = path.charAt(0) === '/';
-      var prefix = '#' + (this.hashbang ? '!' : '');
-      return isAbsoloute ? prefix + path : prefix + resolvePath(location.hash.replace(/^#!?/, ''), path, append);
-    };
-
-    return HashHistory;
-  })();
-
-  var AbstractHistory = (function () {
-    function AbstractHistory(_ref) {
-      var onChange = _ref.onChange;
-      babelHelpers.classCallCheck(this, AbstractHistory);
-
-      this.onChange = onChange;
-      this.currentPath = '/';
-    }
-
-    AbstractHistory.prototype.start = function start() {
-      this.onChange('/');
-    };
-
-    AbstractHistory.prototype.stop = function stop() {
-      // noop
-    };
-
-    AbstractHistory.prototype.go = function go(path, replace, append) {
-      path = this.currentPath = this.formatPath(path, append);
-      this.onChange(path);
-    };
-
-    AbstractHistory.prototype.formatPath = function formatPath(path, append) {
-      return path.charAt(0) === '/' ? path : resolvePath(this.currentPath, path, append);
-    };
-
-    return AbstractHistory;
-  })();
-
-  /**
-   * Determine the reusability of an existing router view.
-   *
-   * @param {Directive} view
-   * @param {Object} handler
-   * @param {Transition} transition
-   */
-
-  function canReuse(view, handler, transition) {
-    var component = view.childVM;
-    if (!component || !handler) {
-      return false;
-    }
-    // important: check view.Component here because it may
-    // have been changed in activate hook
-    if (view.Component !== handler.component) {
-      return false;
-    }
-    var canReuseFn = getRouteConfig(component, 'canReuse');
-    return typeof canReuseFn === 'boolean' ? canReuseFn : canReuseFn ? canReuseFn.call(component, {
-      to: transition.to,
-      from: transition.from
-    }) : true; // defaults to true
-  }
-
-  /**
-   * Check if a component can deactivate.
-   *
-   * @param {Directive} view
-   * @param {Transition} transition
-   * @param {Function} next
-   */
-
-  function canDeactivate(view, transition, next) {
-    var fromComponent = view.childVM;
-    var hook = getRouteConfig(fromComponent, 'canDeactivate');
-    if (!hook) {
-      next();
-    } else {
-      transition.callHook(hook, fromComponent, next, {
-        expectBoolean: true
-      });
-    }
-  }
-
-  /**
-   * Check if a component can activate.
-   *
-   * @param {Object} handler
-   * @param {Transition} transition
-   * @param {Function} next
-   */
-
-  function canActivate(handler, transition, next) {
-    resolveAsyncComponent(handler, function (Component) {
-      // have to check due to async-ness
-      if (transition.aborted) {
-        return;
-      }
-      // determine if this component can be activated
-      var hook = getRouteConfig(Component, 'canActivate');
-      if (!hook) {
-        next();
-      } else {
-        transition.callHook(hook, null, next, {
-          expectBoolean: true
-        });
-      }
-    });
-  }
-
-  /**
-   * Call deactivate hooks for existing router-views.
-   *
-   * @param {Directive} view
-   * @param {Transition} transition
-   * @param {Function} next
-   */
-
-  function deactivate(view, transition, next) {
-    var component = view.childVM;
-    var hook = getRouteConfig(component, 'deactivate');
-    if (!hook) {
-      next();
-    } else {
-      transition.callHooks(hook, component, next);
-    }
-  }
-
-  /**
-   * Activate / switch component for a router-view.
-   *
-   * @param {Directive} view
-   * @param {Transition} transition
-   * @param {Number} depth
-   * @param {Function} [cb]
-   */
-
-  function activate(view, transition, depth, cb, reuse) {
-    var handler = transition.activateQueue[depth];
-    if (!handler) {
-      saveChildView(view);
-      if (view._bound) {
-        view.setComponent(null);
-      }
-      cb && cb();
-      return;
-    }
-
-    var Component = view.Component = handler.component;
-    var activateHook = getRouteConfig(Component, 'activate');
-    var dataHook = getRouteConfig(Component, 'data');
-    var waitForData = getRouteConfig(Component, 'waitForData');
-
-    view.depth = depth;
-    view.activated = false;
-
-    var component = undefined;
-    var loading = !!(dataHook && !waitForData);
-
-    // "reuse" is a flag passed down when the parent view is
-    // either reused via keep-alive or as a child of a kept-alive view.
-    // of course we can only reuse if the current kept-alive instance
-    // is of the correct type.
-    reuse = reuse && view.childVM && view.childVM.constructor === Component;
-
-    if (reuse) {
-      // just reuse
-      component = view.childVM;
-      component.$loadingRouteData = loading;
-    } else {
-      saveChildView(view);
-
-      // unbuild current component. this step also destroys
-      // and removes all nested child views.
-      view.unbuild(true);
-
-      // build the new component. this will also create the
-      // direct child view of the current one. it will register
-      // itself as view.childView.
-      component = view.build({
-        _meta: {
-          $loadingRouteData: loading
-        },
-        created: function created() {
-          this._routerView = view;
-        }
-      });
-
-      // handle keep-alive.
-      // when a kept-alive child vm is restored, we need to
-      // add its cached child views into the router's view list,
-      // and also properly update current view's child view.
-      if (view.keepAlive) {
-        component.$loadingRouteData = loading;
-        var cachedChildView = component._keepAliveRouterView;
-        if (cachedChildView) {
-          view.childView = cachedChildView;
-          component._keepAliveRouterView = null;
-        }
-      }
-    }
-
-    // cleanup the component in case the transition is aborted
-    // before the component is ever inserted.
-    var cleanup = function cleanup() {
-      component.$destroy();
-    };
-
-    // actually insert the component and trigger transition
-    var insert = function insert() {
-      if (reuse) {
-        cb && cb();
-        return;
-      }
-      var router = transition.router;
-      if (router._rendered || router._transitionOnLoad) {
-        view.transition(component);
-      } else {
-        // no transition on first render, manual transition
-        /* istanbul ignore if */
-        if (view.setCurrent) {
-          // 0.12 compat
-          view.setCurrent(component);
-        } else {
-          // 1.0
-          view.childVM = component;
-        }
-        component.$before(view.anchor, null, false);
-      }
-      cb && cb();
-    };
-
-    var afterData = function afterData() {
-      // activate the child view
-      if (view.childView) {
-        activate(view.childView, transition, depth + 1, null, reuse || view.keepAlive);
-      }
-      insert();
-    };
-
-    // called after activation hook is resolved
-    var afterActivate = function afterActivate() {
-      view.activated = true;
-      if (dataHook && waitForData) {
-        // wait until data loaded to insert
-        loadData(component, transition, dataHook, afterData, cleanup);
-      } else {
-        // load data and insert at the same time
-        if (dataHook) {
-          loadData(component, transition, dataHook);
-        }
-        afterData();
-      }
-    };
-
-    if (activateHook) {
-      transition.callHooks(activateHook, component, afterActivate, {
-        cleanup: cleanup,
-        postActivate: true
-      });
-    } else {
-      afterActivate();
-    }
-  }
-
-  /**
-   * Reuse a view, just reload data if necessary.
-   *
-   * @param {Directive} view
-   * @param {Transition} transition
-   */
-
-  function reuse(view, transition) {
-    var component = view.childVM;
-    var dataHook = getRouteConfig(component, 'data');
-    if (dataHook) {
-      loadData(component, transition, dataHook);
-    }
-  }
-
-  /**
-   * Asynchronously load and apply data to component.
-   *
-   * @param {Vue} component
-   * @param {Transition} transition
-   * @param {Function} hook
-   * @param {Function} cb
-   * @param {Function} cleanup
-   */
-
-  function loadData(component, transition, hook, cb, cleanup) {
-    component.$loadingRouteData = true;
-    transition.callHooks(hook, component, function () {
-      component.$loadingRouteData = false;
-      component.$emit('route-data-loaded', component);
-      cb && cb();
-    }, {
-      cleanup: cleanup,
-      postActivate: true,
-      processData: function processData(data) {
-        // handle promise sugar syntax
-        var promises = [];
-        if (isPlainObject(data)) {
-          Object.keys(data).forEach(function (key) {
-            var val = data[key];
-            if (isPromise(val)) {
-              promises.push(val.then(function (resolvedVal) {
-                component.$set(key, resolvedVal);
-              }));
-            } else {
-              component.$set(key, val);
-            }
-          });
-        }
-        if (promises.length) {
-          return promises[0].constructor.all(promises);
-        }
-      }
-    });
-  }
-
-  /**
-   * Save the child view for a kept-alive view so that
-   * we can restore it when it is switched back to.
-   *
-   * @param {Directive} view
-   */
-
-  function saveChildView(view) {
-    if (view.keepAlive && view.childVM && view.childView) {
-      view.childVM._keepAliveRouterView = view.childView;
-    }
-    view.childView = null;
-  }
-
-  /**
-   * Check plain object.
-   *
-   * @param {*} val
-   */
-
-  function isPlainObject(val) {
-    return Object.prototype.toString.call(val) === '[object Object]';
-  }
-
-  /**
-   * A RouteTransition object manages the pipeline of a
-   * router-view switching process. This is also the object
-   * passed into user route hooks.
-   *
-   * @param {Router} router
-   * @param {Route} to
-   * @param {Route} from
-   */
-
-  var RouteTransition = (function () {
-    function RouteTransition(router, to, from) {
-      babelHelpers.classCallCheck(this, RouteTransition);
-
-      this.router = router;
-      this.to = to;
-      this.from = from;
-      this.next = null;
-      this.aborted = false;
-      this.done = false;
-    }
-
-    /**
-     * Abort current transition and return to previous location.
-     */
-
-    RouteTransition.prototype.abort = function abort() {
-      if (!this.aborted) {
-        this.aborted = true;
-        // if the root path throws an error during validation
-        // on initial load, it gets caught in an infinite loop.
-        var abortingOnLoad = !this.from.path && this.to.path === '/';
-        if (!abortingOnLoad) {
-          this.router.replace(this.from.path || '/');
-        }
-      }
-    };
-
-    /**
-     * Abort current transition and redirect to a new location.
-     *
-     * @param {String} path
-     */
-
-    RouteTransition.prototype.redirect = function redirect(path) {
-      if (!this.aborted) {
-        this.aborted = true;
-        if (typeof path === 'string') {
-          path = mapParams(path, this.to.params, this.to.query);
-        } else {
-          path.params = path.params || this.to.params;
-          path.query = path.query || this.to.query;
-        }
-        this.router.replace(path);
-      }
-    };
-
-    /**
-     * A router view transition's pipeline can be described as
-     * follows, assuming we are transitioning from an existing
-     * <router-view> chain [Component A, Component B] to a new
-     * chain [Component A, Component C]:
-     *
-     *  A    A
-     *  | => |
-     *  B    C
-     *
-     * 1. Reusablity phase:
-     *   -> canReuse(A, A)
-     *   -> canReuse(B, C)
-     *   -> determine new queues:
-     *      - deactivation: [B]
-     *      - activation: [C]
-     *
-     * 2. Validation phase:
-     *   -> canDeactivate(B)
-     *   -> canActivate(C)
-     *
-     * 3. Activation phase:
-     *   -> deactivate(B)
-     *   -> activate(C)
-     *
-     * Each of these steps can be asynchronous, and any
-     * step can potentially abort the transition.
-     *
-     * @param {Function} cb
-     */
-
-    RouteTransition.prototype.start = function start(cb) {
-      var transition = this;
-
-      // determine the queue of views to deactivate
-      var deactivateQueue = [];
-      var view = this.router._rootView;
-      while (view) {
-        deactivateQueue.unshift(view);
-        view = view.childView;
-      }
-      var reverseDeactivateQueue = deactivateQueue.slice().reverse();
-
-      // determine the queue of route handlers to activate
-      var activateQueue = this.activateQueue = toArray(this.to.matched).map(function (match) {
-        return match.handler;
-      });
-
-      // 1. Reusability phase
-      var i = undefined,
-          reuseQueue = undefined;
-      for (i = 0; i < reverseDeactivateQueue.length; i++) {
-        if (!canReuse(reverseDeactivateQueue[i], activateQueue[i], transition)) {
-          break;
-        }
-      }
-      if (i > 0) {
-        reuseQueue = reverseDeactivateQueue.slice(0, i);
-        deactivateQueue = reverseDeactivateQueue.slice(i).reverse();
-        activateQueue = activateQueue.slice(i);
-      }
-
-      // 2. Validation phase
-      transition.runQueue(deactivateQueue, canDeactivate, function () {
-        transition.runQueue(activateQueue, canActivate, function () {
-          transition.runQueue(deactivateQueue, deactivate, function () {
-            // 3. Activation phase
-
-            // Update router current route
-            transition.router._onTransitionValidated(transition);
-
-            // trigger reuse for all reused views
-            reuseQueue && reuseQueue.forEach(function (view) {
-              return reuse(view, transition);
-            });
-
-            // the root of the chain that needs to be replaced
-            // is the top-most non-reusable view.
-            if (deactivateQueue.length) {
-              var _view = deactivateQueue[deactivateQueue.length - 1];
-              var depth = reuseQueue ? reuseQueue.length : 0;
-              activate(_view, transition, depth, cb);
-            } else {
-              cb();
-            }
-          });
-        });
-      });
-    };
-
-    /**
-     * Asynchronously and sequentially apply a function to a
-     * queue.
-     *
-     * @param {Array} queue
-     * @param {Function} fn
-     * @param {Function} cb
-     */
-
-    RouteTransition.prototype.runQueue = function runQueue(queue, fn, cb) {
-      var transition = this;
-      step(0);
-      function step(index) {
-        if (index >= queue.length) {
-          cb();
-        } else {
-          fn(queue[index], transition, function () {
-            step(index + 1);
-          });
-        }
-      }
-    };
-
-    /**
-     * Call a user provided route transition hook and handle
-     * the response (e.g. if the user returns a promise).
-     *
-     * If the user neither expects an argument nor returns a
-     * promise, the hook is assumed to be synchronous.
-     *
-     * @param {Function} hook
-     * @param {*} [context]
-     * @param {Function} [cb]
-     * @param {Object} [options]
-     *                 - {Boolean} expectBoolean
-     *                 - {Boolean} postActive
-     *                 - {Function} processData
-     *                 - {Function} cleanup
-     */
-
-    RouteTransition.prototype.callHook = function callHook(hook, context, cb) {
-      var _ref = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
-
-      var _ref$expectBoolean = _ref.expectBoolean;
-      var expectBoolean = _ref$expectBoolean === undefined ? false : _ref$expectBoolean;
-      var _ref$postActivate = _ref.postActivate;
-      var postActivate = _ref$postActivate === undefined ? false : _ref$postActivate;
-      var processData = _ref.processData;
-      var cleanup = _ref.cleanup;
-
-      var transition = this;
-      var nextCalled = false;
-
-      // abort the transition
-      var abort = function abort() {
-        cleanup && cleanup();
-        transition.abort();
-      };
-
-      // handle errors
-      var onError = function onError(err) {
-        postActivate ? next() : abort();
-        if (err && !transition.router._suppress) {
-          warn$1('Uncaught error during transition: ');
-          throw err instanceof Error ? err : new Error(err);
-        }
-      };
-
-      // since promise swallows errors, we have to
-      // throw it in the next tick...
-      var onPromiseError = function onPromiseError(err) {
-        try {
-          onError(err);
-        } catch (e) {
-          setTimeout(function () {
-            throw e;
-          }, 0);
-        }
-      };
-
-      // advance the transition to the next step
-      var next = function next() {
-        if (nextCalled) {
-          warn$1('transition.next() should be called only once.');
-          return;
-        }
-        nextCalled = true;
-        if (transition.aborted) {
-          cleanup && cleanup();
-          return;
-        }
-        cb && cb();
-      };
-
-      var nextWithBoolean = function nextWithBoolean(res) {
-        if (typeof res === 'boolean') {
-          res ? next() : abort();
-        } else if (isPromise(res)) {
-          res.then(function (ok) {
-            ok ? next() : abort();
-          }, onPromiseError);
-        } else if (!hook.length) {
-          next();
-        }
-      };
-
-      var nextWithData = function nextWithData(data) {
-        var res = undefined;
-        try {
-          res = processData(data);
-        } catch (err) {
-          return onError(err);
-        }
-        if (isPromise(res)) {
-          res.then(next, onPromiseError);
-        } else {
-          next();
-        }
-      };
-
-      // expose a clone of the transition object, so that each
-      // hook gets a clean copy and prevent the user from
-      // messing with the internals.
-      var exposed = {
-        to: transition.to,
-        from: transition.from,
-        abort: abort,
-        next: processData ? nextWithData : next,
-        redirect: function redirect() {
-          transition.redirect.apply(transition, arguments);
-        }
-      };
-
-      // actually call the hook
-      var res = undefined;
-      try {
-        res = hook.call(context, exposed);
-      } catch (err) {
-        return onError(err);
-      }
-
-      if (expectBoolean) {
-        // boolean hooks
-        nextWithBoolean(res);
-      } else if (isPromise(res)) {
-        // promise
-        if (processData) {
-          res.then(nextWithData, onPromiseError);
-        } else {
-          res.then(next, onPromiseError);
-        }
-      } else if (processData && isPlainOjbect(res)) {
-        // data promise sugar
-        nextWithData(res);
-      } else if (!hook.length) {
-        next();
-      }
-    };
-
-    /**
-     * Call a single hook or an array of async hooks in series.
-     *
-     * @param {Array} hooks
-     * @param {*} context
-     * @param {Function} cb
-     * @param {Object} [options]
-     */
-
-    RouteTransition.prototype.callHooks = function callHooks(hooks, context, cb, options) {
-      var _this = this;
-
-      if (Array.isArray(hooks)) {
-        this.runQueue(hooks, function (hook, _, next) {
-          if (!_this.aborted) {
-            _this.callHook(hook, context, next, options);
-          }
-        }, cb);
-      } else {
-        this.callHook(hooks, context, cb, options);
-      }
-    };
-
-    return RouteTransition;
-  })();
-
-  function isPlainOjbect(val) {
-    return Object.prototype.toString.call(val) === '[object Object]';
-  }
-
-  function toArray(val) {
-    return val ? Array.prototype.slice.call(val) : [];
-  }
-
-  var internalKeysRE = /^(component|subRoutes|fullPath)$/;
-
-  /**
-   * Route Context Object
-   *
-   * @param {String} path
-   * @param {Router} router
-   */
-
-  var Route = function Route(path, router) {
-    var _this = this;
-
-    babelHelpers.classCallCheck(this, Route);
-
-    var matched = router._recognizer.recognize(path);
-    if (matched) {
-      // copy all custom fields from route configs
-      [].forEach.call(matched, function (match) {
-        for (var key in match.handler) {
-          if (!internalKeysRE.test(key)) {
-            _this[key] = match.handler[key];
-          }
-        }
-      });
-      // set query and params
-      this.query = matched.queryParams;
-      this.params = [].reduce.call(matched, function (prev, cur) {
-        if (cur.params) {
-          for (var key in cur.params) {
-            prev[key] = cur.params[key];
-          }
-        }
-        return prev;
-      }, {});
-    }
-    // expose path and router
-    this.path = path;
-    // for internal use
-    this.matched = matched || router._notFoundHandler;
-    // internal reference to router
-    Object.defineProperty(this, 'router', {
-      enumerable: false,
-      value: router
-    });
-    // Important: freeze self to prevent observation
-    Object.freeze(this);
-  };
-
-  function applyOverride (Vue) {
-    var _Vue$util = Vue.util;
-    var extend = _Vue$util.extend;
-    var isArray = _Vue$util.isArray;
-    var defineReactive = _Vue$util.defineReactive;
-
-    // override Vue's init and destroy process to keep track of router instances
-    var init = Vue.prototype._init;
-    Vue.prototype._init = function (options) {
-      options = options || {};
-      var root = options._parent || options.parent || this;
-      var router = root.$router;
-      var route = root.$route;
-      if (router) {
-        // expose router
-        this.$router = router;
-        router._children.push(this);
-        /* istanbul ignore if */
-        if (this._defineMeta) {
-          // 0.12
-          this._defineMeta('$route', route);
-        } else {
-          // 1.0
-          defineReactive(this, '$route', route);
-        }
-      }
-      init.call(this, options);
-    };
-
-    var destroy = Vue.prototype._destroy;
-    Vue.prototype._destroy = function () {
-      if (!this._isBeingDestroyed && this.$router) {
-        this.$router._children.$remove(this);
-      }
-      destroy.apply(this, arguments);
-    };
-
-    // 1.0 only: enable route mixins
-    var strats = Vue.config.optionMergeStrategies;
-    var hooksToMergeRE = /^(data|activate|deactivate)$/;
-
-    if (strats) {
-      strats.route = function (parentVal, childVal) {
-        if (!childVal) return parentVal;
-        if (!parentVal) return childVal;
-        var ret = {};
-        extend(ret, parentVal);
-        for (var key in childVal) {
-          var a = ret[key];
-          var b = childVal[key];
-          // for data, activate and deactivate, we need to merge them into
-          // arrays similar to lifecycle hooks.
-          if (a && hooksToMergeRE.test(key)) {
-            ret[key] = (isArray(a) ? a : [a]).concat(b);
-          } else {
-            ret[key] = b;
-          }
-        }
-        return ret;
-      };
-    }
-  }
-
-  function View (Vue) {
-
-    var _ = Vue.util;
-    var componentDef =
-    // 0.12
-    Vue.directive('_component') ||
-    // 1.0
-    Vue.internalDirectives.component;
-    // <router-view> extends the internal component directive
-    var viewDef = _.extend({}, componentDef);
-
-    // with some overrides
-    _.extend(viewDef, {
-
-      _isRouterView: true,
-
-      bind: function bind() {
-        var route = this.vm.$route;
-        /* istanbul ignore if */
-        if (!route) {
-          warn$1('<router-view> can only be used inside a ' + 'router-enabled app.');
-          return;
-        }
-        // force dynamic directive so v-component doesn't
-        // attempt to build right now
-        this._isDynamicLiteral = true;
-        // finally, init by delegating to v-component
-        componentDef.bind.call(this);
-
-        // locate the parent view
-        var parentView = undefined;
-        var parent = this.vm;
-        while (parent) {
-          if (parent._routerView) {
-            parentView = parent._routerView;
-            break;
-          }
-          parent = parent.$parent;
-        }
-        if (parentView) {
-          // register self as a child of the parent view,
-          // instead of activating now. This is so that the
-          // child's activate hook is called after the
-          // parent's has resolved.
-          this.parentView = parentView;
-          parentView.childView = this;
-        } else {
-          // this is the root view!
-          var router = route.router;
-          router._rootView = this;
-        }
-
-        // handle late-rendered view
-        // two possibilities:
-        // 1. root view rendered after transition has been
-        //    validated;
-        // 2. child view rendered after parent view has been
-        //    activated.
-        var transition = route.router._currentTransition;
-        if (!parentView && transition.done || parentView && parentView.activated) {
-          var depth = parentView ? parentView.depth + 1 : 0;
-          activate(this, transition, depth);
-        }
-      },
-
-      unbind: function unbind() {
-        if (this.parentView) {
-          this.parentView.childView = null;
-        }
-        componentDef.unbind.call(this);
-      }
-    });
-
-    Vue.elementDirective('router-view', viewDef);
-  }
-
-  var trailingSlashRE = /\/$/;
-  var regexEscapeRE = /[-.*+?^${}()|[\]\/\\]/g;
-  var queryStringRE = /\?.*$/;
-
-  // install v-link, which provides navigation support for
-  // HTML5 history mode
-  function Link (Vue) {
-    var _Vue$util = Vue.util;
-    var _bind = _Vue$util.bind;
-    var isObject = _Vue$util.isObject;
-    var addClass = _Vue$util.addClass;
-    var removeClass = _Vue$util.removeClass;
-
-    var onPriority = Vue.directive('on').priority;
-    var LINK_UPDATE = '__vue-router-link-update__';
-
-    var activeId = 0;
-
-    Vue.directive('link-active', {
-      priority: 9999,
-      bind: function bind() {
-        var _this = this;
-
-        var id = String(activeId++);
-        // collect v-links contained within this element.
-        // we need do this here before the parent-child relationship
-        // gets messed up by terminal directives (if, for, components)
-        var childLinks = this.el.querySelectorAll('[v-link]');
-        for (var i = 0, l = childLinks.length; i < l; i++) {
-          var link = childLinks[i];
-          var existingId = link.getAttribute(LINK_UPDATE);
-          var value = existingId ? existingId + ',' + id : id;
-          // leave a mark on the link element which can be persisted
-          // through fragment clones.
-          link.setAttribute(LINK_UPDATE, value);
-        }
-        this.vm.$on(LINK_UPDATE, this.cb = function (link, path) {
-          if (link.activeIds.indexOf(id) > -1) {
-            link.updateClasses(path, _this.el);
-          }
-        });
-      },
-      unbind: function unbind() {
-        this.vm.$off(LINK_UPDATE, this.cb);
-      }
-    });
-
-    Vue.directive('link', {
-      priority: onPriority - 2,
-
-      bind: function bind() {
-        var vm = this.vm;
-        /* istanbul ignore if */
-        if (!vm.$route) {
-          warn$1('v-link can only be used inside a router-enabled app.');
-          return;
-        }
-        this.router = vm.$route.router;
-        // update things when the route changes
-        this.unwatch = vm.$watch('$route', _bind(this.onRouteUpdate, this));
-        // check v-link-active ids
-        var activeIds = this.el.getAttribute(LINK_UPDATE);
-        if (activeIds) {
-          this.el.removeAttribute(LINK_UPDATE);
-          this.activeIds = activeIds.split(',');
-        }
-        // no need to handle click if link expects to be opened
-        // in a new window/tab.
-        /* istanbul ignore if */
-        if (this.el.tagName === 'A' && this.el.getAttribute('target') === '_blank') {
-          return;
-        }
-        // handle click
-        this.handler = _bind(this.onClick, this);
-        this.el.addEventListener('click', this.handler);
-      },
-
-      update: function update(target) {
-        this.target = target;
-        if (isObject(target)) {
-          this.append = target.append;
-          this.exact = target.exact;
-          this.prevActiveClass = this.activeClass;
-          this.activeClass = target.activeClass;
-        }
-        this.onRouteUpdate(this.vm.$route);
-      },
-
-      onClick: function onClick(e) {
-        // don't redirect with control keys
-        /* istanbul ignore if */
-        if (e.metaKey || e.ctrlKey || e.shiftKey) return;
-        // don't redirect when preventDefault called
-        /* istanbul ignore if */
-        if (e.defaultPrevented) return;
-        // don't redirect on right click
-        /* istanbul ignore if */
-        if (e.button !== 0) return;
-
-        var target = this.target;
-        if (target) {
-          // v-link with expression, just go
-          e.preventDefault();
-          this.router.go(target);
-        } else {
-          // no expression, delegate for an <a> inside
-          var el = e.target;
-          while (el.tagName !== 'A' && el !== this.el) {
-            el = el.parentNode;
-          }
-          if (el.tagName === 'A' && sameOrigin(el)) {
-            e.preventDefault();
-            var path = el.pathname;
-            if (this.router.history.root) {
-              path = path.replace(this.router.history.rootRE, '');
-            }
-            this.router.go({
-              path: path,
-              replace: target && target.replace,
-              append: target && target.append
-            });
-          }
-        }
-      },
-
-      onRouteUpdate: function onRouteUpdate(route) {
-        // router.stringifyPath is dependent on current route
-        // and needs to be called again whenver route changes.
-        var newPath = this.router.stringifyPath(this.target);
-        if (this.path !== newPath) {
-          this.path = newPath;
-          this.updateActiveMatch();
-          this.updateHref();
-        }
-        if (this.activeIds) {
-          this.vm.$emit(LINK_UPDATE, this, route.path);
-        } else {
-          this.updateClasses(route.path, this.el);
-        }
-      },
-
-      updateActiveMatch: function updateActiveMatch() {
-        this.activeRE = this.path && !this.exact ? new RegExp('^' + this.path.replace(/\/$/, '').replace(queryStringRE, '').replace(regexEscapeRE, '\\$&') + '(\\/|$)') : null;
-      },
-
-      updateHref: function updateHref() {
-        if (this.el.tagName !== 'A') {
-          return;
-        }
-        var path = this.path;
-        var router = this.router;
-        var isAbsolute = path.charAt(0) === '/';
-        // do not format non-hash relative paths
-        var href = path && (router.mode === 'hash' || isAbsolute) ? router.history.formatPath(path, this.append) : path;
-        if (href) {
-          this.el.href = href;
-        } else {
-          this.el.removeAttribute('href');
-        }
-      },
-
-      updateClasses: function updateClasses(path, el) {
-        var activeClass = this.activeClass || this.router._linkActiveClass;
-        // clear old class
-        if (this.prevActiveClass && this.prevActiveClass !== activeClass) {
-          toggleClasses(el, this.prevActiveClass, removeClass);
-        }
-        // remove query string before matching
-        var dest = this.path.replace(queryStringRE, '');
-        path = path.replace(queryStringRE, '');
-        // add new class
-        if (this.exact) {
-          if (dest === path ||
-          // also allow additional trailing slash
-          dest.charAt(dest.length - 1) !== '/' && dest === path.replace(trailingSlashRE, '')) {
-            toggleClasses(el, activeClass, addClass);
-          } else {
-            toggleClasses(el, activeClass, removeClass);
-          }
-        } else {
-          if (this.activeRE && this.activeRE.test(path)) {
-            toggleClasses(el, activeClass, addClass);
-          } else {
-            toggleClasses(el, activeClass, removeClass);
-          }
-        }
-      },
-
-      unbind: function unbind() {
-        this.el.removeEventListener('click', this.handler);
-        this.unwatch && this.unwatch();
-      }
-    });
-
-    function sameOrigin(link) {
-      return link.protocol === location.protocol && link.hostname === location.hostname && link.port === location.port;
-    }
-
-    // this function is copied from v-bind:class implementation until
-    // we properly expose it...
-    function toggleClasses(el, key, fn) {
-      key = key.trim();
-      if (key.indexOf(' ') === -1) {
-        fn(el, key);
-        return;
-      }
-      var keys = key.split(/\s+/);
-      for (var i = 0, l = keys.length; i < l; i++) {
-        fn(el, keys[i]);
-      }
-    }
-  }
-
-  var historyBackends = {
-    abstract: AbstractHistory,
-    hash: HashHistory,
-    html5: HTML5History
-  };
-
-  // late bind during install
-  var Vue = undefined;
-
-  /**
-   * Router constructor
-   *
-   * @param {Object} [options]
-   */
-
-  var Router = (function () {
-    function Router() {
-      var _this = this;
-
-      var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-      var _ref$hashbang = _ref.hashbang;
-      var hashbang = _ref$hashbang === undefined ? true : _ref$hashbang;
-      var _ref$abstract = _ref.abstract;
-      var abstract = _ref$abstract === undefined ? false : _ref$abstract;
-      var _ref$history = _ref.history;
-      var history = _ref$history === undefined ? false : _ref$history;
-      var _ref$saveScrollPosition = _ref.saveScrollPosition;
-      var saveScrollPosition = _ref$saveScrollPosition === undefined ? false : _ref$saveScrollPosition;
-      var _ref$transitionOnLoad = _ref.transitionOnLoad;
-      var transitionOnLoad = _ref$transitionOnLoad === undefined ? false : _ref$transitionOnLoad;
-      var _ref$suppressTransitionError = _ref.suppressTransitionError;
-      var suppressTransitionError = _ref$suppressTransitionError === undefined ? false : _ref$suppressTransitionError;
-      var _ref$root = _ref.root;
-      var root = _ref$root === undefined ? null : _ref$root;
-      var _ref$linkActiveClass = _ref.linkActiveClass;
-      var linkActiveClass = _ref$linkActiveClass === undefined ? 'v-link-active' : _ref$linkActiveClass;
-      babelHelpers.classCallCheck(this, Router);
-
-      /* istanbul ignore if */
-      if (!Router.installed) {
-        throw new Error('Please install the Router with Vue.use() before ' + 'creating an instance.');
-      }
-
-      // Vue instances
-      this.app = null;
-      this._children = [];
-
-      // route recognizer
-      this._recognizer = new RouteRecognizer();
-      this._guardRecognizer = new RouteRecognizer();
-
-      // state
-      this._started = false;
-      this._startCb = null;
-      this._currentRoute = {};
-      this._currentTransition = null;
-      this._previousTransition = null;
-      this._notFoundHandler = null;
-      this._notFoundRedirect = null;
-      this._beforeEachHooks = [];
-      this._afterEachHooks = [];
-
-      // trigger transition on initial render?
-      this._rendered = false;
-      this._transitionOnLoad = transitionOnLoad;
-
-      // history mode
-      this._root = root;
-      this._abstract = abstract;
-      this._hashbang = hashbang;
-
-      // check if HTML5 history is available
-      var hasPushState = typeof window !== 'undefined' && window.history && window.history.pushState;
-      this._history = history && hasPushState;
-      this._historyFallback = history && !hasPushState;
-
-      // create history object
-      var inBrowser = Vue.util.inBrowser;
-      this.mode = !inBrowser || this._abstract ? 'abstract' : this._history ? 'html5' : 'hash';
-
-      var History = historyBackends[this.mode];
-      this.history = new History({
-        root: root,
-        hashbang: this._hashbang,
-        onChange: function onChange(path, state, anchor) {
-          _this._match(path, state, anchor);
-        }
-      });
-
-      // other options
-      this._saveScrollPosition = saveScrollPosition;
-      this._linkActiveClass = linkActiveClass;
-      this._suppress = suppressTransitionError;
-    }
-
-    /**
-     * Allow directly passing components to a route
-     * definition.
-     *
-     * @param {String} path
-     * @param {Object} handler
-     */
-
-    // API ===================================================
-
-    /**
-    * Register a map of top-level paths.
-    *
-    * @param {Object} map
-    */
-
-    Router.prototype.map = function map(_map) {
-      for (var route in _map) {
-        this.on(route, _map[route]);
-      }
-      return this;
-    };
-
-    /**
-     * Register a single root-level path
-     *
-     * @param {String} rootPath
-     * @param {Object} handler
-     *                 - {String} component
-     *                 - {Object} [subRoutes]
-     *                 - {Boolean} [forceRefresh]
-     *                 - {Function} [before]
-     *                 - {Function} [after]
-     */
-
-    Router.prototype.on = function on(rootPath, handler) {
-      if (rootPath === '*') {
-        this._notFound(handler);
-      } else {
-        this._addRoute(rootPath, handler, []);
-      }
-      return this;
-    };
-
-    /**
-     * Set redirects.
-     *
-     * @param {Object} map
-     */
-
-    Router.prototype.redirect = function redirect(map) {
-      for (var path in map) {
-        this._addRedirect(path, map[path]);
-      }
-      return this;
-    };
-
-    /**
-     * Set aliases.
-     *
-     * @param {Object} map
-     */
-
-    Router.prototype.alias = function alias(map) {
-      for (var path in map) {
-        this._addAlias(path, map[path]);
-      }
-      return this;
-    };
-
-    /**
-     * Set global before hook.
-     *
-     * @param {Function} fn
-     */
-
-    Router.prototype.beforeEach = function beforeEach(fn) {
-      this._beforeEachHooks.push(fn);
-      return this;
-    };
-
-    /**
-     * Set global after hook.
-     *
-     * @param {Function} fn
-     */
-
-    Router.prototype.afterEach = function afterEach(fn) {
-      this._afterEachHooks.push(fn);
-      return this;
-    };
-
-    /**
-     * Navigate to a given path.
-     * The path can be an object describing a named path in
-     * the format of { name: '...', params: {}, query: {}}
-     * The path is assumed to be already decoded, and will
-     * be resolved against root (if provided)
-     *
-     * @param {String|Object} path
-     * @param {Boolean} [replace]
-     */
-
-    Router.prototype.go = function go(path) {
-      var replace = false;
-      var append = false;
-      if (Vue.util.isObject(path)) {
-        replace = path.replace;
-        append = path.append;
-      }
-      path = this.stringifyPath(path);
-      if (path) {
-        this.history.go(path, replace, append);
-      }
-    };
-
-    /**
-     * Short hand for replacing current path
-     *
-     * @param {String} path
-     */
-
-    Router.prototype.replace = function replace(path) {
-      if (typeof path === 'string') {
-        path = { path: path };
-      }
-      path.replace = true;
-      this.go(path);
-    };
-
-    /**
-     * Start the router.
-     *
-     * @param {VueConstructor} App
-     * @param {String|Element} container
-     * @param {Function} [cb]
-     */
-
-    Router.prototype.start = function start(App, container, cb) {
-      /* istanbul ignore if */
-      if (this._started) {
-        warn$1('already started.');
-        return;
-      }
-      this._started = true;
-      this._startCb = cb;
-      if (!this.app) {
-        /* istanbul ignore if */
-        if (!App || !container) {
-          throw new Error('Must start vue-router with a component and a ' + 'root container.');
-        }
-        /* istanbul ignore if */
-        if (App instanceof Vue) {
-          throw new Error('Must start vue-router with a component, not a ' + 'Vue instance.');
-        }
-        this._appContainer = container;
-        var Ctor = this._appConstructor = typeof App === 'function' ? App : Vue.extend(App);
-        // give it a name for better debugging
-        Ctor.options.name = Ctor.options.name || 'RouterApp';
-      }
-
-      // handle history fallback in browsers that do not
-      // support HTML5 history API
-      if (this._historyFallback) {
-        var _location = window.location;
-        var _history = new HTML5History({ root: this._root });
-        var path = _history.root ? _location.pathname.replace(_history.rootRE, '') : _location.pathname;
-        if (path && path !== '/') {
-          _location.assign((_history.root || '') + '/' + this.history.formatPath(path) + _location.search);
-          return;
-        }
-      }
-
-      this.history.start();
-    };
-
-    /**
-     * Stop listening to route changes.
-     */
-
-    Router.prototype.stop = function stop() {
-      this.history.stop();
-      this._started = false;
-    };
-
-    /**
-     * Normalize named route object / string paths into
-     * a string.
-     *
-     * @param {Object|String|Number} path
-     * @return {String}
-     */
-
-    Router.prototype.stringifyPath = function stringifyPath(path) {
-      var generatedPath = '';
-      if (path && typeof path === 'object') {
-        if (path.name) {
-          var extend = Vue.util.extend;
-          var currentParams = this._currentTransition && this._currentTransition.to.params;
-          var targetParams = path.params || {};
-          var params = currentParams ? extend(extend({}, currentParams), targetParams) : targetParams;
-          generatedPath = encodeURI(this._recognizer.generate(path.name, params));
-        } else if (path.path) {
-          generatedPath = encodeURI(path.path);
-        }
-        if (path.query) {
-          // note: the generated query string is pre-URL-encoded by the recognizer
-          var query = this._recognizer.generateQueryString(path.query);
-          if (generatedPath.indexOf('?') > -1) {
-            generatedPath += '&' + query.slice(1);
-          } else {
-            generatedPath += query;
-          }
-        }
-      } else {
-        generatedPath = encodeURI(path ? path + '' : '');
-      }
-      return generatedPath;
-    };
-
-    // Internal methods ======================================
-
-    /**
-    * Add a route containing a list of segments to the internal
-    * route recognizer. Will be called recursively to add all
-    * possible sub-routes.
-    *
-    * @param {String} path
-    * @param {Object} handler
-    * @param {Array} segments
-    */
-
-    Router.prototype._addRoute = function _addRoute(path, handler, segments) {
-      guardComponent(path, handler);
-      handler.path = path;
-      handler.fullPath = (segments.reduce(function (path, segment) {
-        return path + segment.path;
-      }, '') + path).replace('//', '/');
-      segments.push({
-        path: path,
-        handler: handler
-      });
-      this._recognizer.add(segments, {
-        as: handler.name
-      });
-      // add sub routes
-      if (handler.subRoutes) {
-        for (var subPath in handler.subRoutes) {
-          // recursively walk all sub routes
-          this._addRoute(subPath, handler.subRoutes[subPath],
-          // pass a copy in recursion to avoid mutating
-          // across branches
-          segments.slice());
-        }
-      }
-    };
-
-    /**
-     * Set the notFound route handler.
-     *
-     * @param {Object} handler
-     */
-
-    Router.prototype._notFound = function _notFound(handler) {
-      guardComponent('*', handler);
-      this._notFoundHandler = [{ handler: handler }];
-    };
-
-    /**
-     * Add a redirect record.
-     *
-     * @param {String} path
-     * @param {String} redirectPath
-     */
-
-    Router.prototype._addRedirect = function _addRedirect(path, redirectPath) {
-      if (path === '*') {
-        this._notFoundRedirect = redirectPath;
-      } else {
-        this._addGuard(path, redirectPath, this.replace);
-      }
-    };
-
-    /**
-     * Add an alias record.
-     *
-     * @param {String} path
-     * @param {String} aliasPath
-     */
-
-    Router.prototype._addAlias = function _addAlias(path, aliasPath) {
-      this._addGuard(path, aliasPath, this._match);
-    };
-
-    /**
-     * Add a path guard.
-     *
-     * @param {String} path
-     * @param {String} mappedPath
-     * @param {Function} handler
-     */
-
-    Router.prototype._addGuard = function _addGuard(path, mappedPath, _handler) {
-      var _this2 = this;
-
-      this._guardRecognizer.add([{
-        path: path,
-        handler: function handler(match, query) {
-          var realPath = mapParams(mappedPath, match.params, query);
-          _handler.call(_this2, realPath);
-        }
-      }]);
-    };
-
-    /**
-     * Check if a path matches any redirect records.
-     *
-     * @param {String} path
-     * @return {Boolean} - if true, will skip normal match.
-     */
-
-    Router.prototype._checkGuard = function _checkGuard(path) {
-      var matched = this._guardRecognizer.recognize(path, true);
-      if (matched) {
-        matched[0].handler(matched[0], matched.queryParams);
-        return true;
-      } else if (this._notFoundRedirect) {
-        matched = this._recognizer.recognize(path);
-        if (!matched) {
-          this.replace(this._notFoundRedirect);
-          return true;
-        }
-      }
-    };
-
-    /**
-     * Match a URL path and set the route context on vm,
-     * triggering view updates.
-     *
-     * @param {String} path
-     * @param {Object} [state]
-     * @param {String} [anchor]
-     */
-
-    Router.prototype._match = function _match(path, state, anchor) {
-      var _this3 = this;
-
-      if (this._checkGuard(path)) {
-        return;
-      }
-
-      var currentRoute = this._currentRoute;
-      var currentTransition = this._currentTransition;
-
-      if (currentTransition) {
-        if (currentTransition.to.path === path) {
-          // do nothing if we have an active transition going to the same path
-          return;
-        } else if (currentRoute.path === path) {
-          // We are going to the same path, but we also have an ongoing but
-          // not-yet-validated transition. Abort that transition and reset to
-          // prev transition.
-          currentTransition.aborted = true;
-          this._currentTransition = this._prevTransition;
-          return;
-        } else {
-          // going to a totally different path. abort ongoing transition.
-          currentTransition.aborted = true;
-        }
-      }
-
-      // construct new route and transition context
-      var route = new Route(path, this);
-      var transition = new RouteTransition(this, route, currentRoute);
-
-      // current transition is updated right now.
-      // however, current route will only be updated after the transition has
-      // been validated.
-      this._prevTransition = currentTransition;
-      this._currentTransition = transition;
-
-      if (!this.app) {
-        (function () {
-          // initial render
-          var router = _this3;
-          _this3.app = new _this3._appConstructor({
-            el: _this3._appContainer,
-            created: function created() {
-              this.$router = router;
-            },
-            _meta: {
-              $route: route
-            }
-          });
-        })();
-      }
-
-      // check global before hook
-      var beforeHooks = this._beforeEachHooks;
-      var startTransition = function startTransition() {
-        transition.start(function () {
-          _this3._postTransition(route, state, anchor);
-        });
-      };
-
-      if (beforeHooks.length) {
-        transition.runQueue(beforeHooks, function (hook, _, next) {
-          if (transition === _this3._currentTransition) {
-            transition.callHook(hook, null, next, {
-              expectBoolean: true
-            });
-          }
-        }, startTransition);
-      } else {
-        startTransition();
-      }
-
-      if (!this._rendered && this._startCb) {
-        this._startCb.call(null);
-      }
-
-      // HACK:
-      // set rendered to true after the transition start, so
-      // that components that are acitvated synchronously know
-      // whether it is the initial render.
-      this._rendered = true;
-    };
-
-    /**
-     * Set current to the new transition.
-     * This is called by the transition object when the
-     * validation of a route has succeeded.
-     *
-     * @param {Transition} transition
-     */
-
-    Router.prototype._onTransitionValidated = function _onTransitionValidated(transition) {
-      // set current route
-      var route = this._currentRoute = transition.to;
-      // update route context for all children
-      if (this.app.$route !== route) {
-        this.app.$route = route;
-        this._children.forEach(function (child) {
-          child.$route = route;
-        });
-      }
-      // call global after hook
-      if (this._afterEachHooks.length) {
-        this._afterEachHooks.forEach(function (hook) {
-          return hook.call(null, {
-            to: transition.to,
-            from: transition.from
-          });
-        });
-      }
-      this._currentTransition.done = true;
-    };
-
-    /**
-     * Handle stuff after the transition.
-     *
-     * @param {Route} route
-     * @param {Object} [state]
-     * @param {String} [anchor]
-     */
-
-    Router.prototype._postTransition = function _postTransition(route, state, anchor) {
-      // handle scroll positions
-      // saved scroll positions take priority
-      // then we check if the path has an anchor
-      var pos = state && state.pos;
-      if (pos && this._saveScrollPosition) {
-        Vue.nextTick(function () {
-          window.scrollTo(pos.x, pos.y);
-        });
-      } else if (anchor) {
-        Vue.nextTick(function () {
-          var el = document.getElementById(anchor.slice(1));
-          if (el) {
-            window.scrollTo(window.scrollX, el.offsetTop);
-          }
-        });
-      }
-    };
-
-    return Router;
-  })();
-
-  function guardComponent(path, handler) {
-    var comp = handler.component;
-    if (Vue.util.isPlainObject(comp)) {
-      comp = handler.component = Vue.extend(comp);
-    }
-    /* istanbul ignore if */
-    if (typeof comp !== 'function') {
-      handler.component = null;
-      warn$1('invalid component for route "' + path + '".');
-    }
-  }
-
-  /* Installation */
-
-  Router.installed = false;
-
-  /**
-   * Installation interface.
-   * Install the necessary directives.
-   */
-
-  Router.install = function (externalVue) {
-    /* istanbul ignore if */
-    if (Router.installed) {
-      warn$1('already installed.');
-      return;
-    }
-    Vue = externalVue;
-    applyOverride(Vue);
-    View(Vue);
-    Link(Vue);
-    exports$1.Vue = Vue;
-    Router.installed = true;
-  };
-
-  // auto install
-  /* istanbul ignore if */
-  if (typeof window !== 'undefined' && window.Vue) {
-    window.Vue.use(Router);
-  }
-
-  return Router;
-
-}));
 },{}],7:[function(require,module,exports){
 (function (process,global){
 /*!
@@ -18745,7 +17804,7 @@ setTimeout(function () {
 
 module.exports = Vue;
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":2}],8:[function(require,module,exports){
+},{"_process":3}],8:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 exports.insert = function (css) {
@@ -18771,48 +17830,55 @@ exports.insert = function (css) {
 /**
  * Created by Hafiz on 6/18/2016.
  */
-require('./admin_dashboard');
-require('./show');
+require('./propositie/show');
 require('./propositie/create_propositie');
+require('./dashboard_overview');
 
-},{"./admin_dashboard":10,"./propositie/create_propositie":13,"./show":15}],10:[function(require,module,exports){
-'use strict';
+require('./admin_dashboard');
 
-var _overview = require('./overview.vue');
+},{"./admin_dashboard":10,"./dashboard_overview":11,"./propositie/create_propositie":12,"./propositie/show":13}],10:[function(require,module,exports){
+"use strict";
 
-var _overview2 = _interopRequireDefault(_overview);
+/**
+ *  This is the main dashboard app-- All components are called before this -- in admin-bootstrap
+ */
 
-var _create_edit_propositie = require('./propositie/create_edit_propositie.vue');
+var dashboardApp = new Vue({
+    el: "#admin_app"
 
-var _create_edit_propositie2 = _interopRequireDefault(_create_edit_propositie);
+});
 
-var _showpropositie = require('./propositie/showpropositie.vue');
-
-var _showpropositie2 = _interopRequireDefault(_showpropositie);
-
-var _create_edit_user = require('./user/create_edit_user.vue');
-
-var _create_edit_user2 = _interopRequireDefault(_create_edit_user);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Vue = require('vue');
-
-window.Vue = Vue;
-Vue.config.debug = true;
-Vue.use(require('vue-resource'));
-var VueRouter = require('vue-router');
-Vue.use(VueRouter);
-Vue.use(require('vue-moment'));
-
-Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
-//Vue.component('dashboard-overview', Overview);
-
-
-//import AddToTeam from './content/create_edit_propositie.vue';
-
-var App = Vue.extend({});
-
+//var Vue = require('vue');
+//
+//window.Vue = Vue;
+//Vue.config.debug = true;
+//Vue.use(require('vue-resource'));
+//var VueRouter = require('vue-router');
+// Vue.use(VueRouter);
+//Vue.use(require('vue-moment'));
+//
+//Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+//
+//import Overview from './overview.vue';
+////Vue.component('dashboard-overview', Overview);
+//import CreatePropositie from './propositie/create_edit_propositie.vue';
+//import Editpropositie from './propositie/create_edit_propositie.vue';
+//import Showpropositie from './propositie/showpropositie.vue';
+//
+//import CreateUser from './user/create_edit_user.vue';
+//import EditUser from './user/create_edit_user.vue';
+//
+////import AddToTeam from './content/create_edit_propositie.vue';
+//
+//
+//
+//
+//var App = Vue.extend({
+//
+//})
+//
+//
+//
 //var router = new VueRouter({
 //    saveScrollPosition: true
 //})
@@ -18854,14 +17920,8 @@ var App = Vue.extend({});
 //
 //router.start(App, '#admin_app');
 
-},{"./overview.vue":11,"./propositie/create_edit_propositie.vue":12,"./propositie/showpropositie.vue":14,"./user/create_edit_user.vue":16,"vue":7,"vue-moment":4,"vue-resource":5,"vue-router":6}],11:[function(require,module,exports){
-var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("\na.active{\n    color: red;\n}\n\n.intable-image {\n\n}\n\n.intable-image img {\n    height: 50px;\n    width: 70px;\n}\n")
+},{}],11:[function(require,module,exports){
 'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
 
 var _helpers = require('../mixins/helpers');
 
@@ -18869,9 +17929,9 @@ var _helpers2 = _interopRequireDefault(_helpers);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-//    import Showpropositie from './content/showpropositie.vue';
+Vue.component('dashboard-overview', {
 
-exports.default = {
+    template: '#dashboard_overview',
 
     mixins: [_helpers2.default],
     props: ['user'],
@@ -18906,74 +17966,39 @@ exports.default = {
             this.sortKey = sortKey;
         }
     }
-
-};
-if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<div class=\"panel panel-default\">\n    <div class=\"panel-heading\">Overview</div>\n\n    <div class=\"panel-body\">\n        <h3>Overview page</h3>\n        <div class=\"panel-body\">\n            <input type=\"text\" v-model=\"filterPros\" class=\"input-control input-sm\">\n            <table class=\"table table-borderless m-b-none\">\n                <thead>\n                <tr>\n                    <th v-for=\"pro_column in pro_columns\">\n                        <a :class=\"{'active' sortKey==pro_column}\" @click=\"sortBy(pro_column)\">\n                            {{ pro_column | uppercase}}\n                        </a>\n                    </th>\n                </tr>\n                </thead>\n\n                <tbody>\n                <tr v-for=\"propositie in proposities |filterBy filterPros |orderBy sortKey reverse\">\n\n                    <!-- Id -->\n                    <td>\n                        <div class=\"btn-table-align\">\n                            {{ propositie.id }}\n                        </div>\n                    </td>\n\n                    <!--Avatar-->\n                    <td>\n                        <div class=\"btn-table-align intable-image\">\n                            <!--<img src=\"{{getImg(content.pro_avatar)}}\">-->\n                        </div>\n                    </td>\n\n                    <!-- Name -->\n                    <td>\n                        <div class=\"btn-table-align\">\n                            <a v-link=\"{ path: '/showPropositie'}\">\n                                {{ propositie.pro_name }}\n                            </a>\n\n                        </div>\n                    </td>\n\n                    <!-- Contact -->\n                    <td>\n                        <div class=\"btn-table-align\">\n                            <a href=\"\">\n                                {{ propositie.user.first_name +' '+ propositie.user.last_name }}\n                            </a>\n                        </div>\n                    </td>\n\n                    <td>\n                        <div class=\"btn-table-align\">\n                            {{ propositie.pro_name }}\n                        </div>\n                    </td>\n\n                    <td>\n                        <div class=\"btn-table-align\">\n                            {{ propositie.pro_slug }}\n                        </div>\n                    </td>\n\n                    <!-- View Button -->\n\n\n                    <td>\n                        <a href=\"/propositie/{{ propositie.id }}/show\">\n                            <button class=\"btn btn-primary\">\n                                <i class=\"fa fa-search\"></i>\n                            </button>\n                        </a>\n                    </td>\n\n                    <!-- Delete Button -->\n                    <td>\n                        <button class=\"btn btn-danger-outline\" @click=\"deletePropositie(propositie)\">\n                            <i class=\"fa fa-times\"></i>\n                        </button>\n                    </td>\n                </tr>\n                </tbody>\n            </table>\n        </div>\n    </div>\n</div>\n\n"
-if (module.hot) {(function () {  module.hot.accept()
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.dispose(function () {
-    __vueify_insert__.cache["\na.active{\n    color: red;\n}\n\n.intable-image {\n\n}\n\n.intable-image img {\n    height: 50px;\n    width: 70px;\n}\n"] = false
-    document.head.removeChild(__vueify_style__)
-  })
-  if (!module.hot.data) {
-    hotAPI.createRecord("_v-3a1c61cb", module.exports)
-  } else {
-    hotAPI.update("_v-3a1c61cb", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
-  }
-})()}
-},{"../mixins/helpers":24,"vue":7,"vue-hot-reload-api":3,"vueify/lib/insert-css":8}],12:[function(require,module,exports){
-var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("\nbody{\n    background-color:#ff0000;\n}\n")
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
 });
-exports.default = {
-    data: function data() {
-        return {
-            msg: 'hello vue'
-        };
-    }
-};
-if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<div class=\"panel panel-default\">\n    <div class=\"panel-heading\">Create Edit Propositie</div>\n\n    <div class=\"panel-body\">\n        <h3>Create page</h3>\n    </div>\n</div>\n\n"
-if (module.hot) {(function () {  module.hot.accept()
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.dispose(function () {
-    __vueify_insert__.cache["\nbody{\n    background-color:#ff0000;\n}\n"] = false
-    document.head.removeChild(__vueify_style__)
-  })
-  if (!module.hot.data) {
-    hotAPI.createRecord("_v-067c8a4c", module.exports)
-  } else {
-    hotAPI.update("_v-067c8a4c", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
-  }
-})()}
-},{"vue":7,"vue-hot-reload-api":3,"vueify/lib/insert-css":8}],13:[function(require,module,exports){
+
+},{"../mixins/helpers":22}],12:[function(require,module,exports){
 'use strict';
 
-//var Dropzone = require('dropzone');
+var _StopWordsHelper = require('../../mixins/StopWordsHelper');
+
+var _StopWordsHelper2 = _interopRequireDefault(_StopWordsHelper);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Dropzone = require('dropzone');
 
 Vue.component('create-propositie', {
+
+    mixins: [_StopWordsHelper2.default],
+
     props: ['proId'],
 
     template: '#create_propositie_temp',
 
-    //components: [Dropzone],
+    components: [Dropzone],
     /**
      * All of the component's data.
      */
     data: function data() {
         return {
             viewers: [],
-            task: null,
-            name: ''
+            pro_name: '',
+            pro_description: '',
+            num_char_desc: 250,
+            pro_unique: '',
+            unique_suggest: []
         };
     },
 
@@ -18981,112 +18006,40 @@ Vue.component('create-propositie', {
      * Prepare the component.
      */
     ready: function ready() {
+
+        //alert(this.getWords('This is the Name Section Test PHP Viber'));
+
         //this.listen();
 
         //this.getTask();
-        alert('arrived create template');
-        alert('and further');
+
     },
 
 
     methods: {
-        /**
-         * Listen to Echo channels.
-         */
-        //listen() {
-        //    echo.join('task.' + this.taskId)
-        //        .here(viewers => {
-        //            this.viewers = viewers;
-        //        });
-        //},
 
-        /**
-         * Get the task being viewed.
-         */
+        getSuggestions: function getSuggestions() {
 
-        getTask: function getTask() {
-            var _this = this;
+            if (this.pro_name.length >= 3) {
 
-            this.$http.post('/api/content/show').then(function (response) {
-                _this.task = response.data;
-                _this.nameme = response.data.pro_name;
+                var words = this.pro_name + this.pro_description;
+                this.unique_suggest = this.getWords(words);
 
-                console.log(_this.task);
-
-                alert(response.data.pro_name);
-            });
+                alert(this.unique_suggest);
+            }
         }
+
     }
 
 });
 
-//computed: {
-//    /**
-//     * Get all of the current viewers except me.
-//     */
-//    viewersExceptMe() {
-//        return _.reject(this.viewers, viewer => this.user.id == viewer.id);
-//    }
-//}
-var App = new Vue({});
-
-},{}],14:[function(require,module,exports){
-var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("\nbody{\n    background-color:#ff0000;\n}\n")
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = {
-
-    props: ['pro_id'],
-
-    data: function data() {
-        return {
-            msg: 'hello vue'
-        };
-    },
-
-
-    methods: {
-        getPropositie: function getPropositie(propositie) {
-
-            this.$http.get('/api/proposities/').then(function (response) {
-                this.proposities = response.data;
-            }.bind(this), function (response) {});
-        }
-    },
-
-    ready: function ready() {
-
-        alert(this.pro_id);
-        //            this.getPropositie(this.propositieId);
-    }
-};
-if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<div class=\"panel panel-default\">\n    <div class=\"panel-heading\">Show Propositie</div>\n\n    <div class=\"panel-body\">\n        <h3>Show page</h3>\n    </div>\n</div>\n\n"
-if (module.hot) {(function () {  module.hot.accept()
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.dispose(function () {
-    __vueify_insert__.cache["\nbody{\n    background-color:#ff0000;\n}\n"] = false
-    document.head.removeChild(__vueify_style__)
-  })
-  if (!module.hot.data) {
-    hotAPI.createRecord("_v-33db7777", module.exports)
-  } else {
-    hotAPI.update("_v-33db7777", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
-  }
-})()}
-},{"vue":7,"vue-hot-reload-api":3,"vueify/lib/insert-css":8}],15:[function(require,module,exports){
+},{"../../mixins/StopWordsHelper":21,"dropzone":1}],13:[function(require,module,exports){
 'use strict';
 
 Vue.component('proposities-show', {
     props: ['proId'],
 
-    template: '#sheeeeje',
+    template: '#propositie_show',
 
     /**
      * All of the component's data.
@@ -19106,9 +18059,7 @@ Vue.component('proposities-show', {
         //this.listen();
 
         this.getTask();
-        alert('arrived');
     },
-
 
     methods: {
         /**
@@ -19131,10 +18082,6 @@ Vue.component('proposities-show', {
             this.$http.get('/api/content/' + this.proId + '/show').then(function (response) {
                 _this.task = response.data;
                 _this.nameme = response.data.pro_name;
-
-                console.log(_this.task);
-
-                alert(response.data.pro_name);
             });
         }
     }
@@ -19151,38 +18098,7 @@ Vue.component('proposities-show', {
 //}
 var App = new Vue({});
 
-},{}],16:[function(require,module,exports){
-var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("\nbody{\n    background-color:#ff0000;\n}\n")
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = {
-    data: function data() {
-        return {
-            msg: 'hello vue'
-        };
-    }
-};
-if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<div class=\"panel panel-default\">\n    <div class=\"panel-heading\">Create Edit User</div>\n\n    <div class=\"panel-body\">\n        <h3>Create page</h3>\n    </div>\n</div>\n\n"
-if (module.hot) {(function () {  module.hot.accept()
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  module.hot.dispose(function () {
-    __vueify_insert__.cache["\nbody{\n    background-color:#ff0000;\n}\n"] = false
-    document.head.removeChild(__vueify_style__)
-  })
-  if (!module.hot.data) {
-    hotAPI.createRecord("_v-ff85a628", module.exports)
-  } else {
-    hotAPI.update("_v-ff85a628", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
-  }
-})()}
-},{"vue":7,"vue-hot-reload-api":3,"vueify/lib/insert-css":8}],17:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 /**
@@ -19191,7 +18107,7 @@ if (module.hot) {(function () {  module.hot.accept()
 
 require('./home.js');
 
-},{"./home.js":18}],18:[function(require,module,exports){
+},{"./home.js":15}],15:[function(require,module,exports){
 'use strict';
 
 var _themas = require('./themas.vue');
@@ -19215,10 +18131,6 @@ var _helpers = require('../mixins/helpers');
 var _helpers2 = _interopRequireDefault(_helpers);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Created by Hafiz on 6/17/2016.
- */
 
 var Vue = require('vue');
 
@@ -19349,23 +18261,7 @@ new Vue({
     }
 });
 
-//var App = Vue.extend()
-//
-//var router = new VueRouter({
-//    saveScrollPosition: true
-//})
-//
-//
-//router.map({
-//
-//    '/': {
-//        component: Marktsegments
-//    }
-//})
-//
-//router.start(App, '#app');
-
-},{"../mixins/helpers":24,"./marktsegments.vue":19,"./navsearch.vue":20,"./search.vue":21,"./themas.vue":22,"vue":7,"vue-moment":4,"vue-resource":5}],19:[function(require,module,exports){
+},{"../mixins/helpers":22,"./marktsegments.vue":16,"./navsearch.vue":17,"./search.vue":18,"./themas.vue":19,"vue":7,"vue-moment":5,"vue-resource":6}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -19405,7 +18301,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-53ac3dc7", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":7,"vue-hot-reload-api":3}],20:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":4}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -19487,7 +18383,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-fc6f172a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":7,"vue-hot-reload-api":3}],21:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":4}],18:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.tt-menu {\n    position: relative;\n    z-index: 99;\n    padding: 20px 10px;\n}\n\n.right-inner-addon {\n    position: relative;\n    z-index: 1;\n}\n\n.right-inner-addon input {\n    padding-right: 30px;\n}\n\n.right-inner-addon i {\n    position: absolute;\n    right: 0px;\n    padding: 40px 12px;\n    pointer-events: none;\n}\n\n.buttonRight {\n    position: absolute;\n    right: 0px;\n    top: 20px;\n}\n.twitter-typeahead,\n.tt-hint,\n.tt-input,\n.tt-menu {\n    width: 100%;\n}\n\n.tt-suggestion {\n    padding: 3px 20px;\n    font-size: 18px;\n    line-height: 24px;\n    border-bottom: 1px solid #e3e3e3;\n    background-color: white;\n}\n\n.tt-cursor {\n    background-color: #e3e3e3;\n}\n")
 'use strict';
@@ -19592,7 +18488,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6d872278", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":7,"vue-hot-reload-api":3,"vueify/lib/insert-css":8}],22:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":4,"vueify/lib/insert-css":8}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -19614,16 +18510,66 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-9a5685c4", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":7,"vue-hot-reload-api":3}],23:[function(require,module,exports){
+},{"vue":7,"vue-hot-reload-api":4}],20:[function(require,module,exports){
 'use strict';
 
 require('./components/bootstrap');
 
 require('./admin-components/admin_bootstrap');
 
-var app = new Vue({});
+},{"./admin-components/admin_bootstrap":9,"./components/bootstrap":14}],21:[function(require,module,exports){
+"use strict";
 
-},{"./admin-components/admin_bootstrap":9,"./components/bootstrap":17}],24:[function(require,module,exports){
+Object.defineProperty(exports, "__esModule", {
+            value: true
+});
+exports.default = {
+
+            methods: {
+                        getWords: function getWords(wordin) {
+
+                                    var word;
+                                    var stop_word;
+                                    var your_wording = wordin.toString();
+
+                                    var words = your_wording.match(/[^\s]+|\s+[^\s+]$/g);
+
+                                    for (var i = 0; i < words.length; i++) {
+
+                                                for (var x = 0; x < this.getDictionary().length; x++) {
+                                                            word = words[i].replace(/\s+|[^a-z]+/ig, "");
+
+                                                            stop_word = this.getDictionary()[x];
+
+                                                            if (word.toLowerCase() == stop_word) {
+                                                                        // Remove any found word from the keywords
+                                                                        your_wording = your_wording.replace(this.regexStopWord(stop_word), " ");
+                                                            }
+                                                }
+                                    }
+
+                                    return your_wording.replace(/^\s+|\s+$/g, "").split(' ');
+                        },
+                        regexStopWord: function regexStopWord(stop_word) {
+                                    var regex;
+                                    var regex_str;
+
+                                    // Trim stop word with regex
+                                    regex_str = "^\\s*" + stop_word + "\\s*$";
+                                    regex_str += "|^\\s*" + stop_word + "\\s+";
+                                    regex_str += "|\\s+" + stop_word + "\\s*$";
+                                    regex_str += "|\\s+" + stop_word + "\\s+";
+                                    regex = new RegExp(regex_str, "ig");
+
+                                    return regex;
+                        },
+                        getDictionary: function getDictionary() {
+                                    return ["a", "about", "above", "across", "after", "again", "against", "all", "almost", "alone", "along", "already", "also", "although", "always", "among", "an", "and", "another", "any", "anybody", "anyone", "anything", "anywhere", "are", "area", "areas", "around", "as", "ask", "asked", "asking", "asks", "at", "away", "b", "back", "backed", "backing", "backs", "be", "became", "because", "become", "becomes", "been", "before", "began", "behind", "being", "beings", "best", "better", "between", "big", "both", "but", "by", "c", "came", "can", "cannot", "case", "cases", "certain", "certainly", "clear", "clearly", "come", "could", "d", "did", "differ", "different", "differently", "do", "does", "done", "down", "down", "downed", "downing", "downs", "during", "e", "each", "early", "either", "end", "ended", "ending", "ends", "enough", "even", "evenly", "ever", "every", "everybody", "everyone", "everything", "everywhere", "f", "face", "faces", "fact", "facts", "far", "felt", "few", "find", "ok", "finds", "first", "for", "four", "from", "full", "fully", "further", "furthered", "furthering", "furthers", "g", "gave", "general", "generally", "get", "gets", "give", "given", "gives", "go", "going", "good", "goods", "got", "great", "greater", "greatest", "group", "grouped", "grouping", "groups", "h", "had", "has", "have", "having", "he", "her", "here", "herself", "high", "high", "high", "higher", "highest", "him", "himself", "his", "how", "however", "i", "if", "important", "in", "interest", "interested", "interesting", "interests", "into", "is", "it", "its", "itself", "j", "just", "k", "keep", "keeps", "kind", "knew", "know", "known", "knows", "l", "large", "largely", "last", "later", "latest", "least", "less", "let", "lets", "like", "likely", "long", "longer", "longest", "m", "made", "make", "making", "man", "many", "may", "me", "member", "members", "men", "might", "more", "most", "mostly", "mr", "mrs", "much", "must", "my", "myself", "n", "necessary", "need", "needed", "needing", "needs", "never", "new", "new", "newer", "newest", "next", "no", "nobody", "non", "noone", "not", "nothing", "now", "nowhere", "number", "numbers", "o", "of", "off", "often", "old", "older", "oldest", "on", "once", "one", "only", "open", "opened", "opening", "opens", "or", "order", "ordered", "ordering", "orders", "other", "others", "our", "out", "over", "p", "part", "parted", "parting", "parts", "per", "perhaps", "place", "places", "point", "pointed", "pointing", "points", "possible", "present", "presented", "presenting", "presents", "problem", "problems", "put", "puts", "q", "quite", "r", "rather", "really", "right", "right", "room", "rooms", "s", "said", "same", "saw", "say", "says", "second", "seconds", "see", "seem", "seemed", "seeming", "seems", "sees", "several", "shall", "she", "should", "show", "showed", "showing", "shows", "side", "sides", "since", "small", "smaller", "smallest", "so", "some", "somebody", "someone", "something", "somewhere", "state", "states", "still", "till", "such", "sure", "t", "take", "taken", "than", "that", "the", "their", "them", "then", "there", "therefore", "these", "they", "thing", "things", "think", "thinks", "this", "those", "though", "thought", "thoughts", "three", "through", "thus", "to", "today", "together", "too", "took", "toward", "turn", "turned", "turning", "turns", "two", "u", "under", "until", "up", "upon", "us", "use", "used", "uses", "v", "very", "w", "want", "wanted", "wanting", "wants", "was", "way", "ways", "we", "well", "wells", "went", "were", "what", "when", "where", "whether", "which", "while", "who", "whole", "whose", "why", "will", "with", "within", "without", "work", "worked", "working", "works", "would", "x", "we'd", "we'll", "we're", "we've", "y", "year", "years", "yet", "you", "young", "younger", "youngest", "your", "yours", "z", "achter", "achterna", "afgelopen", "al", "aldaar", "aldus", "alhoewel", "alias", "alle", "allebei", "alleen", "alsnog", "altijd", "altoos", "ander", "andere", "anders", "anderszins", "behalve", "behoudens", "beide", "beiden", "ben", "beneden", "bent", "bepaald", "betreffende", "bij", "binnen", "binnenin", "boven", "bovenal", "bovendien", "bovengenoemd", "bovenstaand", "bovenvermeld", "buiten", "daar", "daarheen", "daarin", "daarna", "daarnet", "daarom", "daarop", "daarvanlangs", "dan", "dat", "de", "die", "dikwijls", "dit", "door", "doorgaand", "dus", "echter", "eer", "eerdat", "eerder", "eerlang", "eerst", "elk", "elke", "en", "enig", "enigszins", "enkel", "er", "erdoor", "even", "eveneens", "evenwel", "gauw", "gedurende", "geen", "gehad", "gekund", "geleden", "gelijk", "gemoeten", "gemogen", "geweest", "gewoon", "gewoonweg", "haar", "had", "hadden", "hare", "heb", "hebben", "hebt", "heeft", "hem", "hen", "het", "hierbeneden", "hierboven", "hij", "hoe", "hoewel", "hun", "hunne", "ik", "ikzelf", "in", "inmiddels", "inzake", "is", "jezelf", "jij", "jijzelf", "jou", "jouw", "jouwe", "juist", "jullie", "kan", "klaar", "kon", "konden", "krachtens", "kunnen", "kunt", "later", "liever", "maar", "mag", "meer", "met", "mezelf", "mij", "mijn", "mijnent", "mijner", "mijzelf", "misschien", "mocht", "mochten", "moest", "moesten", "moet", "moeten", "mogen", "na", "naar", "nadat", "net", "niet", "noch", "nog", "nogal", "nu", "of", "ofschoon", "om", "omdat", "omhoog", "omlaag", "omstreeks", "omtrent", "omver", "onder", "ondertussen", "ongeveer", "ons", "onszelf", "onze", "ook", "op", "opnieuw", "opzij", "over", "overeind", "overigens", "pas", "precies", "reeds", "rond", "rondom", "sedert", "sinds", "sindsdien", "slechts", "sommige", "spoedig", "steeds", "tamelijk", "tenzij", "terwijl", "thans", "tijdens", "toch", "toen", "toenmaals", "toenmalig", "tot", "totdat", "tussen", "uit", "uitgezonderd", "vaakwat", "van", "vandaan", "vanuit", "vanwege", "veeleer", "verder", "vervolgens", "vol", "volgens", "voor", "vooraf", "vooral", "vooralsnog", "voorbij", "voordat", "voordezen", "voordien", "voorheen", "voorop", "vooruit", "vrij", "vroeg", "waar", "waarom", "wanneer", "want", "waren", "was", "weer", "weg", "wegens", "wel", "weldra", "welk", "welke", "wie", "wiens", "wier", "wij", "wijzelf", "zal", "ze", "zelfs", "zichzelf", "zij", "zijn", "zijne", "zo", "zodra", "zonder", "zou", "zouden", "zowat", "zulke", "zullen", "zult", "", "", "", "", "aan", "al", "alles", "als", "altijd", "andere", "ben", "bij", "daar", "dan", "dat", "de", "der", "deze", "die", "dit", "doch", "doen", "door", "dus", "een", "eens", "en", "er", "ge", "geen", "geweest", "haar", "had", "heb", "hebben", "heeft", "hem", "het", "hier", "hij", "hoe", "hun", "iemand", "iets", "ik", "in", "is", "ja", "je", "kan", "kon", "kunnen", "maar", "me", "meer", "men", "met", "mij", "mijn", "moet", "na", "naar", "niet", "niets", "nog", "nu", "of", "om", "omdat", "onder", "ons", "ook", "op", "over", "reeds", "te", "tegen", "toch", "toen", "tot", "u", "uit", "uw", "van", "veel", "voor", "want", "waren", "was", "wat", "werd", "wezen", "wie", "wil", "worden", "wordt", "zal", "ze", "zelf", "zich", "zij", "zijn", "zo", "zonder", "zou"];
+                        }
+            }
+};
+
+},{}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19767,6 +18713,6 @@ exports.default = {
     }
 };
 
-},{}]},{},[23]);
+},{}]},{},[20]);
 
 //# sourceMappingURL=main.js.map

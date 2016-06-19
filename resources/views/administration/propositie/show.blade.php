@@ -9,7 +9,7 @@
     {{--</router-view>--}}
 
 
-    <template id="sheeeeje">
+    <template id="propositie_show">
 
         <div class="container">
 
