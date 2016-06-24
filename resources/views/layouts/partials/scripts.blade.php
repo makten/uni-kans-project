@@ -2,18 +2,17 @@
 
 <!-- jQuery 2.1.4 -->
 
-<script src="{{ asset('/js/jquery.min.js') }}"></script>
+{{-- <script src="{{ asset('/js/jquery.min.js') }}"></script> --}}
+<script   src="https://code.jquery.com/jquery-3.0.0.js"   integrity="sha256-jrPLZ+8vDxt2FnE1zvZXCkCcebI/C8Dt5xyaQBjxQIo="   crossorigin="anonymous"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 
 <!-- Vuejs cdn -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.24/vue.js"></script>
+{{-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.24/vue.js"></script> --}}
 
 
-<!-- Bootstrap 3.3.2 JS -->
+        <!-- Bootstrap 3.3.2 JS -->
 <script src="{{ asset('/js/bootstrap.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('/js/dashboard.js') }}" type="text/javascript"></script>
-{{--<script src="{{ asset('/js/jquery-ui.js') }}" type="text/javascript"></script>--}}
-{{--<script src="{{ asset('/js/jquery.aCollapTable.min.js') }}" type="text/javascript"></script>--}}
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
@@ -23,10 +22,10 @@
 
 <script src="{{ asset('/js/plugins/ad-nav-side.js') }}" type="text/javascript"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+{{-- <script src="//js.pusher.com/3.0/pusher.min.js"></script> --}}
+{{-- <script type="text/javascript" src="{{ asset('/js/echo.js') }}"></script> --}}
 
-
-<!--- components master ---->
-<script src="{{ ('/js/main.js') }}" type="text/javascript"></script>
 
 <!-- Material js -->
 <script src="{{ asset('/js/material.min.js') }}" type="text/javascript"></script>
@@ -35,11 +34,11 @@
 <script src="{{ asset('/js/datetimepicker.js') }}" type="text/javascript"></script>
 <script src="{{ asset('/js/plugins/selectize.js') }}" type="text/javascript"></script>
 <script src="{{ asset('/js/plugins/jquery.dropdown.js') }}" type="text/javascript"></script>
-<script src="{{ asset('/js/moments.js') }}" type="text/javascript"></script>
-
-
-<!-- Default script js -->
-<script src="{{ ('/js/default_script.js') }}" type="text/javascript"></script>
+{{-- <script src="{{ asset('/js/moments.js') }}" type="text/javascript"></script> --}}
 
 
 
+        <!-- Default script js -->
+<script src="{{ asset('/js/default_script.js') }}" type="text/javascript"></script>
+<!--- components master ---->
+<script src="{{ asset('/js/main.js') }}" type="text/javascript"></script>

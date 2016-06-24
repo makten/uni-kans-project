@@ -36,9 +36,13 @@ class PropositieController extends Controller
      */
     public function show($propositie)
     {
+//        $prop = Propositie::with(array('nestedReacties' => function ($q) {
+//            $q->orderBy('reacties.id', 'ASC');
+//        }, 'user.userprofile', 'team.users'))->where('id', $propositie)->first();
+
         $prop = Propositie::with(array('nestedReacties' => function ($q) {
             $q->orderBy('reacties.id', 'ASC');
-        }, 'user'))->where('id', $propositie)->first();
+        }, 'user.userprofile', 'team.users', 'reacties.user', 'reacties.replies.user', 'reacties.propositie'))->where('id', $propositie)->first();
 
 
 
@@ -47,8 +51,8 @@ class PropositieController extends Controller
 //        $team = $prop->team;
 //        $teamMembers = $prop->team->users;
 
-//        return view('administration.content.show', compact('prop', 'team', 'teamMembers'));
-        return view('administration.propositie.show', compact('prop'));
+//        return view('admin.content.show', compact('prop', 'team', 'teamMembers'));
+//        return view('admin.propositie.show', compact('prop'));
     }
 
 
@@ -63,7 +67,7 @@ class PropositieController extends Controller
 
         if ($request->user()->hasRole('admin') || $request->user()->hasRole('team member')) {
 
-            return view('administration.propositie.create_edit_propositie', compact('themas', 'marktsegmenten', 'userSettings', 'user'));
+            return view('admin.propositie.create_edit_propositie', compact('themas', 'marktsegmenten', 'userSettings', 'user'));
         } else {
             abort('You do not have permission', 403);
             flash()->overlay('U heeft geen rechten om deze actie uit te voeren. Neem contact op met de admin!');

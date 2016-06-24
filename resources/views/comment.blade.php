@@ -1,4 +1,6 @@
 @if($comment->comment_parent)
+
+    {{$comment->comment_parent}}
     <div class="media comment-item" data-comment-id="{{ $comment->id }}">
 @else
     <li class="media comment-item" data-comment-id="{{ $comment->id }}">

@@ -20,7 +20,7 @@ class Propositie extends Model
         'pro_revenuen',
         'pro_themas',
         'pro_marktsegmenten',
-        'pro_references',
+        'pro_referencen',
         'pro_saleskit',
         'pro_marktinfo',
         'pro_technical_doc',

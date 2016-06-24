@@ -235,13 +235,13 @@ body .container-fluid .jumbotron-danger {
 .input-group-btn .btn:not(.btn-raised):not(.btn-link):hover,
 .btn:not(.btn-raised):not(.btn-link):focus,
 .input-group-btn .btn:not(.btn-raised):not(.btn-link):focus {
-  background-color: rgba(153, 153, 153, 0.2);
+  background-color: rgba(153, 153, 153, 0.66);
 }
 .theme-dark .btn:not(.btn-raised):not(.btn-link):hover,
 .theme-dark .input-group-btn .btn:not(.btn-raised):not(.btn-link):hover,
 .theme-dark .btn:not(.btn-raised):not(.btn-link):focus,
 .theme-dark .input-group-btn .btn:not(.btn-raised):not(.btn-link):focus {
-  background-color: rgba(204, 204, 204, 0.15);
+  background-color: rgba(204, 204, 204, 0.62);
 }
 .btn.btn-raised,
 .input-group-btn .btn.btn-raised,
@@ -2630,7 +2630,7 @@ fieldset[disabled] .navbar .btn-link:focus {
   color: rgba(255,255,255, 0.84);
 }
 .navbar.navbar-danger {
-  background-color: #f44336;
+  background-color: #DE321C;
   color: rgba(255,255,255, 0.84);
 }
 .navbar.navbar-danger .navbar-form .form-group input.form-control::-moz-placeholder,
@@ -2654,11 +2654,11 @@ fieldset[disabled] .navbar .btn-link:focus {
 }
 .navbar.navbar-danger .dropdown-menu li > a:hover,
 .navbar.navbar-danger .dropdown-menu li > a:focus {
-  color: #f44336;
+  color: #DE321C;
   background-color: #eeeeee;
 }
 .navbar.navbar-danger .dropdown-menu .active > a {
-  background-color: #f44336;
+  background-color: #DE321C;
   color: rgba(255,255,255, 0.84);
 }
 .navbar.navbar-danger .dropdown-menu .active > a:hover,
@@ -2753,7 +2753,7 @@ fieldset[disabled] .navbar .btn-link:focus {
   color: rgba(255,255,255, 0.84);
 }
 .alert.alert-danger {
-  background-color: #f44336;
+  background-color: #DE321C;
   color: rgba(255,255,255, 0.84);
 }
 .alert.alert-danger a,
@@ -2810,7 +2810,7 @@ fieldset[disabled] .navbar .btn-link:focus {
   color: #009688;
 }
 .text-danger {
-  color: #f44336;
+  color: #DE321C;
 }
 .text-success {
   color: #4caf50;
@@ -2992,7 +2992,7 @@ fieldset[disabled] .navbar .btn-link:focus {
   background-color: #ff5722;
 }
 .panel.panel-danger > .panel-heading {
-  background-color: #f44336;
+  background-color: #DE321C;
 }
 [class*="panel-"] > .panel-heading {
   color: rgba(255,255,255, 0.84);
@@ -3258,10 +3258,10 @@ hr.on-light {
   background-color: #03a9f4;
 }
 .slider.slider-warning .noUi-handle {
-  background-color: #ff5722;
+  background-color: #ff6521;
 }
 .slider.slider-danger .noUi-handle {
-  background-color: #f44336;
+  background-color: #DE321C;
 }
 .slider .noUi-handle,
 .slider.slider-default .noUi-handle {

@@ -39,12 +39,12 @@ class AdminController extends Controller
                 'user' => $user
             ]);
 
-            return view('administration.dashboard', compact('userSettings', 'user'));
+            return view('admin.dashboard', compact('userSettings', 'user'));
         }
         elseif($request->user()->hasRole('propositieteam'))
         {
             return "proposite team dashboard under construction";
-//            return view('administration.dashboard');
+//            return view('admin.dashboard');
         }
         else{
 //            flash()->overlay('U heeft geen rechten om deze pagina te bezoeken. Neem contact op met de admin!');

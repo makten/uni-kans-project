@@ -5,9 +5,17 @@
   },
   "dependencies": {
     "bootstrap-sass": "^3.0.0",
-    "laravel-elixir": "^4.0.0",
-    "vue-moment": "^1.0.7",
-    "vue-resource": "^0.7.2",
-    "vue-router": "^0.7.13"
+    "dropzone": "^4.3.0",
+    "laravel-echo": "0.0.16",
+    "laravel-elixir": "^5.0.0",
+    "laravel-elixir-vueify": "^1.0.3",
+    "marked": "^0.3.5",
+    "moment": "^2.13.0",
+    "pusher-js": "^3.1.0",
+    "underscore": "^1.8.3",
+    "vue": "^1.0.25",
+    "vue-moment": "^1.0.8",
+    "vue-resource": "^0.8.0",
+    "webpack": "^1.13.1"
   }
 }

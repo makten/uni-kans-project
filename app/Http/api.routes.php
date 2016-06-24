@@ -19,6 +19,7 @@ Route::group([
     'middleware' => 'auth',
 
 ], function () {
+    Route::auth();
     /**
      * Admin routes...
      */
@@ -30,4 +31,14 @@ Route::group([
      */
     Route::get('proposities/all', ['as' => 'fetch.proposities', 'uses' => 'API\PropositieController@all']);
     Route::get('content/{id}/show', ['as' => 'show.content', 'uses' => 'PropositieController@show']);
+
+
+    /**
+     * Task routes
+     */
+
+    Route::get('teams/{team}/tasks', 'API\TaskController@all');
+    Route::get('task/create', 'API\TaskController@create');
+    Route::post('teams/{team}/tasks', 'API\TaskController@store');
+    Route::get('/teams/{team}/tasks/{task}', 'API\TaskController@show');
 });

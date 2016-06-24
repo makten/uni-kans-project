@@ -20,6 +20,8 @@
 //    ];
 //});
 
+
+
 $factory->define(App\User::class, function(Faker\Generator $faker){
     return [
         'first_name' => $faker->firstNameMale,
@@ -30,7 +32,18 @@ $factory->define(App\User::class, function(Faker\Generator $faker){
         'function' => $faker->word,
         'last_login' => $faker->dateTime,
         'remember_token' => str_random(10),
-        'avatar'=> $faker->image(public_path().'/uploads/users'),
+    ];
+});
+
+$factory->define(App\UserProfile::class, function(Faker\Generator $faker){
+
+    return [
+        'avatar'  => $faker->image(public_path().'/uploads/users', 200, 200, null, true, false),
+        'avatar_thumbnail'  => $faker->image(public_path().'/uploads/users', 200, 200, null, true, false),
+        'skin' => 'skin-red',
+        'skin_color_code' => $faker->hexColor,
+        'user_id' => factory(\App\User::class)->create()->id
+
     ];
 });
 
@@ -44,15 +57,26 @@ $factory->define(App\Propositie::class, function(Faker\Generator $faker){
         'pro_uniek' => $faker->colorName,
         'pro_themas' => str_random(10),
         'pro_marktsegmenten' => str_random(10),
+        'pro_revenuen' => $faker->randomDigit,
         'pro_avatar' => $faker->image(public_path().'/uploads/innovations'),
         'user_id' => factory(\App\User::class)->create()->id,
-        'team_id' => factory(\App\Team::class)->create()->id,
+
+
     ];
 });
 
 $factory->define(App\Team::class, function(Faker\Generator $faker){
     return [
-        'team_name' => $faker->companySuffix,
+        'team_name' => $faker->sentence,
+        'photo_url' =>  $faker->imageUrl(640, 480),
+    ];
+});
+
+$factory->define(App\Task::class, function(Faker\Generator $faker){
+    return [
+        'task_name' => $faker->sentence,
+        'description' => $faker->paragraph,
+        'completed' => $faker->boolean
     ];
 });
 
@@ -60,22 +84,16 @@ $factory->define(App\Team::class, function(Faker\Generator $faker){
 $factory->define(App\Thema::class, function(Faker\Generator $faker){
     return [
         'thema_name' => $faker->colorName,
+//        'propositie_id' => random_int(1, 30),
+
     ];
 });
 
-$factory->define(App\UserProfile::class, function(Faker\Generator $faker){
-
+$factory->define(App\Reactie::class, function(Faker\Generator $faker){
     return [
-        'avatar'  => $faker->imageUrl($width = 640, $height = 480),
-        'avatar_resized'  => $faker->imageUrl($width = 200, $height = 200),
-        'avatar_thumbnail'  => $faker->imageUrl($width = 150, $height = 150),
-        'skin' => 'skin-red',
-        'skin_color_code' => $faker->hexColor,
-        'user_id' => factory(\App\User::class)->create()->id
-
+        'message' => $faker->paragraph,
+        'user_id' => factory(App\User::class)->create()->id,
+        'propositie_id' => factory(App\Propositie::class)->create()->id,
     ];
 });
 
-//'pro_contactperson' => function(){
-//    return factory(App\User::class)->create()->id;
-//},

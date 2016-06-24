@@ -170,7 +170,7 @@ class UserController extends Controller
 //				dd($perms);
 				session(['edit_id' => $user->id]);
 
-				return view('administration.edit_user', compact('user', 'perms', 'num_perms'));
+				return view('admin.edit_user', compact('user', 'perms', 'num_perms'));
 			}
 			else
 			{

@@ -68,11 +68,12 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
 
                                 <div class="pull-left">
                                     <!-- User Image -->
-                                    <img src="{{Auth::user()->userprofile->avatar}}"
+                                    <img src="{{str_replace('C:\Users\Hafiz\Dropbox\MyProjects\Projects\mytemplate-project\public/', '', Auth::user()->userprofile->avatar_thumbnail)}}"
                                          class="img_circle">
 
                                     {{ Auth::user()->first_name }}
                                 </div>
+
 
                                 <b class="caret"></b></a>
                             <ul class="dropdown-menu">
@@ -85,6 +86,7 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
                                 <li><a href="/logout"><i class="material-icons">close</i> Logout</a></li>
                             </ul>
                         </li>
+
 
                     @endif
                 </ul>

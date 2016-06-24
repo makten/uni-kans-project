@@ -1,0 +1,159 @@
+<template>
+
+    <div class="panel-body">
+        <h3>Overview page</h3>
+        <div class="panel-body">
+            <input type="text" v-model="filterPros" class="input-control input-sm">
+            <table class="table table-borderless m-b-none">
+                <thead>
+                <tr>
+                    <th v-for="pro_column in pro_columns">
+                        <a :class="{'active' sortKey==pro_column}"
+                           @click="sortBy(pro_column)">
+                            {{ pro_column | uppercase}}
+                        </a>
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr v-for="propositie in proposities |filterBy filterPros |orderBy sortKey reverse">
+
+                    <!-- Id -->
+                    <td>
+                        <div class="btn-table-align">
+                            {{ propositie.id }}
+                        </div>
+                    </td>
+
+                    <!--Avatar-->
+                    <td>
+                        <div class="btn-table-align intable-image">
+                            <img :src="getImg(propositie.pro_avatar)">
+                        </div>
+                    </td>
+
+                    <!-- Name -->
+                    <td>
+                        <div class="btn-table-align">
+                            <a href="/propositie/{{ propositie.id }}/show">
+                                {{ propositie.pro_name }}
+                            </a>
+
+                        </div>
+                    </td>
+
+                    <!-- Contact -->
+                    <td>
+                        <div class="btn-table-align">
+                            <a href="">
+                                {{ propositie.user.first_name +' '+ propositie.user.last_name }}
+                            </a>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="btn-table-align">
+                            {{ propositie.pro_name }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="btn-table-align">
+                            {{ propositie.pro_slug }}
+                        </div>
+                    </td>
+
+                    <!-- View Button -->
+
+
+                    <td>
+                        <a href="/propositie/{{ propositie.id }}/show">
+                            <button class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </a>
+                    </td>
+
+                    <!-- Delete Button -->
+                    <td>
+                        <button class="btn btn-danger-outline" @click="deletePropositie(propositie)">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</template>
+
+<style>
+    a.active {
+        color: red;
+    }
+
+    .intable-image {
+
+    }
+
+    .intable-image img {
+        height: 50px;
+        width: 70px;
+    }
+</style>
+
+<script>
+
+    import Themas from './themas.vue';
+    import Marktsegments from './marktsegments.vue';
+    import Search from './search.vue';
+    import NavSearch from './navsearch.vue';
+    import Helper from '../../mixins/helpers';
+
+    export default{
+        mixins: [Helper],
+
+        props: ['user'],
+
+
+        data(){
+            return{
+                pro_order: 1,
+                pro_columns: ['Id', 'Photo', 'Creator', 'Name', 'Slug', 'Create at'],
+                proposities: [],
+                filterPros: '',
+                sortKey: '',
+                reverse: false,
+            }
+        },
+
+        ready(){
+            this.getPros();
+        },
+
+        methods: {
+            getPros: function(){
+
+                this.$http.get('/api/proposities/all').then(function(response){
+                    this.proposities = response.data;
+                }.bind(this), function(response){
+
+                })
+            },
+
+            sortBy: function (sortKey) {
+                this.reverse = this.sortKey == sortKey? !this.reverse : false;
+
+                this.sortKey = sortKey;
+            },
+
+            getImg: function(link){
+
+                var t = link.replace('C:\\Users\\Hafiz\\Dropbox\\MyProjects\\Projects\\mytemplate-project\\public', '');
+                return t;
+            },
+        }
+    }
+</script>

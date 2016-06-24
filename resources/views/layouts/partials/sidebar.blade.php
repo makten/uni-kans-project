@@ -7,7 +7,7 @@
         @if (! Auth::guest())
             <div class="user-panel">
                 <div class="pull-left image">
-                    <img src="{{Auth::user()->userprofile->avatar_resized}}" class="img-circle" alt="User Image"/>
+                    <img src="{{str_replace('C:\Users\Hafiz\Dropbox\MyProjects\Projects\mytemplate-project\public', '', Auth::user()->userprofile->avatar_thumbnail)}}" class="img-circle" alt="User Image"/>
                 </div>
                 <div class="pull-left info">
                     <p>{{ Auth::user()->first_name. ' '.Auth::user()->last_name}}</p>
@@ -22,7 +22,7 @@
             <ul class="sidebar-menu" style="font-size: 15px; font-weight: 400">
                 <li class="header">ADMIN PANEL</li>
                 <li class="{{ (Request::is('dashboard') ? 'active' : '') }}">
-                    <a v-link="{path: '/overview' }">
+                    <a href="/api/dashboard">
                         <i class='fa fa-list pull-left'></i> <span>Overview</span>
                     </a>
                 </li>

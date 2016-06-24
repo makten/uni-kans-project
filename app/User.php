@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\CanJoinTeams;
 use Bican\Roles\Contracts\HasRoleAndPermission as HasRoleAndPermissionContract;
 use Bican\Roles\Traits\HasRoleAndPermission;
 use Illuminate\Auth\Authenticatable;
@@ -10,9 +11,10 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
 
+
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract, HasRoleAndPermissionContract
 {
-    use Authenticatable, CanResetPassword, HasRoleAndPermission;
+    use Authenticatable, CanResetPassword, HasRoleAndPermission, CanJoinTeams;
 
 //HasRoleAndPermission;
     /**
@@ -46,14 +48,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
 
-    /**
-     * Get teams associated with a given user
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function teams()
-    {
-        return $this->belongsToMany('App\Team');
-    }
+//    /**
+//     * Get teams associated with a given user
+//     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+//     */
+//    public function teams()
+//    {
+//        return $this->belongsToMany('App\Team');
+//    }
 
 
     /**

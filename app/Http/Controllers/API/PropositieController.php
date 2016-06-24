@@ -33,7 +33,10 @@ class PropositieController extends Controller
 
         abort_unless($request->user()->hasRole('admin'), 403);
 
-        return Propositie::with('user.userprofile')->latest()->limit(10)->get();
+        //add likes, ratings, anything relevant at first glance
+
+        return Propositie::with('user.userprofile', 'reacties')
+        ->limit(100)->orderBy('created_at', 'ASC')->get();
     }
 
 
@@ -45,7 +48,9 @@ class PropositieController extends Controller
     {
         $prop = Propositie::with(array('nestedReacties' => function ($q) {
             $q->orderBy('reacties.id', 'ASC');
-        }, 'user'))->where('id', $propositie)->first();
+        }, 'user.userprofile', 'team.users'))->where('id', $propositie)->first();
+
+
 
 
         return response()->json($prop);
@@ -53,8 +58,8 @@ class PropositieController extends Controller
 //        $team = $prop->team;
 //        $teamMembers = $prop->team->users;
 
-//        return view('administration.content.show', compact('prop', 'team', 'teamMembers'));
-        return view('administration.propositie.show', compact('prop'));
+//        return view('admin.content.show', compact('prop', 'team', 'teamMembers'));
+//         return view('admin.propositie.show', compact('prop'));
     }
 
 
@@ -63,7 +68,6 @@ class PropositieController extends Controller
      */
     public function create()
     {
-
 
 
     }
@@ -146,7 +150,7 @@ class PropositieController extends Controller
         $editThemas = explode(', ', $propositie->pro_themas);
         $editMarkt = explode(', ', $propositie->pro_marktsegmenten);
 
-        return view('administration.propositie.create_edit_propositie', compact('content', 'themas', 'editThemas', 'marktsegmenten', 'editMarkt'));
+        return view('admin.propositie.create_edit_propositie', compact('content', 'themas', 'editThemas', 'marktsegmenten', 'editMarkt'));
     }
 
 

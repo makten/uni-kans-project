@@ -27,14 +27,19 @@
     "bican/roles": "^2.1",
     "elasticquent/elasticquent": "^1.0",
     "intervention/image": "^2.3",
-    "laracasts/utilities": "^2.1"
+    "laracasts/utilities": "^2.1",
+    "pusher/pusher-php-server": "~2.0",
+    "kryptonit3/pusher": "dev-master",
+    "vinkla/pusher": "^2.3",
+    "predis/predis": "~1.0"
   },
   "require-dev": {
     "fzaninotto/faker": "~1.4",
     "mockery/mockery": "0.9.*",
     "phpunit/phpunit": "~4.0",
     "symfony/css-selector": "2.8.*|3.0.*",
-    "symfony/dom-crawler": "2.8.*|3.0.*"
+    "symfony/dom-crawler": "2.8.*|3.0.*",
+    "laracasts/generators": "^1.1"
   },
   "autoload": {
     "classmap": [
@@ -73,5 +78,6 @@
   },
   "config": {
     "preferred-install": "dist"
-  }
+  },
+  "minimum-stability": "dev"
 }

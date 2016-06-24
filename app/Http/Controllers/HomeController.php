@@ -41,7 +41,7 @@ class HomeController extends Controller
 
     public function homepage()
     {
-        return view('administration.pages.homepage');
+        return view('admin.pages.homepage');
     }
 
 }

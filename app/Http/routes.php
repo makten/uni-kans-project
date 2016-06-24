@@ -88,6 +88,7 @@ Route::get('createPermission', function () {
 });
 
 
+
 /********************* Site Routes ****************************/
 
 //Route::get('/home', 'HomeController@home');
@@ -156,7 +157,7 @@ Route::group(['middleware' => 'web'], function () {
        $pro = Propositie::with(['user.userprofile', 'themas'])->findOrFail($id);
        $userSettings = \App\UserProfile::whereUserId(Auth::user()->id)->first();
 
-       return view('administration.propositie.show', ['propositie' => $pro, 'userSettings' => $userSettings]);
+       return view('admin.propositie.show', ['propositie' => $pro, 'userSettings' => $userSettings]);
    });
 
        // ---------------Admin routes ----------------------------
@@ -194,5 +195,7 @@ Route::group(['middleware' => 'web'], function () {
 
 //    Route::get('/addProduct', ['as'=>'product.create', 'uses'=>'ProductController@create']);
 //    Route::get('/test', ['as'=>'product.create', 'uses'=>'ProductController@test']);
+
+    Route::get('/teams/{team}/tasks/{task}', 'TaskController@show');
 
 });
