@@ -46,9 +46,6 @@
                         <br/>
 
 
-                        <!-------------------Propositie Team details -------------->
-                        <a href="#"> <h4>Propositie Team <i class="fa fa-chevron-right"></i> </h4> </a>
-                        <hr>
 
                         <div class="media" v-for="member in propositie.team.users"
                              style="box-shadow: 0 8px 10px rgba(0,0,0,0.19), 0 6px 6px rgba(98, 98, 98, 0.23); background-color: rgba(24, 24, 24, 0.88); color: #FFFFFF; border-radius: 3px; padding: 2px;">
@@ -100,33 +97,35 @@
 
                         <h4>Beschrijving</h4>
                         <!--Card content-->
-                        <div class="card-block">
+                        <div class="card-block readabale-text">
                             <hr>
                             <!--Text-->
-                            <p class="card-text" style="font-size: 1.1em">{{{ propositie.pro_description | marked }}}</p>
-
-                            <a href="/" class="link-text"><h5>Meer lezen <i class="fa fa-chevron-right"></i></h5>
-                            </a>
-
+                            <p class="card-text">{{{ propositie.pro_description | marked }}}</p>
+                            <br>
+                            
                             <h4><i class="fa fa-clock-o pull-left"></i> Status</h4>
                             <hr>
                             <p>{{ propositie.pro_status }}</p>
                             <p>Docs</p>
                             <p>Views</p>
                             <p>Likes</p>
+                            <br>
 
                             <h4>Markten</h4>
                             <hr>
                             <p>{{ propositie.pro_marktsegmenten }}</p>
+                            <br>
 
                             <h4>Themas</h4>
                             <hr>
                             <p>{{ propositie.pro_themas }}</p>
+                            <br>
 
 
                             <h4><i class="material-icons">person</i> Contactpersoon</h4>
                             <hr>
                             <p>{{ propositie.user.first_name +' '+ propositie.user.last_name }}</p>
+                            <br>
 
                             <h4><i class="fa fa-tags pull-left"></i> Uniek</h4>
                             <p>
@@ -139,11 +138,13 @@
                                 </li>
                             </ul>
                             </p>
+                            <br>
 
 
                             <h4><i class="fa fa-money pull-left"></i> Revenuen</h4>
                             <hr>
                             <p>{{ propositie.pro_revenuen }}</p>
+                            <br>
 
 
                             <h4><i class="fa fa-money pull-left"></i> Documentent</h4>
@@ -151,11 +152,13 @@
                             <p>{{ propositie.pro_saleskit }}</p>
                             <p>{{ propositie.pro_marktinfo }}</p>
                             <p>{{ propositie.pro_technical_doc }}</p>
+                            <br>
 
 
                             <h4><i class="fa fa-money pull-left"></i> Referencen</h4>
                             <hr>
                             <p>{{ propositie.pro_ }}</p>
+                            <br>
 
 
                         </div><!--/.Card content-->
@@ -163,12 +166,12 @@
 
                         <!-- Card footer -->
                         <div class="card-data"
-                             style="background-color: rgba(167, 167, 167, 0.87); color: #ffffff; height: 35px; ">
+                             style="background-color: #D9D9D9; color: #ffffff; height: 35px;">
                             <ul class="list-inline">
                                 <li><i class="fa fa-clock-o"></i> {{ propositie.created_at | moment "D-M-Y"}}</li>
-                                <li><a href="#"><i class="fa fa-comments-o"></i>12</a></li>
-                                <li><a href="#"><i class="fa fa-facebook"> </i>21</a></li>
-                                <li><a href="#"><i class="fa fa-twitter"> </i>5</a></li>
+                                <!-- <li><a href="#"><i class="fa fa-comments-o"></i>12</a></li> -->
+                                <!-- <li><a href="#"><i class="fa fa-facebook"> </i>21</a></li> -->
+                                <!-- <li><a href="#"><i class="fa fa-twitter"> </i>5</a></li> -->
                             </ul>
                         </div>
 
@@ -218,7 +221,7 @@
                 <div class="col-md-10 col-md-offset-1">
                     <div class="panel panel-default">
                         <!--<div class="panel-heading">Comments</div>-->
-                        <div class="panel-body"  style="background: rgba(254, 255, 243, 0.71)">
+                        <div class="panel-body">
 
                             <comments-component :user="user" :propositie="propositie">
 
@@ -236,7 +239,13 @@
 
 </template>
 
+<style>
+
+</style>
+
 <script>
+
+
 
     import Comments from './comments.vue';
 

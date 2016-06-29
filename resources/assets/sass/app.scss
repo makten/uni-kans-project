@@ -1157,3 +1157,20 @@ $num-of-tabs: 4;
     margin: 400px auto 0;
   }
 }
+
+.useful-links a {
+  font-weight: 600;
+  font-family: $roboto-slab;
+}
+
+.readabale-text p{
+    color: #212121;
+    font-family: $roboto-slab;
+    font-size: 15px;
+}
+
+.readabale-text h4{
+    color: #212121;
+    font-family: $fira-sans;
+    font-size: 21px;
+}

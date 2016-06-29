@@ -7,7 +7,7 @@
 
             <form class="form-horizontal" @submit.prevent="createPropositie">
                 <fieldset>
-                    <legend><h4>@{{ subject }}</h4></legend>
+                    <legend><h4>{{ subject }}</h4></legend>
 
                     <div class="form-group">
                         <label for="pro_name" class="col-md-2 control-label">Naam</label>
@@ -28,7 +28,7 @@
                                 <textarea class="form-control" rows="3" id="textArea" v-model="pro_description"
                                           placeholder="Bescrijving"></textarea>
                                 <span class="help-block"
-                                      :style="{color: red}">U mag hier max. <strong>@{{  num_char_desc - pro_description.length }} </strong>characters gebruiken</span>
+                                      :style="{color: red}">U mag hier max. <strong>{{  num_char_desc - pro_description.length }} </strong>characters gebruiken</span>
 
                         </div>
                     </div>
@@ -48,7 +48,7 @@
                             <ul :class="'inline-list'" v-for="suggestion in unique_suggest"
                                 style="float: left;">
                                 <li :class="{'bounceOut rm-item': suggestion.added }" transition="bounceOut" class="animated">
-                                        <span class="label label-info">@{{ suggestion.text }}
+                                        <span class="label label-info">{{ suggestion.text }}
                                             <a style="color: white;" @click="addToTags(suggestion)" href="javascript:void(0)" class="remove" tabindex="-1"
                                                title="Add">+
                                             </a>

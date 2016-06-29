@@ -12191,4 +12191,18 @@ td.highlight {
   .follow {
     margin: 400px auto 0; } }
 
+.useful-links a {
+  font-weight: 600;
+  font-family: "Roboto Slab", serif; }
+
+.readabale-text p {
+  color: #212121;
+  font-family: "Roboto Slab", serif;
+  font-size: 15px; }
+
+.readabale-text h4 {
+  color: #212121;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 21px; }
+
 /*# sourceMappingURL=app.css.map */

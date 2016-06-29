@@ -16,7 +16,7 @@
 
     </div>
 
-    <div id="searchResult" class="row" v-if="searchResults.length > 0">
+    <div id="searchResult" class="row" v-if="searchResults.length">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
                 <div class="panel-heading" >{{ totalFound }} Results found</div>

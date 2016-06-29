@@ -21,7 +21,6 @@
                              title="{{.reply.created_at | moment 'd-m-Y h:i:s'}}">
                         {{humanReadable(reply.created_at) }}
                         </i>
-                                    {{ reply.propositie.user_id}}
                     </span>
 
             </div>
@@ -74,14 +73,17 @@
     marked.setOptions({ghm: true});
 
     export default{
-        props: ['user', 'replies'],
+        props: ['user', 'comment'],
 
         data(){
-            return {}
+            return {
+                replies: [],
+                formStat: false,
+            }
         },
 
         ready() {
-
+            this.replies = this.comment.replies
         },
         components: {},
 
@@ -113,9 +115,16 @@
                 }
 
             },
-
-            filters: {
-                'marked': marked,
+            
+        },
+        
+        filters: {
+            'marked': marked,
+        },
+        
+        computed: {
+            showForm: function () {
+                
             }
         }
     }

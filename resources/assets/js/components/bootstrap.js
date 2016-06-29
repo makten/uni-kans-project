@@ -1,22 +1,21 @@
-window.Pusher = require('pusher-js');
 var Vue = require('vue');
-
-
-import Echo from "laravel-echo"
-
-window.echo = new Echo('98b83c2dfe5593de48fb');
-
-
 window.Vue = Vue;
 Vue.config.debug = true;
 Vue.use(require('vue-resource'));
 Vue.use(require('vue-moment'));
+require('underscore');
+
+Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('content');
+
+window.Pusher = require('pusher-js');
+import Echo from "laravel-echo"
+window.echo = new Echo('98b83c2dfe5593de48fb');
 
 var Dropzone = require('dropzone');
 var marked = require('marked');
 marked.setOptions({ghm: true});
 
-Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('content');
+
 Vue.http.options.emulateJSON = true;
 
 require('./home.js');
@@ -24,6 +23,7 @@ require('./home.js');
 
 import DashboardOverview from './dashboard/home/home.vue';
 import ShowPropositie from './dashboard/propositie/show.vue';
+import CreatePropositie from './dashboard/propositie/create.vue';
 // require('./dashboard/bootstrap');
 // require('./home/home');
 
@@ -49,9 +49,14 @@ Vue.transition('swipe', {
 new Vue({
     el: 'body',
 
+    data: {
+
+    },
+
     components: {
         'dashboard-overview': DashboardOverview,
         'show-propositie': ShowPropositie,
+        'create-propositie': CreatePropositie,
     },
 
     ready() {

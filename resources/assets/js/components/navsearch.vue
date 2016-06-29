@@ -4,7 +4,11 @@
         <div class="form-group" style=" margin-bottom:0px;">
             <div class="input-group col-md-12 ">
                         <span class="input-group-btn">
-                    <button @click="show = ! show" type="button" id="sendQuery" class="btn btn-default btn-sm" style="color: white;"><i v-bind:class="['fa fa-search', show ? 'fa fa-times' : '']"></i>
+                    <button @click="show = ! show" 
+                        type="button" id="sendQuery" 
+                        class="btn btn-default btn-sm" 
+                        style="color: white;">
+                        <i v-bind:class="['fa fa-search', show ? 'fa fa-times' : '']"></i>
                     </button>
                     </span>
                 <input v-show="show" transition="toggle" type="text"

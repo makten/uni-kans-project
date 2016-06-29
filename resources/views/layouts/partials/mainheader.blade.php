@@ -44,11 +44,11 @@
                                         </div>
                                         <!-- Message title and timestamp -->
                                         <h4>
-                                            Support Team
+                                            Nieuwe bericht van Hafiz Abass
                                             <small><i class="fa fa-clock-o"></i> 5 mins</small>
                                         </h4>
                                         <!-- The message -->
-                                        <p>Why not buy a new awesome theme?</p>
+                                        <p>New message from hafiz Abass</p>
                                     </a>
                                 </li><!-- end message -->
                             </ul><!-- /.menu -->

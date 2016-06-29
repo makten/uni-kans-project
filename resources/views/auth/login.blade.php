@@ -2,14 +2,20 @@
 
 @section('content')
 
-    <div class="modal-body col-md-10 col-md-offset-1" style=" margin-top: -20px; border-radius: 5px; padding: 1px;">
+    <div class="container">
 
-        <div class="col-xs-12 col-xs-offset- card card-container" style="padding-top: 70px; background: url('/images/background_img/mainbg.jpg')">
-            <div class="col-md-8 col-md-offset-2 transparent-div" style="margin-bottom: 40px; padding-top: 20px;">
 
-            <img id="profile-img" class="profile-img-card" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"/>
+        <div class="transparent-div" style="margin-top: 150px;">
+
+
+                <center>
+                <img style="height: 190px; width: 190px; border-radius: 50%; margin-top: 50px;" id="profile-img" class="profile-img-card"
+                     src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"/>
+                </center>
+
 
             <div class="row" style="padding-top: 50px; border-radius: 5px;">
+
                 {!!Form::open(array('url' => '/login', 'class' => 'form-horizontal'))!!}
                 <div class="form-group {{ $errors->has('email') ? ' has-error' : '' }}">
                     <div class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
@@ -36,15 +42,15 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">
-                        <div class="checkbox">
-                            <label style="color: #ffffff;">
-                                <input type="checkbox" name="remember"> Remember Me
-                            </label>
-                        </div>
-                    </div>
-                </div>
+                {{--<div class="form-group">--}}
+                    {{--<div class="col-md-6 col-md-offset-3 col-xs-10 col-xs-offset-1">--}}
+                        {{--<div class="checkbox">--}}
+                            {{--<label style="color: #ffffff;">--}}
+                                {{--<input type="checkbox" name="remember"> Remember Me--}}
+                            {{--</label>--}}
+                        {{--</div>--}}
+                    {{--</div>--}}
+                {{--</div>--}}
 
 
                 <center>
@@ -63,8 +69,8 @@
                 {!!Form::close()!!}
 
             </div>
-            </div>
         </div>
+
     </div>
 
 @endsection

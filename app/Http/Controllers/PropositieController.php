@@ -40,11 +40,17 @@ class PropositieController extends Controller
 //            $q->orderBy('reacties.id', 'ASC');
 //        }, 'user.userprofile', 'team.users'))->where('id', $propositie)->first();
 
-        $prop = Propositie::with(array('nestedReacties' => function ($q) {
-            $q->orderBy('reacties.id', 'ASC');
-        }, 'user.userprofile', 'team.users', 'reacties.user', 'reacties.replies.user', 'reacties.propositie'))->where('id', $propositie)->first();
+        $prop = Propositie::with(
+            ['nestedReacties.user', 'nestedReacties.replies.user',
+                'nestedReacties.replies.propositie',
+                'nestedReacties.propositie' => function ($q) {
+//            $q->orderBy('nestedReacties.reacties.id', 'ASC');
+        }, 'user.userprofile', 'team.users', 'reacties.user', 'reacties.replies.user', 'reacties.propositie']
+        )->where('id', $propositie)->first();
 
 
+//        $prop = Propositie::with(array('nestedReacties.user','user.userprofile', 'team.users')
+//        )->where('id', $propositie)->first();
 
         return response()->json($prop);
 
