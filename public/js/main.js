@@ -15011,6 +15011,109 @@ if (typeof window !== 'undefined' && window.Vue) {
 
 module.exports = plugin;
 },{}],11:[function(require,module,exports){
+/**
+ * vue-selectize v0.0.3
+ * 
+ * Copyright (c)  Michael Owens, contributors.
+ * Licensed under the ISC license.
+ */
+(function(root, factory){
+    var selectize = {
+        twoWay: true,
+
+        selectizeSettings: {},
+
+        bind: function () {
+            var optionsExpression = this.el.getAttribute('options'),
+                settingsExpression = this.el.getAttribute('settings'),
+                self = this,
+                optionsData;
+
+            if (optionsExpression) {
+                optionsData = this.vm.$eval(optionsExpression);
+                this.vm.$watch(optionsExpression, this.optionsChange.bind(this));
+            }
+
+            this.selectizeSettings = {
+                options: optionsData,
+                onChange: function (value) {
+                    self.set(value);
+                    self.nativeEvent('change').call();
+                },
+                onFocus: this.nativeEvent('focus').bind(this),
+                onBlur: this.nativeEvent('blur').bind(this)
+            };
+
+            if (settingsExpression) {
+                var userSettings = this.vm.$eval(settingsExpression);
+                this.selectizeSettings = $.extend({}, this.selectizeSettings, userSettings);
+                this.vm.$watch(settingsExpression, this.settingsChange.bind(this), {
+                    deep: true
+                });
+            }
+
+            $(this.el).selectize(this.selectizeSettings);
+        },
+
+        nativeEvent: function (eventName) {
+            var self = this;
+            return function () {
+                var event = new Event(eventName);
+                self.el.dispatchEvent(event);
+            };
+        },
+
+        optionsChange: function (options) {
+            var selectize = this.el.selectize,
+                value = this.el.selectize.getValue();
+
+            selectize.clearOptions();
+            selectize.addOption(options);
+            selectize.refreshOptions(false);
+            selectize.setValue(value);
+        },
+
+        settingsChange: function (settings) {
+            var value = this.el.selectize.getValue();
+
+            this.selectizeSettings = $.extend({}, this.selectizeSettings, settings);
+
+            this.el.selectize.destroy();
+            $(this.el).selectize(this.selectizeSettings);
+            this.el.selectize.setValue(value);
+        },
+
+        update: function (value) {
+            this.el.selectize.setValue(value);
+        },
+
+        unbind: function () {
+            this.el.selectize.destroy();
+        }
+    };
+
+    if (typeof exports === 'object' && typeof module === 'object') {
+        module.exports = factory();
+    }
+    else if (typeof define === 'function' && define.amd) {
+        define([], factory);
+    }
+    else if (typeof exports === 'object') {
+        exports['vue-selectize'] = factory();
+    }
+    else {
+        root['vue-selectize'] = factory();
+    }
+
+    function factory() {
+        return function (Vue, options) {
+            options = options || {};
+            var directiveName = options.directive || 'selectize';
+            Vue.directive(directiveName, selectize);
+        };
+    }
+})(this);
+},{}],12:[function(require,module,exports){
 (function (process,global){
 /*!
  * Vue.js v1.0.25
@@ -25081,7 +25184,7 @@ setTimeout(function () {
 
 module.exports = Vue;
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":5}],12:[function(require,module,exports){
+},{"_process":5}],13:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 exports.insert = function (css) {
@@ -25101,7 +25204,7 @@ exports.insert = function (css) {
   return elem
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var _laravelEcho = require('laravel-echo');
@@ -25128,6 +25231,8 @@ Vue.config.debug = true;
 Vue.use(require('vue-resource'));
 Vue.use(require('vue-moment'));
 require('underscore');
+var selectize = require('vue-selectize');
+Vue.use(selectize);
 
 Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('content');
 
@@ -25173,13 +25278,13 @@ new Vue({
     components: {
         'dashboard-overview': _home2.default,
         'show-propositie': _show2.default,
-        'create-propositie': _create2.default
+        'createpropositie': _create2.default
     },
 
     ready: function ready() {}
 });
 
-},{"./dashboard/home/home.vue":14,"./dashboard/propositie/create.vue":21,"./dashboard/propositie/show.vue":23,"./home.js":24,"dropzone":1,"laravel-echo":2,"marked":3,"pusher-js":6,"underscore":7,"vue":11,"vue-moment":9,"vue-resource":10}],14:[function(require,module,exports){
+},{"./dashboard/home/home.vue":15,"./dashboard/propositie/create.vue":22,"./dashboard/propositie/show.vue":24,"./home.js":25,"dropzone":1,"laravel-echo":2,"marked":3,"pusher-js":6,"underscore":7,"vue":12,"vue-moment":9,"vue-resource":10,"vue-selectize":11}],15:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\na.active {\n    color: red;\n}\n\n.intable-image {\n\n}\n\n.intable-image img {\n    height: 50px;\n    width: 70px;\n}\n")
 'use strict';
@@ -25267,7 +25372,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-20b223d4", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../mixins/helpers":26,"./marktsegments.vue":15,"./navsearch.vue":16,"./search.vue":17,"./themas.vue":18,"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],15:[function(require,module,exports){
+},{"../../mixins/helpers":28,"./marktsegments.vue":16,"./navsearch.vue":17,"./search.vue":18,"./themas.vue":19,"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25307,7 +25412,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-f015607c", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8}],16:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":8}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25389,7 +25494,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-1e47bbe6", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8}],17:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":8}],18:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.tt-menu {\n    position: relative;\n    z-index: 99;\n    padding: 20px 10px;\n}\n\n.right-inner-addon {\n    position: relative;\n    z-index: 1;\n}\n\n.right-inner-addon input {\n    padding-right: 30px;\n}\n\n.right-inner-addon i {\n    position: absolute;\n    right: 0px;\n    padding: 40px 12px;\n    pointer-events: none;\n}\n\n.buttonRight {\n    position: absolute;\n    right: 0px;\n    top: 20px;\n}\n.twitter-typeahead,\n.tt-hint,\n.tt-input,\n.tt-menu {\n    width: 100%;\n}\n\n.tt-suggestion {\n    padding: 3px 20px;\n    font-size: 18px;\n    line-height: 24px;\n    border-bottom: 1px solid #e3e3e3;\n    background-color: white;\n}\n\n.tt-cursor {\n    background-color: #e3e3e3;\n}\n")
 'use strict';
@@ -25494,7 +25599,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-c83af646", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],18:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25516,7 +25621,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-3d9fc0fa", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8}],19:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":8}],20:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.replyMessage {\n    border: 0;\n    padding: 2px;\n    margin: 2px 0px;    \n    margin-bottom: 15px;\n    background-color: transparent;\n    color: #569FF9;\n}\n\n    .modal-mask {\n        position: fixed;\n        z-index: 9998;\n        top: 0;\n        left: 0;\n        width: 100%;\n        height: 100%;\n        background-color: rgba(38, 38, 38, 0.21);\n        display: table;\n        -webkit-transition: opacity .3s ease;\n        transition: opacity .3s ease;\n    }\n\n    .modal-wrapper {\n        display: table-cell;\n        vertical-align: middle;\n    }\n\n    .modal-container {\n        width: 300px;\n        margin: 0px auto;\n        padding: 20px 30px;\n        background-color: #fff;\n        border-radius: 2px;\n        box-shadow: 0 2px 8px rgba(0, 0, 0, .33);\n        -webkit-transition: all .3s ease;\n        transition: all .3s ease;\n        font-family: Helvetica, Arial, sans-serif;\n    }\n\n    .modal-header h3 {\n        margin-top: 0;\n        color: #42b983;\n    }\n\n    .modal-body {\n        margin: 20px 0;\n    }\n\n    .modal-default-button {\n        float: right;\n    }\n\n    /*\n     * the following styles are auto-applied to elements with\n     * v-transition=\"modal\" when their visiblity is toggled\n     * by Vue.js.\n     *\n     * You can easily play with the modal transition by editing\n     * these styles.\n     */\n\n    .modal-enter, .modal-leave {\n        opacity: 0;\n    }\n\n    .modal-enter .modal-container,\n    .modal-leave .modal-container {\n        -webkit-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n")
 'use strict';
@@ -25615,7 +25720,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-2dfb2a53", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],20:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25722,7 +25827,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-e411eecc", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"./comment_formmodal.vue":19,"./replies.vue":22,"marked":3,"vue":11,"vue-hot-reload-api":8}],21:[function(require,module,exports){
+},{"./comment_formmodal.vue":20,"./replies.vue":23,"marked":3,"vue":12,"vue-hot-reload-api":8}],22:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.rm-item{\n    display: none;\n}\n\n.tag\n{\n    margin-right:2px;\n    color:white;\n    text-align:center;\n    padding:3px;\n    border-radius: 5px;\n}\n")
 'use strict';
@@ -25730,17 +25835,133 @@ var __vueify_style__ = __vueify_insert__.insert("\n.rm-item{\n    display: none;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _StopWordsHelper = require('../../mixins/StopWordsHelper');
+
+var _StopWordsHelper2 = _interopRequireDefault(_StopWordsHelper);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 exports.default = {
+    mixins: [_StopWordsHelper2.default],
+
+    props: ['proId', 'subject'],
+
     data: function data() {
         return {
-            msg: 'hello vue'
+            viewers: [],
+            pro_name: '',
+            hiddenName: '',
+            name_changed: false,
+            pro_description: '',
+            num_char_desc: 250,
+            pro_unique: '',
+            unique_suggest: [],
+            tags: ''
         };
     },
 
-    components: {}
+    /**
+     * Prepare the component.
+     */
+    ready: function ready() {
+
+        //alert(this.getWords('This is the Name Section Test PHP Viber'));
+
+        //this.listen();
+
+        //this.getTask();
+
+    },
+
+
+    methods: {
+
+        //getSuggestions: function() {
+        //
+        //    if(this.hiddenName == this.pro_name.length) return;
+        //
+        //   //if($('#tags_container li').length > 0 || this.unique_suggest.length < 0 ) return;
+        //
+        //    //|| this.unique_suggest.length == this.getWords(this.pro_name).length
+        //
+        //    if (this.pro_name.length >= 3) {
+        //        $('#tags_container ul').empty();
+        //
+        //        this.hiddenName = this.pro_name.length;
+        //
+        //        var words = this.pro_name;
+        //
+        //        for (var x = 0; x < this.getWords(words).length; x++){
+        //            this.unique_suggest.push({added: false, text: this.getWords(words)[x]});
+        //        }
+        //
+        //    }
+        //    //this.unique_suggest = [];
+        //},
+
+        addToTags: function addToTags(suggestion) {
+            suggestion.added = !suggestion.added;
+            this.pro_unique += ', ' + suggestion.text;
+            $('#pro_unique_input').before('<span class="tag label-default">#' + suggestion.text + ' <a style="color: white;" onclick="removeMe(this)" href="javascript:void(0)"> <i class="fa fa-times"></i> </a></span>');
+        },
+
+        //makeTag: function(e){
+        //    $('#pro_unique_input').before('<span class="tag label-info">' + this.pro_unique + ' <a style="color: white;" onclick="removeMe(this)" href="javascript:void(0)"> <i class="fa fa-times"></i> </a></span>');
+        //
+        //},
+
+        createPropositie: function createPropositie(e) {
+            alert('Handling it');
+        },
+
+        humanReadable: function humanReadable(value) {
+            var date = moment(value).fromNow(); // here u modify data
+            //this.el.innerText = date; // and set to the view
+            return date;
+        }
+
+    },
+
+    computed: {
+
+        nameChanged: function nameChanged() {
+            if (this.pro_name.length > this.hiddenName) {
+                return true;
+            }
+        },
+
+        /**
+         * Get all of the current viewers except me.
+         */
+        viewersExceptMe: function viewersExceptMe() {
+            var _this = this;
+
+            return _.reject(this.viewers, function (viewer) {
+                return _this.user.id == viewer.id;
+            });
+        }
+    },
+
+    watch: {
+        pro_name: function pro_name(data) {
+
+            if (data.length >= 3) {
+                $('#tags_container ul').empty();
+                //this.hiddenName = this.pro_name.length;
+
+                var words = data;
+                this.unique_suggest = [];
+
+                for (var x = 0; x < this.getWords(words).length; x++) {
+                    this.unique_suggest.push({ added: false, text: this.getWords(words)[x] });
+                }
+            }
+        }
+    }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n\n<div class=\"table-responsive\" style=\"border-radius: 5px; padding: 5px;\">\n\n    <fieldset class=\"col-xs-12\">\n\n        <form class=\"form-horizontal\" @submit.prevent=\"createPropositie\">\n            <fieldset>\n                <legend><h4>{{ subject }}</h4></legend>\n\n                <div class=\"form-group\">\n                    <label for=\"pro_name\" class=\"col-md-2 control-label\">Naam</label>\n\n                    <div class=\"col-md-10\">\n                        <input type=\"text\" class=\"form-control\" v-model=\"pro_name\" debounce=\"3000\" placeholder=\"Naam\">\n                        <input type=\"hidden\" v-model=\"hiddenName\">\n                    </div>\n                </div>\n\n                <div class=\"form-group\">\n                    <label for=\"textArea\" class=\"col-md-2 control-label\">Bescrijving</label>\n\n                    <div class=\"col-md-10\">\n                            <textarea class=\"form-control\" rows=\"3\" id=\"textArea\" v-model=\"pro_description\" placeholder=\"Bescrijving\"></textarea>\n                            <span class=\"help-block\" :style=\"{color: red}\">U mag hier max. <strong>{{  num_char_desc - pro_description.length }} </strong>characters gebruiken</span>\n\n                    </div>\n                </div>\n\n                <!--Dynamic population based on title and descriptoin-->\n\n                <div class=\"form-group\">\n                    <label for=\"pro_unique\" class=\"col-md-2 control-label\">Unique</label>\n                    <div class=\"col-md-10\">\n                        <input id=\"pro_unique_input\" type=\"text\" class=\"form-control\" v-model=\"pro_unique\" placeholder=\"Unique\">\n                    </div>\n                    <div v-if=\"unique_suggest.length >= 1\" class=\"col-md-10 col-md-offset-2\" id=\"tags_container\">\n\n                        <ul :class=\"'inline-list'\" v-for=\"suggestion in unique_suggest\" style=\"float: left;\">\n                            <li :class=\"{'bounceOut rm-item': suggestion.added }\" transition=\"bounceOut\" class=\"animated\">\n                                    <span class=\"label label-info\">{{ suggestion.text }}\n                                        <a style=\"color: white;\" @click=\"addToTags(suggestion)\" href=\"javascript:void(0)\" class=\"remove\" tabindex=\"-1\" title=\"Add\">+\n                                        </a>\n                                    </span>\n                            </li>\n                        </ul>\n\n                    </div>\n                </div>\n\n                <div class=\"form-group\" style=\"margin-top: 0;\">\n                    <!-- inline style is just to demo custom css to put checkbox below input above -->\n                    <div class=\"col-md-offset-2 col-md-10\">\n                        <div class=\"checkbox\">\n                            <label>\n                                <input type=\"checkbox\"> Checkbox\n                            </label>\n                            <label>\n                                <input type=\"checkbox\" disabled=\"\"> Disabled Checkbox\n                            </label>\n                        </div>\n                    </div>\n                </div>\n                <div class=\"form-group\">\n                    <div class=\"col-md-offset-2 col-md-10\">\n                        <div class=\"togglebutton\">\n                            <label>\n                                <input type=\"checkbox\" checked=\"\"> Toggle button\n                            </label>\n                        </div>\n                    </div>\n                </div>\n                <div class=\"form-group\">\n                    <label for=\"inputFile\" class=\"col-md-2 control-label\">File</label>\n\n                    <div class=\"col-md-10\">\n                        <input type=\"text\" readonly=\"\" class=\"form-control\" placeholder=\"Browse...\">\n                        <input type=\"file\" id=\"inputFile\" multiple=\"\">\n                    </div>\n                </div>\n\n\n                <div class=\"form-group\">\n                    <label for=\"pro_status\" class=\"col-md-2 control-label\">Status</label>\n\n                    <div class=\"col-md-10\">\n                        <select id=\"pro_status\" class=\"form-control\">\n                            <option value=\"pilot\">In pilot</option>\n                            <option value=\"pilot\">In progress</option>\n                            <option value=\"pilot\">Voltooid</option>\n\n                        </select>\n                    </div>\n                </div>\n\n\n                <div class=\"form-group\">\n                    <label class=\"col-md-2 control-label\">Radios</label>\n\n                    <div class=\"col-md-10\">\n                        <div class=\"radio radio-primary\">\n                            <label>\n                                <input type=\"radio\" name=\"optionsRadios\" id=\"optionsRadios1\" value=\"option1\" checked=\"\">\n                                Option one is this\n                            </label>\n                        </div>\n                        <div class=\"radio radio-primary\">\n                            <label>\n                                <input type=\"radio\" name=\"optionsRadios\" id=\"optionsRadios2\" value=\"option2\">\n                                Option two can be something else\n                            </label>\n                        </div>\n                    </div>\n                </div>\n\n\n                <div class=\"form-group\">\n                    <label for=\"select222\" class=\"col-md-2 control-label\">Select Multiple</label>\n\n                    <div class=\"col-md-10\">\n                        <select id=\"select222\" multiple=\"\" class=\"form-control\">\n                            <option>1</option>\n                            <option>2</option>\n                            <option>3</option>\n                            <option>4</option>\n                            <option>5</option>\n                        </select>\n                    </div>\n                </div>\n\n                <div class=\"form-group\">\n                    <div class=\"col-md-10\">\n\n                        <form action=\"/file-upload\" class=\"dropzone\" id=\"my-awesome-dropzone\">\n\n                        </form>\n                    </div>\n                </div>\n\n                <input id=\"datething\">\n                <input type=\"color\">\n\n                <div class=\"form-group\">\n                    <div class=\"col-md-10 col-md-offset-2\">\n                        <button type=\"button\" class=\"btn btn-default\">Cancel</button>\n                        <button type=\"button\" class=\"btn btn-primary\">Submit</button>\n                    </div>\n                </div>\n            </fieldset>\n        </form>\n\n\n        </fieldset>\n\n\n</div><!--/row-->\n\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n<div class=\"table-responsive\" style=\"border-radius: 5px; padding: 5px;\">\n\n    <fieldset class=\"col-xs-12\">\n\n        <form class=\"form-horizontal\" @submit.prevent=\"createPropositie\">\n            <fieldset>\n                <legend><h4>{{ subject }}</h4></legend>\n\n                <div class=\"form-group\">\n                    <label for=\"pro_name\" class=\"col-md-2 control-label\">Naam</label>\n\n                    <div class=\"col-md-10\">\n                        <input type=\"text\" class=\"form-control\" v-model=\"pro_name\" debounce=\"3000\" placeholder=\"Naam\">\n                        <input type=\"hidden\" v-model=\"hiddenName\">\n                    </div>\n                </div>\n\n                <div class=\"form-group\">\n                    <label for=\"textArea\" class=\"col-md-2 control-label\">Bescrijving</label>\n\n                    <div class=\"col-md-10\">\n                            <textarea class=\"form-control\" rows=\"3\" id=\"textArea\" v-model=\"pro_description\" placeholder=\"Bescrijving\"></textarea>\n                            <span class=\"help-block\" :style=\"{color: red}\">U mag hier max. <strong>{{  num_char_desc - pro_description.length }} </strong>characters gebruiken</span>\n\n                    </div>\n                </div>\n\n                <!--Dynamic population based on title and descriptoin-->\n\n                <div class=\"form-group\">\n                    <label for=\"pro_unique\" class=\"col-md-2 control-label\">Unique</label>\n                    <div class=\"col-md-10\">\n                        <input id=\"pro_unique_input\" type=\"text\" class=\"form-control\" v-model=\"pro_unique\" placeholder=\"Unique\">\n                    </div>\n                    <div v-if=\"unique_suggest.length >= 1\" class=\"col-md-10 col-md-offset-2\" id=\"tags_container\">\n\n                        <ul :class=\"'inline-list'\" v-for=\"suggestion in unique_suggest\" style=\"float: left;\">\n                            <li :class=\"{'bounceOut rm-item': suggestion.added }\" transition=\"bounceOut\" class=\"animated\">\n                                    <span class=\"label label-info\">{{ suggestion.text }}\n                                        <a style=\"color: white;\" @click=\"addToTags(suggestion)\" href=\"javascript:void(0)\" class=\"remove\" tabindex=\"-1\" title=\"Add\">+\n                                        </a>\n                                    </span>\n                            </li>\n                        </ul>\n\n                    </div>\n                </div>\n\n                <div class=\"form-group\" style=\"margin-top: 0;\">\n                    <!-- inline style is just to demo custom css to put checkbox below input above -->\n                    <div class=\"col-md-offset-2 col-md-10\">\n                        <div class=\"checkbox\">\n                            <label>\n                                <input type=\"checkbox\"> Checkbox\n                            </label>\n                            <label>\n                                <input type=\"checkbox\" disabled=\"\"> Disabled Checkbox\n                            </label>\n                        </div>\n                    </div>\n                </div>\n                <div class=\"form-group\">\n                    <div class=\"col-md-offset-2 col-md-10\">\n                        <div class=\"togglebutton\">\n                            <label>\n                                <input type=\"checkbox\" checked=\"\"> Toggle button\n                            </label>\n                        </div>\n                    </div>\n                </div>\n                <div class=\"form-group\">\n                    <label for=\"inputFile\" class=\"col-md-2 control-label\">File</label>\n\n                    <div class=\"col-md-10\">\n                        <input type=\"text\" readonly=\"\" class=\"form-control\" placeholder=\"Browse...\">\n                        <input type=\"file\" id=\"inputFile\" multiple=\"\">\n                    </div>\n                </div>\n\n\n                <div class=\"form-group\">\n                    <label for=\"pro_status\" class=\"col-md-2 control-label\">Status</label>\n\n                    <div class=\"col-md-10\">\n                        <select id=\"pro_status\" class=\"form-control\">\n                            <option value=\"pilot\">In pilot</option>\n                            <option value=\"pilot\">In progress</option>\n                            <option value=\"pilot\">Voltooid</option>\n\n                        </select>\n                    </div>\n                </div>\n\n\n                <div class=\"form-group\">\n                    <label class=\"col-md-2 control-label\">Radios</label>\n\n                    <div class=\"col-md-10\">\n                        <div class=\"radio radio-primary\">\n                            <label>\n                                <input type=\"radio\" name=\"optionsRadios\" id=\"optionsRadios1\" value=\"option1\" checked=\"\">\n                                Option one is this\n                            </label>\n                        </div>\n                        <div class=\"radio radio-primary\">\n                            <label>\n                                <input type=\"radio\" name=\"optionsRadios\" id=\"optionsRadios2\" value=\"option2\">\n                                Option two can be something else\n                            </label>\n                        </div>\n                    </div>\n                </div>\n\n\n                <div class=\"form-group\">\n                    <label for=\"select222\" class=\"col-md-2 control-label\">Select Multiple</label>\n\n                    <div class=\"col-md-10\">\n                        <select id=\"select222\" multiple=\"\" class=\"form-control\">\n                            <option>1</option>\n                            <option>2</option>\n                            <option>3</option>\n                            <option>4</option>\n                            <option>5</option>\n                        </select>\n                    </div>\n                </div>\n\n                <div class=\"form-group\">\n                    <div class=\"col-md-10\">\n\n                        <form action=\"/file-upload\" class=\"dropzone\" id=\"my-awesome-dropzone\">\n\n                        </form>\n                    </div>\n                </div>\n\n                <input id=\"datething\">\n                <input type=\"color\">\n\n                <div class=\"form-group\">\n                    <div class=\"col-md-10 col-md-offset-2\">\n                        <button type=\"button\" class=\"btn btn-default\">Cancel</button>\n                        <button type=\"button\" class=\"btn btn-primary\">Submit</button>\n                    </div>\n                </div>\n            </fieldset>\n        </form>\n\n\n        </fieldset>\n\n\n</div><!--/row-->\n\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -25755,7 +25976,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6ad599bc", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],22:[function(require,module,exports){
+},{"../../mixins/StopWordsHelper":27,"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25827,7 +26048,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6d21b3d2", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"marked":3,"vue":11,"vue-hot-reload-api":8}],23:[function(require,module,exports){
+},{"marked":3,"vue":12,"vue-hot-reload-api":8}],24:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n\n")
 'use strict';
@@ -25916,7 +26137,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-08d6dfba", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"./comments.vue":20,"marked":3,"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],24:[function(require,module,exports){
+},{"./comments.vue":21,"marked":3,"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],25:[function(require,module,exports){
 'use strict';
 
 var _themas = require('./themas.vue');
@@ -26070,7 +26291,7 @@ new Vue({
     }
 });
 
-},{"../mixins/helpers":31,"./marktsegments.vue":25,"./navsearch.vue":27,"./search.vue":28,"./themas.vue":29,"vue":11,"vue-moment":9,"vue-resource":10}],25:[function(require,module,exports){
+},{"../mixins/helpers":33,"./marktsegments.vue":26,"./navsearch.vue":29,"./search.vue":30,"./themas.vue":31,"vue":12,"vue-moment":9,"vue-resource":10}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26110,7 +26331,59 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-53ac3dc7", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8}],26:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":8}],27:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+            value: true
+});
+exports.default = {
+
+            methods: {
+                        getWords: function getWords(wordin) {
+
+                                    var word;
+                                    var stop_word;
+                                    var your_wording = wordin.toString();
+
+                                    var words = your_wording.match(/[^\s]+|\s+[^\s+]$/g);
+
+                                    for (var i = 0; i < words.length; i++) {
+
+                                                for (var x = 0; x < this.getDictionary().length; x++) {
+                                                            word = words[i].replace(/\s+|[^a-z]+/ig, "");
+
+                                                            stop_word = this.getDictionary()[x];
+
+                                                            if (word.toLowerCase() == stop_word) {
+                                                                        // Remove any found word from the keywords
+                                                                        your_wording = your_wording.replace(this.regexStopWord(stop_word), " ");
+                                                            }
+                                                }
+                                    }
+
+                                    return your_wording.replace(/^\s+|\s+$/g, "").split(' ');
+                        },
+                        regexStopWord: function regexStopWord(stop_word) {
+                                    var regex;
+                                    var regex_str;
+
+                                    // Trim stop word with regex
+                                    regex_str = "^\\s*" + stop_word + "\\s*$";
+                                    regex_str += "|^\\s*" + stop_word + "\\s+";
+                                    regex_str += "|\\s+" + stop_word + "\\s*$";
+                                    regex_str += "|\\s+" + stop_word + "\\s+";
+                                    regex = new RegExp(regex_str, "ig");
+
+                                    return regex;
+                        },
+                        getDictionary: function getDictionary() {
+                                    return ["a", "about", "above", "across", "after", "again", "against", "all", "almost", "alone", "along", "already", "also", "although", "always", "among", "an", "and", "another", "any", "anybody", "anyone", "anything", "anywhere", "are", "area", "areas", "around", "as", "ask", "asked", "asking", "asks", "at", "away", "b", "back", "backed", "backing", "backs", "be", "became", "because", "become", "becomes", "been", "before", "began", "behind", "being", "beings", "best", "better", "between", "big", "both", "but", "by", "c", "came", "can", "cannot", "case", "cases", "certain", "certainly", "clear", "clearly", "come", "could", "d", "did", "differ", "different", "differently", "do", "does", "done", "down", "down", "downed", "downing", "downs", "during", "e", "each", "early", "either", "end", "ended", "ending", "ends", "enough", "even", "evenly", "ever", "every", "everybody", "everyone", "everything", "everywhere", "f", "face", "faces", "fact", "facts", "far", "felt", "few", "find", "ok", "finds", "first", "for", "four", "from", "full", "fully", "further", "furthered", "furthering", "furthers", "g", "gave", "general", "generally", "get", "gets", "give", "given", "gives", "go", "going", "good", "goods", "got", "great", "greater", "greatest", "group", "grouped", "grouping", "groups", "h", "had", "has", "have", "having", "he", "her", "here", "herself", "high", "high", "high", "higher", "highest", "him", "himself", "his", "how", "however", "i", "if", "important", "in", "interest", "interested", "interesting", "interests", "into", "is", "it", "its", "itself", "j", "just", "k", "keep", "keeps", "kind", "knew", "know", "known", "knows", "l", "large", "largely", "last", "later", "latest", "least", "less", "let", "lets", "like", "likely", "long", "longer", "longest", "m", "made", "make", "making", "man", "many", "may", "me", "member", "members", "men", "might", "more", "most", "mostly", "mr", "mrs", "much", "must", "my", "myself", "n", "necessary", "need", "needed", "needing", "needs", "never", "new", "new", "newer", "newest", "next", "no", "nobody", "non", "noone", "not", "nothing", "now", "nowhere", "number", "numbers", "o", "of", "off", "often", "old", "older", "oldest", "on", "once", "one", "only", "open", "opened", "opening", "opens", "or", "order", "ordered", "ordering", "orders", "other", "others", "our", "out", "over", "p", "part", "parted", "parting", "parts", "per", "perhaps", "place", "places", "point", "pointed", "pointing", "points", "possible", "present", "presented", "presenting", "presents", "problem", "problems", "put", "puts", "q", "quite", "r", "rather", "really", "right", "right", "room", "rooms", "s", "said", "same", "saw", "say", "says", "second", "seconds", "see", "seem", "seemed", "seeming", "seems", "sees", "several", "shall", "she", "should", "show", "showed", "showing", "shows", "side", "sides", "since", "small", "smaller", "smallest", "so", "some", "somebody", "someone", "something", "somewhere", "state", "states", "still", "till", "such", "sure", "t", "take", "taken", "than", "that", "the", "their", "them", "then", "there", "therefore", "these", "they", "thing", "things", "think", "thinks", "this", "those", "though", "thought", "thoughts", "three", "through", "thus", "to", "today", "together", "too", "took", "toward", "turn", "turned", "turning", "turns", "two", "u", "under", "until", "up", "upon", "us", "use", "used", "uses", "v", "very", "w", "want", "wanted", "wanting", "wants", "was", "way", "ways", "we", "well", "wells", "went", "were", "what", "when", "where", "whether", "which", "while", "who", "whole", "whose", "why", "will", "with", "within", "without", "work", "worked", "working", "works", "would", "x", "we'd", "we'll", "we're", "we've", "y", "year", "years", "yet", "you", "young", "younger", "youngest", "your", "yours", "z", "achter", "achterna", "afgelopen", "al", "aldaar", "aldus", "alhoewel", "alias", "alle", "allebei", "alleen", "alsnog", "altijd", "altoos", "ander", "andere", "anders", "anderszins", "behalve", "behoudens", "beide", "beiden", "ben", "beneden", "bent", "bepaald", "betreffende", "bij", "binnen", "binnenin", "boven", "bovenal", "bovendien", "bovengenoemd", "bovenstaand", "bovenvermeld", "buiten", "daar", "daarheen", "daarin", "daarna", "daarnet", "daarom", "daarop", "daarvanlangs", "dan", "dat", "de", "die", "dikwijls", "dit", "door", "doorgaand", "dus", "echter", "eer", "eerdat", "eerder", "eerlang", "eerst", "elk", "elke", "en", "enig", "enigszins", "enkel", "er", "erdoor", "even", "eveneens", "evenwel", "gauw", "gedurende", "geen", "gehad", "gekund", "geleden", "gelijk", "gemoeten", "gemogen", "geweest", "gewoon", "gewoonweg", "haar", "had", "hadden", "hare", "heb", "hebben", "hebt", "heeft", "hem", "hen", "het", "hierbeneden", "hierboven", "hij", "hoe", "hoewel", "hun", "hunne", "ik", "ikzelf", "in", "inmiddels", "inzake", "is", "jezelf", "jij", "jijzelf", "jou", "jouw", "jouwe", "juist", "jullie", "kan", "klaar", "kon", "konden", "krachtens", "kunnen", "kunt", "later", "liever", "maar", "mag", "meer", "met", "mezelf", "mij", "mijn", "mijnent", "mijner", "mijzelf", "misschien", "mocht", "mochten", "moest", "moesten", "moet", "moeten", "mogen", "na", "naar", "nadat", "net", "niet", "noch", "nog", "nogal", "nu", "of", "ofschoon", "om", "omdat", "omhoog", "omlaag", "omstreeks", "omtrent", "omver", "onder", "ondertussen", "ongeveer", "ons", "onszelf", "onze", "ook", "op", "opnieuw", "opzij", "over", "overeind", "overigens", "pas", "precies", "reeds", "rond", "rondom", "sedert", "sinds", "sindsdien", "slechts", "sommige", "spoedig", "steeds", "tamelijk", "tenzij", "terwijl", "thans", "tijdens", "toch", "toen", "toenmaals", "toenmalig", "tot", "totdat", "tussen", "uit", "uitgezonderd", "vaakwat", "van", "vandaan", "vanuit", "vanwege", "veeleer", "verder", "vervolgens", "vol", "volgens", "voor", "vooraf", "vooral", "vooralsnog", "voorbij", "voordat", "voordezen", "voordien", "voorheen", "voorop", "vooruit", "vrij", "vroeg", "waar", "waarom", "wanneer", "want", "waren", "was", "weer", "weg", "wegens", "wel", "weldra", "welk", "welke", "wie", "wiens", "wier", "wij", "wijzelf", "zal", "ze", "zelfs", "zichzelf", "zij", "zijn", "zijne", "zo", "zodra", "zonder", "zou", "zouden", "zowat", "zulke", "zullen", "zult", "", "", "", "", "aan", "al", "alles", "als", "altijd", "andere", "ben", "bij", "daar", "dan", "dat", "de", "der", "deze", "die", "dit", "doch", "doen", "door", "dus", "een", "eens", "en", "er", "ge", "geen", "geweest", "haar", "had", "heb", "hebben", "heeft", "hem", "het", "hier", "hij", "hoe", "hun", "iemand", "iets", "ik", "in", "is", "ja", "je", "kan", "kon", "kunnen", "maar", "me", "meer", "men", "met", "mij", "mijn", "moet", "na", "naar", "niet", "niets", "nog", "nu", "of", "om", "omdat", "onder", "ons", "ook", "op", "over", "reeds", "te", "tegen", "toch", "toen", "tot", "u", "uit", "uw", "van", "veel", "voor", "want", "waren", "was", "wat", "werd", "wezen", "wie", "wil", "worden", "wordt", "zal", "ze", "zelf", "zich", "zij", "zijn", "zo", "zonder", "zou"];
+                        }
+            }
+};
+
+},{}],28:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26254,7 +26527,7 @@ exports.default = {
     }
 };
 
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26336,7 +26609,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-fc6f172a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8}],28:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":8}],30:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.tt-menu {\n    position: relative;\n    z-index: 99;\n    padding: 20px 10px;\n}\n\n.right-inner-addon {\n    position: relative;\n    z-index: 1;\n}\n\n.right-inner-addon input {\n    padding-right: 30px;\n}\n\n.right-inner-addon i {\n    position: absolute;\n    right: 0px;\n    padding: 40px 12px;\n    pointer-events: none;\n}\n\n.buttonRight {\n    position: absolute;\n    right: 0px;\n    top: 20px;\n}\n.twitter-typeahead,\n.tt-hint,\n.tt-input,\n.tt-menu {\n    width: 100%;\n}\n\n.tt-suggestion {\n    padding: 3px 20px;\n    font-size: 18px;\n    line-height: 24px;\n    border-bottom: 1px solid #e3e3e3;\n    background-color: white;\n}\n\n.tt-cursor {\n    background-color: #e3e3e3;\n}\n")
 'use strict';
@@ -26441,7 +26714,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6d872278", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],29:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26463,7 +26736,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-9a5685c4", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":11,"vue-hot-reload-api":8}],30:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":8}],32:[function(require,module,exports){
 'use strict';
 
 //window.Pusher = require('pusher-js');
@@ -26496,8 +26769,8 @@ if (module.hot) {(function () {  module.hot.accept()
 
 require('./components/bootstrap');
 
-},{"./components/bootstrap":13}],31:[function(require,module,exports){
-arguments[4][26][0].apply(exports,arguments)
-},{"dup":26}]},{},[30]);
+},{"./components/bootstrap":14}],33:[function(require,module,exports){
+arguments[4][28][0].apply(exports,arguments)
+},{"dup":28}]},{},[32]);
 
 //# sourceMappingURL=main.js.map

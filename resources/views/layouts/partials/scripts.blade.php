@@ -34,7 +34,7 @@
 <script src="{{ asset('/js/datetimepicker.js') }}" type="text/javascript"></script>
 <script src="{{ asset('/js/plugins/selectize.js') }}" type="text/javascript"></script>
 <script src="{{ asset('/js/plugins/jquery.dropdown.js') }}" type="text/javascript"></script>
-{{-- <script src="{{ asset('/js/moments.js') }}" type="text/javascript"></script> --}}
+<script src="{{ asset('/js/moments.js') }}" type="text/javascript"></script>
 
 
 

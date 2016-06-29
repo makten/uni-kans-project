@@ -12,10 +12,12 @@
     "marked": "^0.3.5",
     "moment": "^2.13.0",
     "pusher-js": "^3.1.0",
+    "selectize": "^0.12.2",
     "underscore": "^1.8.3",
     "vue": "^1.0.25",
     "vue-moment": "^1.0.8",
     "vue-resource": "^0.8.0",
+    "vue-selectize": "0.0.3",
     "webpack": "^1.13.1"
   }
 }
