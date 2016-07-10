@@ -11873,32 +11873,6 @@ body::-webkit-scrollbar {
 html, body {
   height: 90%; }
 
-ul.cat-links li {
-  padding: 6px;
-  color: #ffffff;
-  margin-bottom: 3%;
-  border-radius: 3px; }
-
-ul.cat-links {
-  list-style-type: none;
-  margin: 0;
-  padding: 0; }
-
-ul.cat-links a {
-  text-transform: uppercase;
-  text-decoration: none;
-  color: #fdfdfd;
-  font-weight: bold;
-  font-size: 11px;
-  text-align: left;
-  font-family: Arial;
-  padding-left: 13px;
-  letter-spacing: 1px;
-  display: block; }
-
-.cat-links li a:hover {
-  font-weight: 800; }
-
 .transparent-div {
   background: rgba(0, 0, 0, 0.5);
   border-radius: 3px; }

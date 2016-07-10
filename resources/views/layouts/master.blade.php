@@ -46,14 +46,16 @@
     $('#flash-overlay-modal').modal();
     $('div.alert').not('.alert-important').delay(2000).slideUp(150);
 </script>
-
-{!! Html::script('/js/default_script.js') !!}
-{!! Html::script('/js/bootstrapValidator.min.js') !!}
-{!! Html::script('/js/sorttable.js') !!}
-{!! Html::script('/js/jquery-dataTable.min.js') !!}
-{!! Html::script('/js/jquery-ui.js') !!}
-{!! Html::script('/js/chosen.jquery.min.js') !!}
-{!! Html::script('/js/language/nl_NL.js') !!}
+<script src="{{ asset('/js/bootstrap.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/material.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/ripples.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/datetimepicker.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/plugins/selectize.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/plugins/jquery.dropdown.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/moments.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/moments_with_locale.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/main.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/default_script.js') }}" type="text/javascript"></script>
 
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>

@@ -1,34 +1,49 @@
 <template>
 
-    <div class="col-md-12" style="padding: 0px;">
-        <div class="row" style="margin: 0px;">
+    <!--<div class="col-md-3" style="text-align: center; display: inline-block;" v-for="markt in markten">-->
+        <!--<h3><a href="{{markt.link}}">-->
+            <!--<i class="fa {{markt.icon}} fa-3x super-icon"></i>-->
+        <!--</a>-->
+            <!--<br>-->
+            <!--<span class="blocked">-->
+                <!--<a href="/propositie/marktsegment/onderwijs" style="cursor: pointer;">-->
+                    <!--{{markt.name}}-->
+                <!--</a>-->
+            <!--</span>-->
+        <!--</h3>-->
 
-            <div class="markt col-xs-6 col-sm-4 col-md-3 col-lg-3" v-for="markt in markten">
+        <!--<p>Make your website stand out with awesome features.</p>-->
+    <!--</div>-->
 
-                <div class="thumbnail marktthumnails ripplelink">
+    <!--<div class="col-md-12" style="padding: 0px;">-->
+        <!--<div class="row" style="margin: 0px;">-->
 
-                    <div style="text-align: center; margin-bottom: 10px;">
-                        <a href="/propositie/marktsegment/onderwijs" style="cursor: pointer;">
-                            <span class="animated pageName">{{markt.name}}</span>
-                        </a>
-                    </div>
+            <!--<div class="markt col-xs-6 col-sm-4 col-md-3 col-lg-3" v-for="markt in markten">-->
 
-                    <div class="icon-container-big center-div"
-                         style="text-align: center; margin-bottom: 0px; vertical-align: top">
-                        <a href="{{markt.link}}">
-                            <div class="pointers center-div" >
-                                <div class="pointers-small center-div image">
-                                    <span><i class="fa {{markt.icon}}"></i> </span>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+                <!--<div class="thumbnail marktthumnails ripplelink">-->
 
-            </div>
+                    <!--<div style="text-align: center; margin-bottom: 10px;">-->
+                        <!--<a href="/propositie/marktsegment/onderwijs" style="cursor: pointer;">-->
+                            <!--<span class="animated pageName">{{markt.name}}</span>-->
+                        <!--</a>-->
+                    <!--</div>-->
 
-        </div>
-    </div>
+                    <!--<div class="icon-container-big center-div"-->
+                         <!--style="text-align: center; margin-bottom: 0px; vertical-align: top">-->
+                        <!--<a href="{{markt.link}}">-->
+                            <!--<div class="pointers center-div" >-->
+                                <!--<div class="pointers-small center-div image">-->
+                                    <!--<span><i class="fa {{markt.icon}}"></i> </span>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</a>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+            <!--</div>-->
+
+        <!--</div>-->
+    <!--</div>-->
 
 </template>
 

@@ -1,27 +1,85 @@
 
 body {
-    position: relative;
-    background-image: url('/images/background_img/particls.jpg');
-    background-size: cover;
+    /*position: relative;*/
+    /*background-image: url('/images/background_img/particls.jpg');*/
+    /*background-size: cover;*/
 }
 
-.container-full-bg {
-    /*width:90%;*/
-    height: 55%;
-    /*max-width:100%;*/
-    background-position: 0px 25%;
-    background-size: cover;
-    margin-top: 65px;
-    background-image: url('/images/background_img/laptop.jpg');
-    background-repeat: no-repeat;
-    position: relative;
+/*.container-full-bg {*/
+    /*!*width:90%;*!*/
+    /*height: 55%;*/
+    /*!*max-width:100%;*!*/
+    /*background-position: 0px 25%;*/
+    /*background-size: cover;*/
+    /*margin-top: 65px;*/
+    /*background-image: url('/images/background_img/laptop.jpg');*/
+    /*background-repeat: no-repeat;*/
+    /*position: relative;*/
 
+/*}*/
+
+/*@media (min-width: 0px) and (max-width: 768px) {*/
+    /*.container-full-bg {*/
+        /*margin-top: 35px;*/
+    /*}*/
+/*}*/
+
+.jumbotron {
+    position: relative;
+    background-color: #fff;
+    background: url("/images/background_img/jumbo.jpg");
+    background-size: cover;
+    color: white;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    margin-bottom: 20px;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    border-radius: 2px !important;
+    border: 0;
+    margin: 0 !important;
 }
 
-@media (min-width: 0px) and (max-width: 768px) {
-    .container-full-bg {
-        margin-top: 35px;
-    }
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 10px 0;
+    font-family: inherit;
+    font-weight: bold;
+    line-height: 20px;
+    color: inherit;
+    text-rendering: optimizelegibility;
+}
+
+.super-icon {
+    font-size: 3em;
+    display: inline-block;
+    width: 1.25em;
+    text-align: center;
+}
+ul.cat-links li {
+    color: #ffffff;
+    margin-bottom: 5px;
+    border-radius: 3px !important;
+}
+
+ul.cat-links a {
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #fdfdfd;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: left;
+    font-family: Arial;
+    padding-left: 13px;
+    letter-spacing: 1px;
+    display: block;
+    padding: 8px;
+}
+
+
+.cat-links li a:hover{
+    font-weight: 800;
+    font-family: Roboto, sans-serif;
 }
 
 .tt-menu {
@@ -71,7 +129,7 @@ body {
     background-color: #e3e3e3;
 }
 
-Card style
+
 .card .btn-action {
     margin: -23px 20px;
     float: right;
@@ -238,18 +296,31 @@ h5 {
 
 .search-container {
     position: absolute;
-    z-index: 1000;
+    z-index: 99999;
     padding-bottom: 80px;
     padding-left: 0;
     padding-right: 0;
     background: white;
-    margin-top: 10px;
+
+}
+
+#search {
+
+    /* Put this on top of the blurred layer */
+    position: relative;
+    margin: 0 auto;
+    z-index: 100;
+    padding: 10px;
+    margin: 4px;
+    /*background-color: rgba(255, 255, 255, 0.84);*/
+    background: green;
+
 }
 
 .close-bar {
     background: lightgrey;
-    height: 35px;
-    padding: 5px;
+    /*height: 35px;*/
+    /*padding: 5px;*/
     margin: 2px;
     margin-bottom: 4px;
     box-shadow: 1px 1px 4px 2px lightgrey;
@@ -267,18 +338,6 @@ h5 {
     margin-left: -170px;
 }
 
-#search {
-
-    /* Put this on top of the blurred layer */
-    position: relative;
-    margin: 0 auto;
-    z-index: 100;
-    padding: 10px;
-    margin: 4px;
-    /*background-color: rgba(255, 255, 255, 0.84);*/
-    background: green;
-
-}
 
 .img_circle {
     border-radius: 50%;
@@ -287,12 +346,6 @@ h5 {
     border: 1px solid lightgrey;
 }
 
-/*.thema-links {*/
-/*!*position: absolute;*!*/
-/*!*left: 30px;*!*/
-/*!*bottom: 5px;*!*/
-/*!*width: 100%;*!*/
-/*}*/
 
 .pageName {
     display: block;
@@ -320,53 +373,6 @@ h5 {
     padding-bottom: 80px;
 }
 
-.markt {
-    /*margin: 0px;*/
-
-    /*padding: 0px;*/
-}
-
-/*.markt :hover {*/
-/*background-color: rgba(133, 133, 133, 0.63);*/
-/*background-image: none;*/
-/*}*/
-
-/*.markt {*/
-/*-webkit-transition: background-color 1000ms ease-out 1s;*/
-/*-moz-transition: background-color 1000ms ease-out 1s;*/
-/*-o-transition: background-color 1000ms ease-out 1s;*/
-/*transition: background-color 1000ms ease-out 1s;*/
-/*}*/
-
-/*.thumbnail :hover {*/
-/*background: transparent;*/
-/*}*/
-
-/*.markten li {*/
-/*display: inline;*/
-/*}*/
-
-/*.center-div {*/
-/*display: flex;*/
-/*align-items: center;*/
-/*justify-content: center;*/
-/*flex-direction: row;*/
-/*}*/
-
-/*.icon-container {*/
-/*vertical-align: middle;*/
-/*margin-bottom: 4px;*/
-/*}*/
-
-/*.icon-text-container {*/
-/*height: 40px;*/
-/*display: table;*/
-/*}*/
-
-/*.icon-text-wrapper {*/
-/*display: table-cell;*/
-/*vertical-align: middle;*/
-/*}*/
 
 .pointers {
     background: rgba(255, 255, 255, 0.3);

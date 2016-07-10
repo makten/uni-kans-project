@@ -7,7 +7,7 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Hafiz Abass">
-    <meta id="token" name="token" content="{{ csrf_token() }}">
+    <meta id="token" name="csrf-token" content="{{ csrf_token() }}">
 
     <title>H Abass Project</title>
 
@@ -38,12 +38,12 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
 
 </head>
 
-<body data-spy="scroll" data-offset="0" data-target="#navigation" id="app">
+<body data-spy="scroll" id="app">
 
 <!-- Fixed navbar -->
 {{--<header>--}}
 <header>
-    <div id="navigation" class="navbar navbar-default navbar-fixed-top">
+    <div id="navigation" class="navbar navbar-primary navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -78,7 +78,8 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
                                 <b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 @if(Auth::user()->isAdmin('admin'))
-                                    <li><a href="api/dashboard"><i class="material-icons">dashboard</i> Dashboard</a></li>
+                                    <li><a href="api/dashboard"><i class="material-icons">dashboard</i> Dashboard</a>
+                                    </li>
                                 @endif
                                 <li><a href="javascript:void(0)"><i class="material-icons">settings</i> Profile</a></li>
 
@@ -101,31 +102,123 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
 </header>
 
 
-<div class="container-full-bg container">
+{{--<div class="container-full-bg container">--}}
+<div class="container-fluid"  style="padding: 0;  position: relative;">
+    <br>
+    <br>
+    <br>
+
+
+    <div class="jumbotron" style="padding: 0;">
+
+        <div class="container-fluid" style="background-color: black; opacity: 0.7; padding: 70px !important;">
+
+            <h1>Deel jouw ideen en word innovatief samen</h1>
+
+            <p>In today's world internet is the most popular way of connecting with the people. Organization can use intranet to engage their employees in ways that were
+            never possible.
+            </p>
+            <p>
+                This is a platform to share your ideas and contribute to other people's. Become a member of a team and let your ideas count.
+            </p>
+
+            {{--Search blade--}}
+            @include('layouts.search_partials.search')
+
+
+            <div class="row">
+                <div class="col-md-3">
+
+                    <ul class="list-group cat-links">
+                        <li class="list-group-item" style="background-color: #ee8921;">
+                            <a  href="/propositie/thema/veiligheid" class="links"><span><i class="fa fa-lock"></i> Veiligheid</span>
+                            </a>
+                        </li>
+
+                        <li class="list-group-item" style="background-color: rgba(111, 111, 111, 1);">
+                            <a href="/propositie/thema/comfort" class="links">
+                                <span><i class="fa fa-heartbeat"></i> Comfort & Gezondheid</span>
+                            </a>
+                        </li>
+
+                        <li class="list-group-item" style="background-color: #0000ff;">
+                            <a href="/propositie/thema/communicatie" class="links">
+                                <span><i class="fa fa-bullhorn"></i> Communicatie</span>
+                            </a>
+                        </li>
+
+                        <li class="list-group-item" style="background-color: #008000;">
+                            <a href="/propositie/thema/duurzaamenergie">
+                                <span><i class="fa fa-line-chart" class="links"></i> Energie & Duurzaamheid</span>
+                            </a>
+                        </li>
+
+                        <li class="list-group-item" style="background-color: #663399;">
+                            <a href="/propositie/thema/integraaldienstverlening" class="links">
+                                <span><i class="fa fa-suitcase"></i> Integrale dienstverlening</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+    <div class="container-fluid">
+
+        <div class="row">
+
+            {{--<div class="col-md-3" style="text-align: center; display: inline-block;">--}}
+                {{--<h3><i class="fa fa-star fa-3x super-icon"></i><br>--}}
+                    {{--<span class="blocked">Star Power</span></h3>--}}
+                {{--<p>Make your website stand out with awesome features.</p>--}}
+            {{--</div>--}}
+            {{--<div class="col-md-3" style="text-align: center; display: inline-block;">--}}
+                {{--<h3><i class="fa fa-star fa-3x super-icon"></i><br>--}}
+                    {{--<span class="blocked">Star Power</span></h3>--}}
+                {{--<p>Make your website stand out with awesome features.</p>--}}
+            {{--</div>--}}
+            {{--<div class="col-md-3" style="text-align: center; display: inline-block;">--}}
+                {{--<h3><i class="fa fa-star fa-3x super-icon"></i><br>--}}
+                    {{--<span class="blocked">Star Power</span></h3>--}}
+                {{--<p>Make your website stand out with awesome features.</p>--}}
+            {{--</div>--}}
+            {{--<hr/>--}}
+            {{--<div class="col-md-3" style="text-align: center; display: inline-block;">--}}
+                {{--<h3><i class="fa fa-star fa-3x super-icon"></i><br>--}}
+                    {{--<span class="blocked">Star Power</span></h3>--}}
+                {{--<p>Make your website stand out with awesome features.</p>--}}
+            {{--</div>--}}
+
+            <marktsegments></marktsegments>
+
+        </div>
+
+        <hr>
+        {{--<div class="row">--}}
+        {{--<div class="col-xs-12">--}}
+        {{--<footer>--}}
+        {{--<p>&copy; Copyright 2013 Tutorial Republic</p>--}}
+        {{--</footer>--}}
+        {{--</div>--}}
+        {{--</div>--}}
+    </div>
     <!--Main image container container-->
 
     {{--Search blade--}}
-    @include('layouts.search_partials.search')
+    {{--@include('layouts.search_partials.search')--}}
 
-    <aside id="themas_links">
-        <themas></themas>
-    </aside>
+    {{--<aside id="themas_links">--}}
+    {{--<themas></themas>--}}
+    {{--</aside>--}}
 
 </div><!--Main image container container-->
 
 
 <br/>
 
-<div class="container" style="height: 50% !important;">
-    <div class="row">
-        <section class="content" id="marktsegments" style="position: relative;">
-            <marktsegments></marktsegments>
-        </section><!-- /.content -->
-    </div>
-
-</div>
-</div>
-</div>
 
 {{--Stopword function - Hafiz Abass--}}
 
@@ -519,15 +612,16 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
 <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
         crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.24/vue.js"></script>
-{{--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/0.7.2/vue-resource.js"></script>--}}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/js/bootstrap.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/material.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/moments.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/plugins/selectize.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/datetimepicker.js') }}" type="text/javascript"></script>
+<script src="{{ asset('/js/ripples.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('/js/main.js') }}" type="text/javascript"></script>
 <script src="{{ asset('/js/default_script.js') }}" type="text/javascript"></script>
-<script src="{{ asset('/js/material.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('/js/ripples.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('/js/default_script.js') }}" type="text/javascript"></script>
-{{--<script src="{{ asset('/js/vue-resource.js') }}" type="text/javascript"></script>--}}
+
 
 <script>
     $(function () {
