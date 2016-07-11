@@ -28,9 +28,13 @@
 
 <script>
 
+    var marked = require('marked');
+    marked.setOptions({ghm: true});
+
 
 
     export default{
+
         data(){
             return{
                 show: false,
@@ -96,6 +100,10 @@
 
                 })
             }
-        }
+        },
+
+        filters: {
+            'marked': marked,
+        },
     }
 </script>

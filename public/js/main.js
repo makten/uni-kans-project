@@ -13215,6 +13215,136 @@ return /******/ (function(modules) { // webpackBootstrap
 }.call(this));
 
 },{}],8:[function(require,module,exports){
+(function (process){
+'use strict';
+
+var Vue = require('vue');
+var Vue__default = 'default' in Vue ? Vue['default'] : Vue;
+
+// @NOTE: We have to use Vue.nextTick because the element might not be
+//        present at the time model changes, but will be in the next batch.
+//        But because we use Vue.nextTick, the directive may already be unbound
+//        by the time the callback executes, so we have to make sure it was not.
+
+var focus = {
+  priority: 1000,
+
+  bind: function() {
+    var self = this;
+    this.bound = true;
+
+    this.focus = function() {
+      if (self.bound === true) {
+        self.el.focus();
+      }
+    };
+
+    this.blur = function() {
+      if (self.bound === true) {
+        self.el.blur();
+      }
+    };
+  },
+
+  update: function(value) {
+    if (value) {
+      Vue__default.nextTick(this.focus);
+    } else {
+      Vue__default.nextTick(this.blur);
+    }
+  },
+
+  unbind: function() {
+    this.bound = false;
+  },
+};
+
+var focusModel = {
+  twoWay: true,
+  priority: 1000,
+
+  bind: function() {
+    var self = this;
+    this.bound = true;
+
+    this.focus = function() {
+      if (self.bound === true) {
+        self.el.focus();
+      }
+    };
+
+    this.blur = function() {
+      if (self.bound === true) {
+        self.el.blur();
+      }
+    };
+
+    this.focusHandler = function() {
+      self.set(true);
+    };
+
+    this.blurHandler = function() {
+      self.set(false);
+    };
+
+    Vue.util.on(this.el, 'focus', this.focusHandler);
+    Vue.util.on(this.el, 'blur', this.blurHandler);
+  },
+
+  update: function(value) {
+    if (value === true) {
+      Vue__default.nextTick(this.focus);
+    } else if (value === false) {
+      Vue__default.nextTick(this.blur);
+    } else {
+      if (process.env.NODE_ENV !== 'production') {
+        Vue.util.warn(
+          this.name + '="' +
+          this.expression + '" expects a boolean value, ' +
+          'got ' + JSON.stringify(value)
+        );
+      }
+    }
+  },
+
+  unbind: function() {
+    Vue.util.off(this.el, 'focus', this.focusHandler);
+    Vue.util.off(this.el, 'blur', this.blurHandler);
+    this.bound = false;
+  },
+};
+
+var focusAuto = {
+  priority: 100,
+  bind: function() {
+    var self = this;
+    this.bound = true;
+
+    Vue__default.nextTick(function() {
+      if (self.bound === true) {
+        self.el.focus();
+      }
+    });
+  },
+  unbind: function(){
+    this.bound = false;
+  },
+};
+
+var mixin = {
+  directives: {
+    focus: focus,
+    focusModel: focusModel,
+    focusAuto: focusAuto,
+  },
+};
+
+exports.focus = focus;
+exports.focusModel = focusModel;
+exports.focusAuto = focusAuto;
+exports.mixin = mixin;
+}).call(this,require('_process'))
+},{"_process":5,"vue":12}],9:[function(require,module,exports){
 var Vue // late bind
 var map = Object.create(null)
 var shimmed = false
@@ -13514,7 +13644,7 @@ function format (id) {
   return id.match(/[^\/]+\.vue$/)[0]
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var moment = require('moment');
 
 module.exports = {
@@ -13641,7 +13771,7 @@ module.exports = {
 	},
 };
 
-},{"moment":4}],10:[function(require,module,exports){
+},{"moment":4}],11:[function(require,module,exports){
 /*!
  * vue-resource v0.8.0
  * https://github.com/vuejs/vue-resource
@@ -15010,109 +15140,6 @@ if (typeof window !== 'undefined' && window.Vue) {
 }
 
 module.exports = plugin;
-},{}],11:[function(require,module,exports){
-/**
- * vue-selectize v0.0.3
- * 
- * Copyright (c)  Michael Owens, contributors.
- * Licensed under the ISC license.
- */
-(function(root, factory){
-    var selectize = {
-        twoWay: true,
-
-        selectizeSettings: {},
-
-        bind: function () {
-            var optionsExpression = this.el.getAttribute('options'),
-                settingsExpression = this.el.getAttribute('settings'),
-                self = this,
-                optionsData;
-
-            if (optionsExpression) {
-                optionsData = this.vm.$eval(optionsExpression);
-                this.vm.$watch(optionsExpression, this.optionsChange.bind(this));
-            }
-
-            this.selectizeSettings = {
-                options: optionsData,
-                onChange: function (value) {
-                    self.set(value);
-                    self.nativeEvent('change').call();
-                },
-                onFocus: this.nativeEvent('focus').bind(this),
-                onBlur: this.nativeEvent('blur').bind(this)
-            };
-
-            if (settingsExpression) {
-                var userSettings = this.vm.$eval(settingsExpression);
-                this.selectizeSettings = $.extend({}, this.selectizeSettings, userSettings);
-                this.vm.$watch(settingsExpression, this.settingsChange.bind(this), {
-                    deep: true
-                });
-            }
-
-            $(this.el).selectize(this.selectizeSettings);
-        },
-
-        nativeEvent: function (eventName) {
-            var self = this;
-            return function () {
-                var event = new Event(eventName);
-                self.el.dispatchEvent(event);
-            };
-        },
-
-        optionsChange: function (options) {
-            var selectize = this.el.selectize,
-                value = this.el.selectize.getValue();
-
-            selectize.clearOptions();
-            selectize.addOption(options);
-            selectize.refreshOptions(false);
-            selectize.setValue(value);
-        },
-
-        settingsChange: function (settings) {
-            var value = this.el.selectize.getValue();
-
-            this.selectizeSettings = $.extend({}, this.selectizeSettings, settings);
-
-            this.el.selectize.destroy();
-            $(this.el).selectize(this.selectizeSettings);
-            this.el.selectize.setValue(value);
-        },
-
-        update: function (value) {
-            this.el.selectize.setValue(value);
-        },
-
-        unbind: function () {
-            this.el.selectize.destroy();
-        }
-    };
-
-    if (typeof exports === 'object' && typeof module === 'object') {
-        module.exports = factory();
-    }
-    else if (typeof define === 'function' && define.amd) {
-        define([], factory);
-    }
-    else if (typeof exports === 'object') {
-        exports['vue-selectize'] = factory();
-    }
-    else {
-        root['vue-selectize'] = factory();
-    }
-
-    function factory() {
-        return function (Vue, options) {
-            options = options || {};
-            var directiveName = options.directive || 'selectize';
-            Vue.directive(directiveName, selectize);
-        };
-    }
-})(this);
 },{}],12:[function(require,module,exports){
 (function (process,global){
 /*!
@@ -25231,8 +25258,8 @@ Vue.config.debug = true;
 Vue.use(require('vue-resource'));
 Vue.use(require('vue-moment'));
 require('underscore');
-var selectize = require('vue-selectize');
-Vue.use(selectize);
+//var selectize = require('vue-selectize');
+//Vue.use(selectize);
 
 Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('content');
 
@@ -25284,7 +25311,7 @@ new Vue({
     ready: function ready() {}
 });
 
-},{"./dashboard/home/home.vue":15,"./dashboard/propositie/create.vue":22,"./dashboard/propositie/show.vue":24,"./home.js":25,"dropzone":1,"laravel-echo":2,"marked":3,"pusher-js":6,"underscore":7,"vue":12,"vue-moment":9,"vue-resource":10,"vue-selectize":11}],15:[function(require,module,exports){
+},{"./dashboard/home/home.vue":15,"./dashboard/propositie/create.vue":22,"./dashboard/propositie/show.vue":24,"./home.js":25,"dropzone":1,"laravel-echo":2,"marked":3,"pusher-js":6,"underscore":7,"vue":12,"vue-moment":10,"vue-resource":11}],15:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\na.active {\n    color: red;\n}\n\n.intable-image {\n\n}\n\n.intable-image img {\n    height: 50px;\n    width: 70px;\n}\n")
 'use strict';
@@ -25372,7 +25399,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-20b223d4", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../mixins/helpers":28,"./marktsegments.vue":16,"./navsearch.vue":17,"./search.vue":18,"./themas.vue":19,"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],16:[function(require,module,exports){
+},{"../../mixins/helpers":28,"./marktsegments.vue":16,"./navsearch.vue":17,"./search.vue":18,"./themas.vue":19,"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25412,7 +25439,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-f015607c", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":8}],17:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":9}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25494,7 +25521,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-1e47bbe6", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":8}],18:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":9}],18:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.tt-menu {\n    position: relative;\n    z-index: 99;\n    padding: 20px 10px;\n}\n\n.right-inner-addon {\n    position: relative;\n    z-index: 1;\n}\n\n.right-inner-addon input {\n    padding-right: 30px;\n}\n\n.right-inner-addon i {\n    position: absolute;\n    right: 0px;\n    padding: 40px 12px;\n    pointer-events: none;\n}\n\n.buttonRight {\n    position: absolute;\n    right: 0px;\n    top: 20px;\n}\n.twitter-typeahead,\n.tt-hint,\n.tt-input,\n.tt-menu {\n    width: 100%;\n}\n\n.tt-suggestion {\n    padding: 3px 20px;\n    font-size: 18px;\n    line-height: 24px;\n    border-bottom: 1px solid #e3e3e3;\n    background-color: white;\n}\n\n.tt-cursor {\n    background-color: #e3e3e3;\n}\n")
 'use strict';
@@ -25599,7 +25626,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-c83af646", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],19:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25621,7 +25648,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-3d9fc0fa", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":8}],20:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":9}],20:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.replyMessage {\n    border: 0;\n    padding: 2px;\n    margin: 2px 0px;    \n    margin-bottom: 15px;\n    background-color: transparent;\n    color: #569FF9;\n}\n\n    .modal-mask {\n        position: fixed;\n        z-index: 9998;\n        top: 0;\n        left: 0;\n        width: 100%;\n        height: 100%;\n        background-color: rgba(38, 38, 38, 0.21);\n        display: table;\n        -webkit-transition: opacity .3s ease;\n        transition: opacity .3s ease;\n    }\n\n    .modal-wrapper {\n        display: table-cell;\n        vertical-align: middle;\n    }\n\n    .modal-container {\n        width: 300px;\n        margin: 0px auto;\n        padding: 20px 30px;\n        background-color: #fff;\n        border-radius: 2px;\n        box-shadow: 0 2px 8px rgba(0, 0, 0, .33);\n        -webkit-transition: all .3s ease;\n        transition: all .3s ease;\n        font-family: Helvetica, Arial, sans-serif;\n    }\n\n    .modal-header h3 {\n        margin-top: 0;\n        color: #42b983;\n    }\n\n    .modal-body {\n        margin: 20px 0;\n    }\n\n    .modal-default-button {\n        float: right;\n    }\n\n    /*\n     * the following styles are auto-applied to elements with\n     * v-transition=\"modal\" when their visiblity is toggled\n     * by Vue.js.\n     *\n     * You can easily play with the modal transition by editing\n     * these styles.\n     */\n\n    .modal-enter, .modal-leave {\n        opacity: 0;\n    }\n\n    .modal-enter .modal-container,\n    .modal-leave .modal-container {\n        -webkit-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n")
 'use strict';
@@ -25720,7 +25747,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-2dfb2a53", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],21:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25827,7 +25854,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-e411eecc", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"./comment_formmodal.vue":20,"./replies.vue":23,"marked":3,"vue":12,"vue-hot-reload-api":8}],22:[function(require,module,exports){
+},{"./comment_formmodal.vue":20,"./replies.vue":23,"marked":3,"vue":12,"vue-hot-reload-api":9}],22:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.rm-item{\n    display: none;\n}\n\n.tag\n{\n    margin-right:2px;\n    color:white;\n    text-align:center;\n    padding:3px;\n    border-radius: 5px;\n}\n")
 'use strict';
@@ -25976,7 +26003,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6ad599bc", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../mixins/StopWordsHelper":27,"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],23:[function(require,module,exports){
+},{"../../mixins/StopWordsHelper":27,"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26048,7 +26075,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6d21b3d2", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"marked":3,"vue":12,"vue-hot-reload-api":8}],24:[function(require,module,exports){
+},{"marked":3,"vue":12,"vue-hot-reload-api":9}],24:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n\n")
 'use strict';
@@ -26137,7 +26164,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-08d6dfba", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"./comments.vue":21,"marked":3,"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],25:[function(require,module,exports){
+},{"./comments.vue":21,"marked":3,"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],25:[function(require,module,exports){
 'use strict';
 
 var _themas = require('./themas.vue');
@@ -26188,6 +26215,9 @@ Vue.transition('swipe', {
 //    //return "<span class='dan'>"+query+"</span>";
 //    return '<b>' + query + '</b>';
 //})
+
+var marked = require('marked');
+marked.setOptions({ ghm: true });
 
 new Vue({
 
@@ -26270,8 +26300,6 @@ new Vue({
                 this.$set('searchOutput', response.data.data.data);
                 this.$set('pagination', response.data.pagination);
 
-                console.log(this.searchOutput);
-
                 //this.pagination = response.data.pagination;
                 //this.$dispatch('new-searchresults', this.searchResults, this.navquery, this.pagination, this.page);
             }.bind(this), function (response) {});
@@ -26288,10 +26316,14 @@ new Vue({
         'new-current_page': function newCurrent_page(current_page) {
             this.current_page = current_page;
         }
+    },
+
+    filters: {
+        'marked': marked
     }
 });
 
-},{"../mixins/helpers":33,"./marktsegments.vue":26,"./navsearch.vue":29,"./search.vue":30,"./themas.vue":31,"vue":12,"vue-moment":9,"vue-resource":10}],26:[function(require,module,exports){
+},{"../mixins/helpers":33,"./marktsegments.vue":26,"./navsearch.vue":29,"./search.vue":30,"./themas.vue":31,"marked":3,"vue":12,"vue-moment":10,"vue-resource":11}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26331,7 +26363,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-53ac3dc7", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":8}],27:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":9}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26533,7 +26565,14 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _vueFocus = require('vue-focus');
+
+var marked = require('marked');
+marked.setOptions({ ghm: true });
+
 exports.default = {
+    directives: { focus: _vueFocus.focus },
     data: function data() {
         return {
             show: false,
@@ -26595,6 +26634,10 @@ exports.default = {
                 this.navquery = '';
             }.bind(this), function (response) {});
         }
+    },
+
+    filters: {
+        'marked': marked
     }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
@@ -26609,7 +26652,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-fc6f172a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":8}],30:[function(require,module,exports){
+},{"marked":3,"vue":12,"vue-focus":8,"vue-hot-reload-api":9}],30:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.tt-menu {\n    position: relative;\n    z-index: 99;\n    padding: 20px 10px;\n}\n\n.right-inner-addon {\n    position: relative;\n    z-index: 1;\n}\n\n.right-inner-addon input {\n    padding-right: 30px;\n}\n\n.right-inner-addon i {\n    position: absolute;\n    right: 0px;\n    padding: 40px 12px;\n    pointer-events: none;\n}\n\n.buttonRight {\n    position: absolute;\n    right: 0px;\n    top: 20px;\n}\n.twitter-typeahead,\n.tt-hint,\n.tt-input,\n.tt-menu {\n    width: 100%;\n}\n\n.tt-suggestion {\n    padding: 3px 20px;\n    font-size: 18px;\n    line-height: 24px;\n    border-bottom: 1px solid #e3e3e3;\n    background-color: white;\n}\n\n.tt-cursor {\n    background-color: #e3e3e3;\n}\n")
 'use strict';
@@ -26617,6 +26660,11 @@ var __vueify_style__ = __vueify_insert__.insert("\n.tt-menu {\n    position: rel
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+
+var marked = require('marked');
+marked.setOptions({ ghm: true });
+
 exports.default = {
 
     props: ['app'],
@@ -26695,6 +26743,10 @@ exports.default = {
                 this.totalFound = this.searchResults.length;
             }.bind(this), function (response) {});
         }
+    },
+
+    filters: {
+        'marked': marked
     }
 
 };
@@ -26714,7 +26766,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6d872278", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":8,"vueify/lib/insert-css":13}],31:[function(require,module,exports){
+},{"marked":3,"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26736,7 +26788,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-9a5685c4", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":8}],32:[function(require,module,exports){
+},{"vue":12,"vue-hot-reload-api":9}],32:[function(require,module,exports){
 'use strict';
 
 //window.Pusher = require('pusher-js');

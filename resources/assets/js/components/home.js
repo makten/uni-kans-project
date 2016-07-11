@@ -32,6 +32,9 @@ Vue.transition('swipe', {
 //    return '<b>' + query + '</b>';
 //})
 
+var marked = require('marked');
+marked.setOptions({ghm: true});
+
 
 
 new Vue({
@@ -117,7 +120,6 @@ new Vue({
                 this.$set('searchOutput', response.data.data.data);
                 this.$set('pagination', response.data.pagination);
 
-                console.log(this.searchOutput);
 
                 //this.pagination = response.data.pagination;
                 //this.$dispatch('new-searchresults', this.searchResults, this.navquery, this.pagination, this.page);
@@ -141,6 +143,10 @@ new Vue({
         'new-current_page': function(current_page){
             this.current_page = current_page
         }
-    }
+    },
+
+    filters: {
+        'marked': marked,
+    },
 });
 

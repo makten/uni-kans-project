@@ -34,6 +34,9 @@
 
 <script>
 
+    var marked = require('marked');
+    marked.setOptions({ghm: true});
+
     export default {
 
         props: [
@@ -131,7 +134,12 @@
                 })
 
             }
-        }
+        },
+
+        filters: {
+                'marked': marked,
+            },
+
 
 
     }

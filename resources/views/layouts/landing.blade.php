@@ -111,6 +111,9 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
 
     <div class="jumbotron" style="padding: 0;">
 
+        {{--Search blade--}}
+        @include('layouts.search_partials.search')
+
         <div class="container-fluid" style="background-color: black; opacity: 0.7; padding: 70px !important;">
 
             <h1>Deel jouw ideen en word innovatief samen</h1>
@@ -121,9 +124,6 @@ Landing page based on Pratt: http://blacktie.co/demo/pratt/
             <p>
                 This is a platform to share your ideas and contribute to other people's. Become a member of a team and let your ideas count.
             </p>
-
-            {{--Search blade--}}
-            @include('layouts.search_partials.search')
 
 
             <div class="row">

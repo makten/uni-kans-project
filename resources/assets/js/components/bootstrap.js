@@ -4,8 +4,8 @@ Vue.config.debug = true;
 Vue.use(require('vue-resource'));
 Vue.use(require('vue-moment'));
 require('underscore');
-var selectize = require('vue-selectize');
-Vue.use(selectize);
+//var selectize = require('vue-selectize');
+//Vue.use(selectize);
 
 Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('content');
 

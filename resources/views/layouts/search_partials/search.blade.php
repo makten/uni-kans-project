@@ -1,6 +1,6 @@
 
 <!--Search container-->
-<div class=" col-sm-12 search-container animated" v-show="searchOutput.length > 0" transition="swipe">
+<div class=" col-md-8 col-md-offset-2 search-container animated" v-show="searchOutput.length > 0" transition="swipe">
 
 
     <div class="close-bar">@{{ searchOutput.length }} Results found
@@ -28,7 +28,7 @@
                 <!--Button-->
 
                 <a class="btn-floating btn-action btn ">
-                    <img src="@{{result.user.userprofile.avatar_resized}}"/>
+                    <img :src="@{{result.user.avatar}}"/>
                 </a>
 
                 <!--Card content-->
@@ -41,19 +41,19 @@
                     <hr>
                     <!--Text-->
                     <div style="height: 100px; overflow: hidden">
-                        <p class="card-text">@{{ result.pro_description }}</p>
+                        <p class="card-text">@{{{ result.pro_description | marked }}}</p>
                     </div>
                     <a href="/" class="link-text"><h5>Meer lezen <i class="fa fa-chevron-right"></i></h5></a>
                 </div>
                 <!--/.Card content-->
 
                 <!-- Card footer -->
-                <div class="card-data" style="background-color: #6a6a6a; color: #ffffff; height: 35px; ">
+                <div class="card-data">
                     <ul class="list-inline">
                         <li><i class="fa fa-clock-o"></i> @{{ result.created_at | moment "D-M-Y"}}</li>
                         <li><a href="#"><i class="fa fa-comments-o"></i>12</a></li>
-                        <li><a href="#"><i class="fa fa-facebook"> </i>21</a></li>
-                        <li><a href="#"><i class="fa fa-twitter"> </i>5</a></li>
+                        <li><a href="#"><i class="fa fa-eye"> </i>21</a></li>
+                        <li><a href="#"><i class="fa fa-user"> </i>5</a></li>
                     </ul>
                 </div>
 
