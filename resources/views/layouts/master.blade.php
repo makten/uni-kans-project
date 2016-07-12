@@ -24,6 +24,7 @@
     {!! Html::style('/css/jquery-ui.css') !!}
     {!! Html::style('/css/bootstrapValidator.css') !!}
     {!! Html::style('/css/bootstrap-switch.min.css') !!}
+    <link rel="stylesheet" type="text/css" href="{{ asset('/css/cust/bootstrap-material-design.css') }}">
 
 
 </head>

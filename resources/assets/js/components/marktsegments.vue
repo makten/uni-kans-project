@@ -1,11 +1,11 @@
 <template>
 
     <div class="col-md-10 col-md-offset-1">
-    <div class="col-md-1 col-xs-6 ripplelink" style="text-align: center; display: inline-table;" v-for="markt in markten">
+    <div class="col-md- col-xs-3 ripplelink markten-container" v-for="markt in markten">
         <h3>
-            <!--<a href="{{markt.link}}">-->
-                <i class="fa {{markt.icon}} fa-2x super-icon"></i>
-            <!--</a>-->
+            <a href="{{markt.link}}">
+                <i class="fa {{markt.icon}} fa-2x super-icon image"></i>
+            </a>
             <br>
             <span class="blocked" style="font-size: 15px;">
                 <a href="/propositie/marktsegment/onderwijs" style="cursor: pointer;">
@@ -15,7 +15,8 @@
         </h3>
 
         <!--<p>{{ markt.name }}</p>-->
-        <br/>
+        <!--<br/>-->
+        <hr/>
 
     </div>
     </div>
