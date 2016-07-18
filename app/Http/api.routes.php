@@ -23,7 +23,8 @@ Route::group([
     /**
      * Admin routes...
      */
-    Route::get('userprofile/{id}/updateSkin', 'API\UserProfileController@updateSkin');
+    Route::get('userprofile/{id}/show', 'API\UserProfileController@show');
+    Route::post('userprofile/{id}/updateSkin', 'API\UserProfileController@updateSkin');
     Route::get('dashboard', ['as' => 'dashboard', 'uses' => 'AdminController@dashboard']);
 
     /**

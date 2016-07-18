@@ -128,8 +128,6 @@ Route::get('/typeahead', function(){
 
 Route::get('/api/search/{query}', function($query){
 
-
-//    $proposities = \App\Propositie::where('pro_name', 'LIKE', "%{$query}%")->latest()->get();
     $proposities = \App\Propositie::with('user.userprofile')->where('pro_name', 'LIKE', "%{$query}%")->latest()->paginate(12);
 
     $response =[
@@ -163,6 +161,7 @@ Route::group(['middleware' => 'web'], function () {
        // ---------------Admin routes ----------------------------
 
     Route::post('store/settings', ['as' => 'skin.store', 'uses' => 'UserProfileController@updateSkin']);
+    Route::get('user/{id}/profile', ['as' => 'user.profile', 'uses' => 'UserController@userprofile']);
 
     Route::get('/', 'HomeController@landing');
 //    Route::get('/home', 'AdminController@home');

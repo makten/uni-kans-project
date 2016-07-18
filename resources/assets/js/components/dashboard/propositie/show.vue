@@ -15,7 +15,7 @@
                             <a href="javascript:void(0)" class="btn btn-danger btn-fab"><i class="material-icons">delete</i></a>
                         </p>
                         <br/>
-                        <h4>Algemeen</h4>
+                        <h2 class="title">Algemeen</h2>
                         <hr>
 
 
@@ -38,7 +38,7 @@
                         <div class="card-block">
                             <!--Title-->
                             <div>
-                                <h4 class="card-title">{{{ propositie.pro_name | marked }}}</h4>
+                                <h4 class="card-title">{{{ propositie.pro_name }}}</h4>
                             </div>
                             <hr>
                         </div>
@@ -47,34 +47,48 @@
 
 
 
-                        <div class="media" v-for="member in propositie.team.users"
-                             style="box-shadow: 0 8px 10px rgba(0,0,0,0.19), 0 6px 6px rgba(98, 98, 98, 0.23); background-color: rgba(24, 24, 24, 0.88); color: #FFFFFF; border-radius: 3px; padding: 2px;">
+                        <h2 class="title">Project Team</h2>
 
-                            <a class="pull-left image" href="#" style="margin-left: 8px;">
-                                <img class="img-circle media-object"
+                        <div class="media team-card" v-for="member in propositie.team.users">
+
+                            <a class="pull-left image" href="/user/{{ member.id }}/profile" style="margin-left: 1px;">
+                                <img class="img-square media-object"
                                      :src="getImg(member.avatar)"
                                      alt="User profile">
                             </a>
 
-                            <div class="media-body">
+                            <div class="media-body content">
 
-                                <div class="col-xs-12 comment-header media-heading">
-                                    <h4 class="media-heading">{{ member.first_name +' '+ member.last_name}} </h4>
-                                        <span v-if="member.id == propositie.id">
-                                            •
-                                            <span class="label label-default tiny-badge">Propositiehouder</span>
-                                            •
-                                        </span>
+                                <div class="col-xs-12 media-heading" style="padding-left: 0px;">
+                                    <a href="/user/{{ member.id }}/profile">
+                                        <h5 class="media-heading">
+                                            {{ member.first_name +' '+ member.last_name}}
+                                            <span v-if="member.id == propositie.id">
+                                               •
+                                               <span class="label label-default tiny-badge">Propositiehouder</span>
+                                               •
+                                            </span>
+
+                                            <span><i id="basic-addon1" class="time-ago addon right"
+                                                     title="Gezien {{humanReadable(propositie.created_at) }}">
+                                                Gezien {{humanReadable(propositie.created_at) }}</i>
+                                            </span>
+
+                                        </h5>
+                                    </a>
 
 
-                                        <span><i id="basic-addon1" class="time-ago addon right"
-                                                 title="Gezien {{humanReadable(propositie.created_at) }}">
-                                            Gezien {{humanReadable(propositie.created_at) }}</i>
-                                        </span>
+
+
+
 
                                 </div>
 
-                                <p>Some activities maybe ?.. Feeds perhaps</p>
+                                    <p><i class="fa fa-envelope"> &nbsp;{{ member.email }}</i> </p>
+                                    <!--<p><i class="fa fa-phone"> &nbsp; 061 1234587</i> </p>-->
+
+
+
                             </div>
 
                         </div>
@@ -95,15 +109,15 @@
 
                     <div class="panel-body">
 
-                        <h4>Beschrijving</h4>
+                        <h2 class="title">Beschrijving</h2>
                         <!--Card content-->
-                        <div class="card-block readabale-text">
+                        <div class="card-block readable">
                             <hr>
                             <!--Text-->
                             <p class="card-text">{{{ propositie.pro_description | marked }}}</p>
                             <br>
                             
-                            <h4><i class="fa fa-clock-o pull-left"></i> Status</h4>
+                            <h2 class="title"><i class="fa fa-clock-o pull-left"></i> Status</h2>
                             <hr>
                             <p>{{ propositie.pro_status }}</p>
                             <p>Docs</p>
@@ -111,23 +125,24 @@
                             <p>Likes</p>
                             <br>
 
-                            <h4>Markten</h4>
+
+                            <h2 class="title">Markten</h2>
                             <hr>
                             <p>{{ propositie.pro_marktsegmenten }}</p>
                             <br>
 
-                            <h4>Themas</h4>
+                            <h2 class="title">Themas</h2>
                             <hr>
                             <p>{{ propositie.pro_themas }}</p>
                             <br>
 
 
-                            <h4><i class="material-icons">person</i> Contactpersoon</h4>
+                            <h2 class="title"><i class="material-icons">person</i> Contactpersoon</h2>
                             <hr>
                             <p>{{ propositie.user.first_name +' '+ propositie.user.last_name }}</p>
                             <br>
 
-                            <h4><i class="fa fa-tags pull-left"></i> Uniek</h4>
+                            <h2 class="title"><i class="fa fa-tags pull-left"></i> Uniek</h2>
                             <p>
                             <ul class="list-inline">
                                 <li class="label-info"><a style="color: white;" href="#"> {{ propositie.pro_uniek }}</a>
@@ -141,13 +156,13 @@
                             <br>
 
 
-                            <h4><i class="fa fa-money pull-left"></i> Revenuen</h4>
+                            <h2 class="title"><i class="fa fa-money pull-left"></i> Revenuen</h2>
                             <hr>
                             <p>{{ propositie.pro_revenuen }}</p>
                             <br>
 
 
-                            <h4><i class="fa fa-money pull-left"></i> Documentent</h4>
+                            <h2 class="title"><i class="fa fa-money pull-left"></i> Documentent</h2>
                             <hr>
                             <p>{{ propositie.pro_saleskit }}</p>
                             <p>{{ propositie.pro_marktinfo }}</p>
@@ -155,7 +170,7 @@
                             <br>
 
 
-                            <h4><i class="fa fa-money pull-left"></i> Referencen</h4>
+                            <h2 class="title"><i class="fa fa-money pull-left"></i> Referencen</h2>
                             <hr>
                             <p>{{ propositie.pro_ }}</p>
                             <br>
@@ -240,8 +255,22 @@
 </template>
 
 <style>
+    .team-card {
+        border-radius: 3px;
+        padding: 2px;
+        box-shadow: 0.1px 0.1px 1px 0px lightgrey;
+    }
 
+    .team-card .content{
+        /*text-align: justify;*/
+        padding: 0px;
+    }
+
+    .team-card p {
+        font-size: 12px;
+    }
 </style>
+
 
 <script>
 

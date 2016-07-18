@@ -7,9 +7,9 @@
 
 @if(isset($userSettings))
     <body id='admin_app' class="{{$userSettings->skin}} sidebar-mini">
-    @else
-        <body id='admin_app' class="skin-blue sidebar-mini">
-        @endif
+@else
+    <body id='admin_app' class="skin-blue sidebar-mini">
+@endif
         <div class="wrapper">
 
             @include('layouts.partials.mainheader')

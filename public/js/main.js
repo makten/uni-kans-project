@@ -13215,136 +13215,6 @@ return /******/ (function(modules) { // webpackBootstrap
 }.call(this));
 
 },{}],8:[function(require,module,exports){
-(function (process){
-'use strict';
-
-var Vue = require('vue');
-var Vue__default = 'default' in Vue ? Vue['default'] : Vue;
-
-// @NOTE: We have to use Vue.nextTick because the element might not be
-//        present at the time model changes, but will be in the next batch.
-//        But because we use Vue.nextTick, the directive may already be unbound
-//        by the time the callback executes, so we have to make sure it was not.
-
-var focus = {
-  priority: 1000,
-
-  bind: function() {
-    var self = this;
-    this.bound = true;
-
-    this.focus = function() {
-      if (self.bound === true) {
-        self.el.focus();
-      }
-    };
-
-    this.blur = function() {
-      if (self.bound === true) {
-        self.el.blur();
-      }
-    };
-  },
-
-  update: function(value) {
-    if (value) {
-      Vue__default.nextTick(this.focus);
-    } else {
-      Vue__default.nextTick(this.blur);
-    }
-  },
-
-  unbind: function() {
-    this.bound = false;
-  },
-};
-
-var focusModel = {
-  twoWay: true,
-  priority: 1000,
-
-  bind: function() {
-    var self = this;
-    this.bound = true;
-
-    this.focus = function() {
-      if (self.bound === true) {
-        self.el.focus();
-      }
-    };
-
-    this.blur = function() {
-      if (self.bound === true) {
-        self.el.blur();
-      }
-    };
-
-    this.focusHandler = function() {
-      self.set(true);
-    };
-
-    this.blurHandler = function() {
-      self.set(false);
-    };
-
-    Vue.util.on(this.el, 'focus', this.focusHandler);
-    Vue.util.on(this.el, 'blur', this.blurHandler);
-  },
-
-  update: function(value) {
-    if (value === true) {
-      Vue__default.nextTick(this.focus);
-    } else if (value === false) {
-      Vue__default.nextTick(this.blur);
-    } else {
-      if (process.env.NODE_ENV !== 'production') {
-        Vue.util.warn(
-          this.name + '="' +
-          this.expression + '" expects a boolean value, ' +
-          'got ' + JSON.stringify(value)
-        );
-      }
-    }
-  },
-
-  unbind: function() {
-    Vue.util.off(this.el, 'focus', this.focusHandler);
-    Vue.util.off(this.el, 'blur', this.blurHandler);
-    this.bound = false;
-  },
-};
-
-var focusAuto = {
-  priority: 100,
-  bind: function() {
-    var self = this;
-    this.bound = true;
-
-    Vue__default.nextTick(function() {
-      if (self.bound === true) {
-        self.el.focus();
-      }
-    });
-  },
-  unbind: function(){
-    this.bound = false;
-  },
-};
-
-var mixin = {
-  directives: {
-    focus: focus,
-    focusModel: focusModel,
-    focusAuto: focusAuto,
-  },
-};
-
-exports.focus = focus;
-exports.focusModel = focusModel;
-exports.focusAuto = focusAuto;
-exports.mixin = mixin;
-}).call(this,require('_process'))
-},{"_process":5,"vue":12}],9:[function(require,module,exports){
 var Vue // late bind
 var map = Object.create(null)
 var shimmed = false
@@ -13644,7 +13514,7 @@ function format (id) {
   return id.match(/[^\/]+\.vue$/)[0]
 }
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var moment = require('moment');
 
 module.exports = {
@@ -13771,7 +13641,7 @@ module.exports = {
 	},
 };
 
-},{"moment":4}],11:[function(require,module,exports){
+},{"moment":4}],10:[function(require,module,exports){
 /*!
  * vue-resource v0.8.0
  * https://github.com/vuejs/vue-resource
@@ -15140,7 +15010,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 }
 
 module.exports = plugin;
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 (function (process,global){
 /*!
  * Vue.js v1.0.25
@@ -25211,7 +25081,7 @@ setTimeout(function () {
 
 module.exports = Vue;
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":5}],13:[function(require,module,exports){
+},{"_process":5}],12:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 exports.insert = function (css) {
@@ -25231,7 +25101,7 @@ exports.insert = function (css) {
   return elem
 }
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 var _laravelEcho = require('laravel-echo');
@@ -25249,6 +25119,10 @@ var _show2 = _interopRequireDefault(_show);
 var _create = require('./dashboard/propositie/create.vue');
 
 var _create2 = _interopRequireDefault(_create);
+
+var _profile = require('./user/profile.vue');
+
+var _profile2 = _interopRequireDefault(_profile);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -25305,13 +25179,14 @@ new Vue({
     components: {
         'dashboard-overview': _home2.default,
         'show-propositie': _show2.default,
-        'createpropositie': _create2.default
+        'createpropositie': _create2.default,
+        'user-profile': _profile2.default
     },
 
     ready: function ready() {}
 });
 
-},{"./dashboard/home/home.vue":15,"./dashboard/propositie/create.vue":22,"./dashboard/propositie/show.vue":24,"./home.js":25,"dropzone":1,"laravel-echo":2,"marked":3,"pusher-js":6,"underscore":7,"vue":12,"vue-moment":10,"vue-resource":11}],15:[function(require,module,exports){
+},{"./dashboard/home/home.vue":14,"./dashboard/propositie/create.vue":21,"./dashboard/propositie/show.vue":23,"./home.js":24,"./user/profile.vue":31,"dropzone":1,"laravel-echo":2,"marked":3,"pusher-js":6,"underscore":7,"vue":11,"vue-moment":9,"vue-resource":10}],14:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\na.active {\n    color: red;\n}\n\n.intable-image {\n\n}\n\n.intable-image img {\n    height: 50px;\n    width: 70px;\n}\n")
 'use strict';
@@ -25399,7 +25274,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-20b223d4", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../mixins/helpers":28,"./marktsegments.vue":16,"./navsearch.vue":17,"./search.vue":18,"./themas.vue":19,"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],16:[function(require,module,exports){
+},{"../../mixins/helpers":27,"./marktsegments.vue":15,"./navsearch.vue":16,"./search.vue":17,"./themas.vue":18,"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25439,7 +25314,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-f015607c", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":9}],17:[function(require,module,exports){
+},{"vue":11,"vue-hot-reload-api":8}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25521,7 +25396,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-1e47bbe6", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":9}],18:[function(require,module,exports){
+},{"vue":11,"vue-hot-reload-api":8}],17:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.tt-menu {\n    position: relative;\n    z-index: 99;\n    padding: 20px 10px;\n}\n\n.right-inner-addon {\n    position: relative;\n    z-index: 1;\n}\n\n.right-inner-addon input {\n    padding-right: 30px;\n}\n\n.right-inner-addon i {\n    position: absolute;\n    right: 0px;\n    padding: 40px 12px;\n    pointer-events: none;\n}\n\n.buttonRight {\n    position: absolute;\n    right: 0px;\n    top: 20px;\n}\n.twitter-typeahead,\n.tt-hint,\n.tt-input,\n.tt-menu {\n    width: 100%;\n}\n\n.tt-suggestion {\n    padding: 3px 20px;\n    font-size: 18px;\n    line-height: 24px;\n    border-bottom: 1px solid #e3e3e3;\n    background-color: white;\n}\n\n.tt-cursor {\n    background-color: #e3e3e3;\n}\n")
 'use strict';
@@ -25626,7 +25501,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-c83af646", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],19:[function(require,module,exports){
+},{"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25648,7 +25523,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-3d9fc0fa", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":9}],20:[function(require,module,exports){
+},{"vue":11,"vue-hot-reload-api":8}],19:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.replyMessage {\n    border: 0;\n    padding: 2px;\n    margin: 2px 0px;    \n    margin-bottom: 15px;\n    background-color: transparent;\n    color: #569FF9;\n}\n\n    .modal-mask {\n        position: fixed;\n        z-index: 9998;\n        top: 0;\n        left: 0;\n        width: 100%;\n        height: 100%;\n        background-color: rgba(38, 38, 38, 0.21);\n        display: table;\n        -webkit-transition: opacity .3s ease;\n        transition: opacity .3s ease;\n    }\n\n    .modal-wrapper {\n        display: table-cell;\n        vertical-align: middle;\n    }\n\n    .modal-container {\n        width: 300px;\n        margin: 0px auto;\n        padding: 20px 30px;\n        background-color: #fff;\n        border-radius: 2px;\n        box-shadow: 0 2px 8px rgba(0, 0, 0, .33);\n        -webkit-transition: all .3s ease;\n        transition: all .3s ease;\n        font-family: Helvetica, Arial, sans-serif;\n    }\n\n    .modal-header h3 {\n        margin-top: 0;\n        color: #42b983;\n    }\n\n    .modal-body {\n        margin: 20px 0;\n    }\n\n    .modal-default-button {\n        float: right;\n    }\n\n    /*\n     * the following styles are auto-applied to elements with\n     * v-transition=\"modal\" when their visiblity is toggled\n     * by Vue.js.\n     *\n     * You can easily play with the modal transition by editing\n     * these styles.\n     */\n\n    .modal-enter, .modal-leave {\n        opacity: 0;\n    }\n\n    .modal-enter .modal-container,\n    .modal-leave .modal-container {\n        -webkit-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n")
 'use strict';
@@ -25747,7 +25622,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-2dfb2a53", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],21:[function(require,module,exports){
+},{"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25854,7 +25729,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-e411eecc", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"./comment_formmodal.vue":20,"./replies.vue":23,"marked":3,"vue":12,"vue-hot-reload-api":9}],22:[function(require,module,exports){
+},{"./comment_formmodal.vue":19,"./replies.vue":22,"marked":3,"vue":11,"vue-hot-reload-api":8}],21:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.rm-item{\n    display: none;\n}\n\n.tag\n{\n    margin-right:2px;\n    color:white;\n    text-align:center;\n    padding:3px;\n    border-radius: 5px;\n}\n")
 'use strict';
@@ -26003,7 +25878,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6ad599bc", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../mixins/StopWordsHelper":27,"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],23:[function(require,module,exports){
+},{"../../mixins/StopWordsHelper":26,"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26075,9 +25950,9 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6d21b3d2", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"marked":3,"vue":12,"vue-hot-reload-api":9}],24:[function(require,module,exports){
+},{"marked":3,"vue":11,"vue-hot-reload-api":8}],23:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("\n\n")
+var __vueify_style__ = __vueify_insert__.insert("\n.team-card {\n    border-radius: 3px;\n    padding: 2px;\n    box-shadow: 0.1px 0.1px 1px 0px lightgrey;\n}\n\n.team-card .content{\n    /*text-align: justify;*/\n    padding: 0px;\n}\n\n.team-card p {\n    font-size: 12px;\n}\n")
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26149,13 +26024,13 @@ exports.default = {
     }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n<div class=\"container-fluid\"> <!--main container--->\n\n    <div class=\"row\" v-if=\"propositie\">\n\n        <!------ General and team details ------------->\n        <div class=\"col-md-3 col-md-offset-0\">\n            <div class=\"panel panel-default\">\n\n                <div class=\"panel-body\">\n                    <p class=\"bs-component btn-group-sm\" style=\"position: absolute; top: 0px; right: 15px; margin: 3px;\">\n                        <a href=\"javascript:void(0)\" class=\"btn btn-primary btn-fab\"><i class=\"material-icons\">edit</i></a>\n                        <a href=\"javascript:void(0)\" class=\"btn btn-danger btn-fab\"><i class=\"material-icons\">delete</i></a>\n                    </p>\n                    <br>\n                    <h4>Algemeen</h4>\n                    <hr>\n\n\n                    <!--Card image-->\n                    <div class=\"ripplelink\">\n\n                        <a href=\"#\" class=\"image img-circle ripplelink\">\n                            <img :src=\"getImg(propositie.pro_avatar)\" alt=\"Propositie foto\">\n                        </a>\n                    </div>\n                    <!--/.Card image-->\n\n                    <!--Button-->\n\n                    <a class=\"btn-floating btn-action btn-fab\">\n                        <img :src=\"getImg(propositie.user.userprofile.avatar_thumbnail)\" alt=\"User profile\">\n                    </a>\n\n                    <!--Card content-->\n                    <div class=\"card-block\">\n                        <!--Title-->\n                        <div>\n                            <h4 class=\"card-title\">{{{ propositie.pro_name | marked }}}</h4>\n                        </div>\n                        <hr>\n                    </div>\n                    <!--/.Card content-->\n                    <br>\n\n\n\n                    <div class=\"media\" v-for=\"member in propositie.team.users\" style=\"box-shadow: 0 8px 10px rgba(0,0,0,0.19), 0 6px 6px rgba(98, 98, 98, 0.23); background-color: rgba(24, 24, 24, 0.88); color: #FFFFFF; border-radius: 3px; padding: 2px;\">\n\n                        <a class=\"pull-left image\" href=\"#\" style=\"margin-left: 8px;\">\n                            <img class=\"img-circle media-object\" :src=\"getImg(member.avatar)\" alt=\"User profile\">\n                        </a>\n\n                        <div class=\"media-body\">\n\n                            <div class=\"col-xs-12 comment-header media-heading\">\n                                <h4 class=\"media-heading\">{{ member.first_name +' '+ member.last_name}} </h4>\n                                    <span v-if=\"member.id == propositie.id\">\n                                        •\n                                        <span class=\"label label-default tiny-badge\">Propositiehouder</span>\n                                        •\n                                    </span>\n\n\n                                    <span><i id=\"basic-addon1\" class=\"time-ago addon right\" title=\"Gezien {{humanReadable(propositie.created_at) }}\">\n                                        Gezien {{humanReadable(propositie.created_at) }}</i>\n                                    </span>\n\n                            </div>\n\n                            <p>Some activities maybe ?.. Feeds perhaps</p>\n                        </div>\n\n                    </div>\n\n                    <!-------------------Team details------------->\n                </div>\n\n            </div>\n\n        </div>\n        <!------ General and team details ------------->\n\n\n        <!------ Main content section ------------->\n        <div class=\"col-md-7 col-md-offset-0\">\n\n            <div class=\"panel panel-default\">\n\n                <div class=\"panel-body\">\n\n                    <h4>Beschrijving</h4>\n                    <!--Card content-->\n                    <div class=\"card-block readabale-text\">\n                        <hr>\n                        <!--Text-->\n                        <p class=\"card-text\">{{{ propositie.pro_description | marked }}}</p>\n                        <br>\n                        \n                        <h4><i class=\"fa fa-clock-o pull-left\"></i> Status</h4>\n                        <hr>\n                        <p>{{ propositie.pro_status }}</p>\n                        <p>Docs</p>\n                        <p>Views</p>\n                        <p>Likes</p>\n                        <br>\n\n                        <h4>Markten</h4>\n                        <hr>\n                        <p>{{ propositie.pro_marktsegmenten }}</p>\n                        <br>\n\n                        <h4>Themas</h4>\n                        <hr>\n                        <p>{{ propositie.pro_themas }}</p>\n                        <br>\n\n\n                        <h4><i class=\"material-icons\">person</i> Contactpersoon</h4>\n                        <hr>\n                        <p>{{ propositie.user.first_name +' '+ propositie.user.last_name }}</p>\n                        <br>\n\n                        <h4><i class=\"fa fa-tags pull-left\"></i> Uniek</h4>\n                        <p>\n                        </p><ul class=\"list-inline\">\n                            <li class=\"label-info\"><a style=\"color: white;\" href=\"#\"> {{ propositie.pro_uniek }}</a>\n                            </li>\n                            <li class=\"label-info\"><a style=\"color: white;\" href=\"#\"> {{ propositie.pro_uniek }}</a>\n                            </li>\n                            <li class=\"label-info\"><a style=\"color: white;\" href=\"#\"> {{ propositie.pro_uniek }}</a>\n                            </li>\n                        </ul>\n                        <p></p>\n                        <br>\n\n\n                        <h4><i class=\"fa fa-money pull-left\"></i> Revenuen</h4>\n                        <hr>\n                        <p>{{ propositie.pro_revenuen }}</p>\n                        <br>\n\n\n                        <h4><i class=\"fa fa-money pull-left\"></i> Documentent</h4>\n                        <hr>\n                        <p>{{ propositie.pro_saleskit }}</p>\n                        <p>{{ propositie.pro_marktinfo }}</p>\n                        <p>{{ propositie.pro_technical_doc }}</p>\n                        <br>\n\n\n                        <h4><i class=\"fa fa-money pull-left\"></i> Referencen</h4>\n                        <hr>\n                        <p>{{ propositie.pro_ }}</p>\n                        <br>\n\n\n                    </div><!--/.Card content-->\n\n\n                    <!-- Card footer -->\n                    <div class=\"card-data\" style=\"background-color: #D9D9D9; color: #ffffff; height: 35px;\">\n                        <ul class=\"list-inline\">\n                            <li><i class=\"fa fa-clock-o\"></i> {{ propositie.created_at | moment \"D-M-Y\"}}</li>\n                            <!-- <li><a href=\"#\"><i class=\"fa fa-comments-o\"></i>12</a></li> -->\n                            <!-- <li><a href=\"#\"><i class=\"fa fa-facebook\"> </i>21</a></li> -->\n                            <!-- <li><a href=\"#\"><i class=\"fa fa-twitter\"> </i>5</a></li> -->\n                        </ul>\n                    </div>\n\n                    <!-- Card footer -->\n\n                </div>\n\n            </div>\n\n        </div>\n\n       <!--/Main content section-->\n\n        <!--Related Items Sections -->\n        <div class=\"col-md-2 col-md-offset-0\">\n\n            <div class=\"panel panel-default\">\n\n                <div class=\"panel-body\">\n\n                    <h4>Related items</h4>\n                    <!--Card content-->\n                    <div class=\"card-block\">\n                        <hr>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n\n\n                    </div><!--/.Card content-->\n\n                </div>\n\n            </div>\n\n        </div>\n        <!------ /Related Items Sections ------------->\n\n        <div class=\"row\">\n            <div class=\"col-md-10 col-md-offset-1\">\n                <div class=\"panel panel-default\">\n                    <!--<div class=\"panel-heading\">Comments</div>-->\n                    <div class=\"panel-body\">\n\n                        <comments-component :user=\"user\" :propositie=\"propositie\">\n\n                        </comments-component>\n\n                    </div>\n                </div>\n            </div>\n        </div>\n\n    </div><!--/row -->\n\n</div> <!--/main container -->\n\n\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n<div class=\"container-fluid\"> <!--main container--->\n\n    <div class=\"row\" v-if=\"propositie\">\n\n        <!------ General and team details ------------->\n        <div class=\"col-md-3 col-md-offset-0\">\n            <div class=\"panel panel-default\">\n\n                <div class=\"panel-body\">\n                    <p class=\"bs-component btn-group-sm\" style=\"position: absolute; top: 0px; right: 15px; margin: 3px;\">\n                        <a href=\"javascript:void(0)\" class=\"btn btn-primary btn-fab\"><i class=\"material-icons\">edit</i></a>\n                        <a href=\"javascript:void(0)\" class=\"btn btn-danger btn-fab\"><i class=\"material-icons\">delete</i></a>\n                    </p>\n                    <br>\n                    <h2 class=\"title\">Algemeen</h2>\n                    <hr>\n\n\n                    <!--Card image-->\n                    <div class=\"ripplelink\">\n\n                        <a href=\"#\" class=\"image img-circle ripplelink\">\n                            <img :src=\"getImg(propositie.pro_avatar)\" alt=\"Propositie foto\">\n                        </a>\n                    </div>\n                    <!--/.Card image-->\n\n                    <!--Button-->\n\n                    <a class=\"btn-floating btn-action btn-fab\">\n                        <img :src=\"getImg(propositie.user.userprofile.avatar_thumbnail)\" alt=\"User profile\">\n                    </a>\n\n                    <!--Card content-->\n                    <div class=\"card-block\">\n                        <!--Title-->\n                        <div>\n                            <h4 class=\"card-title\">{{{ propositie.pro_name }}}</h4>\n                        </div>\n                        <hr>\n                    </div>\n                    <!--/.Card content-->\n                    <br>\n\n\n\n                    <h2 class=\"title\">Project Team</h2>\n\n                    <div class=\"media team-card\" v-for=\"member in propositie.team.users\">\n\n                        <a class=\"pull-left image\" href=\"/user/{{ member.id }}/profile\" style=\"margin-left: 1px;\">\n                            <img class=\"img-square media-object\" :src=\"getImg(member.avatar)\" alt=\"User profile\">\n                        </a>\n\n                        <div class=\"media-body content\">\n\n                            <div class=\"col-xs-12 media-heading\" style=\"padding-left: 0px;\">\n                                <a href=\"/user/{{ member.id }}/profile\">\n                                    <h5 class=\"media-heading\">\n                                        {{ member.first_name +' '+ member.last_name}}\n                                        <span v-if=\"member.id == propositie.id\">\n                                           •\n                                           <span class=\"label label-default tiny-badge\">Propositiehouder</span>\n                                           •\n                                        </span>\n\n                                        <span><i id=\"basic-addon1\" class=\"time-ago addon right\" title=\"Gezien {{humanReadable(propositie.created_at) }}\">\n                                            Gezien {{humanReadable(propositie.created_at) }}</i>\n                                        </span>\n\n                                    </h5>\n                                </a>\n\n\n\n\n\n\n                            </div>\n\n                                <p><i class=\"fa fa-envelope\"> &nbsp;{{ member.email }}</i> </p>\n                                <!--<p><i class=\"fa fa-phone\"> &nbsp; 061 1234587</i> </p>-->\n\n\n\n                        </div>\n\n                    </div>\n\n                    <!-------------------Team details------------->\n                </div>\n\n            </div>\n\n        </div>\n        <!------ General and team details ------------->\n\n\n        <!------ Main content section ------------->\n        <div class=\"col-md-7 col-md-offset-0\">\n\n            <div class=\"panel panel-default\">\n\n                <div class=\"panel-body\">\n\n                    <h2 class=\"title\">Beschrijving</h2>\n                    <!--Card content-->\n                    <div class=\"card-block readable\">\n                        <hr>\n                        <!--Text-->\n                        <p class=\"card-text\">{{{ propositie.pro_description | marked }}}</p>\n                        <br>\n                        \n                        <h2 class=\"title\"><i class=\"fa fa-clock-o pull-left\"></i> Status</h2>\n                        <hr>\n                        <p>{{ propositie.pro_status }}</p>\n                        <p>Docs</p>\n                        <p>Views</p>\n                        <p>Likes</p>\n                        <br>\n\n\n                        <h2 class=\"title\">Markten</h2>\n                        <hr>\n                        <p>{{ propositie.pro_marktsegmenten }}</p>\n                        <br>\n\n                        <h2 class=\"title\">Themas</h2>\n                        <hr>\n                        <p>{{ propositie.pro_themas }}</p>\n                        <br>\n\n\n                        <h2 class=\"title\"><i class=\"material-icons\">person</i> Contactpersoon</h2>\n                        <hr>\n                        <p>{{ propositie.user.first_name +' '+ propositie.user.last_name }}</p>\n                        <br>\n\n                        <h2 class=\"title\"><i class=\"fa fa-tags pull-left\"></i> Uniek</h2>\n                        <p>\n                        </p><ul class=\"list-inline\">\n                            <li class=\"label-info\"><a style=\"color: white;\" href=\"#\"> {{ propositie.pro_uniek }}</a>\n                            </li>\n                            <li class=\"label-info\"><a style=\"color: white;\" href=\"#\"> {{ propositie.pro_uniek }}</a>\n                            </li>\n                            <li class=\"label-info\"><a style=\"color: white;\" href=\"#\"> {{ propositie.pro_uniek }}</a>\n                            </li>\n                        </ul>\n                        <p></p>\n                        <br>\n\n\n                        <h2 class=\"title\"><i class=\"fa fa-money pull-left\"></i> Revenuen</h2>\n                        <hr>\n                        <p>{{ propositie.pro_revenuen }}</p>\n                        <br>\n\n\n                        <h2 class=\"title\"><i class=\"fa fa-money pull-left\"></i> Documentent</h2>\n                        <hr>\n                        <p>{{ propositie.pro_saleskit }}</p>\n                        <p>{{ propositie.pro_marktinfo }}</p>\n                        <p>{{ propositie.pro_technical_doc }}</p>\n                        <br>\n\n\n                        <h2 class=\"title\"><i class=\"fa fa-money pull-left\"></i> Referencen</h2>\n                        <hr>\n                        <p>{{ propositie.pro_ }}</p>\n                        <br>\n\n\n                    </div><!--/.Card content-->\n\n\n                    <!-- Card footer -->\n                    <div class=\"card-data\" style=\"background-color: #D9D9D9; color: #ffffff; height: 35px;\">\n                        <ul class=\"list-inline\">\n                            <li><i class=\"fa fa-clock-o\"></i> {{ propositie.created_at | moment \"D-M-Y\"}}</li>\n                            <!-- <li><a href=\"#\"><i class=\"fa fa-comments-o\"></i>12</a></li> -->\n                            <!-- <li><a href=\"#\"><i class=\"fa fa-facebook\"> </i>21</a></li> -->\n                            <!-- <li><a href=\"#\"><i class=\"fa fa-twitter\"> </i>5</a></li> -->\n                        </ul>\n                    </div>\n\n                    <!-- Card footer -->\n\n                </div>\n\n            </div>\n\n        </div>\n\n       <!--/Main content section-->\n\n        <!--Related Items Sections -->\n        <div class=\"col-md-2 col-md-offset-0\">\n\n            <div class=\"panel panel-default\">\n\n                <div class=\"panel-body\">\n\n                    <h4>Related items</h4>\n                    <!--Card content-->\n                    <div class=\"card-block\">\n                        <hr>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n\n\n                    </div><!--/.Card content-->\n\n                </div>\n\n            </div>\n\n        </div>\n        <!------ /Related Items Sections ------------->\n\n        <div class=\"row\">\n            <div class=\"col-md-10 col-md-offset-1\">\n                <div class=\"panel panel-default\">\n                    <!--<div class=\"panel-heading\">Comments</div>-->\n                    <div class=\"panel-body\">\n\n                        <comments-component :user=\"user\" :propositie=\"propositie\">\n\n                        </comments-component>\n\n                    </div>\n                </div>\n            </div>\n        </div>\n\n    </div><!--/row -->\n\n</div> <!--/main container -->\n\n\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["\n\n"] = false
+    __vueify_insert__.cache["\n.team-card {\n    border-radius: 3px;\n    padding: 2px;\n    box-shadow: 0.1px 0.1px 1px 0px lightgrey;\n}\n\n.team-card .content{\n    /*text-align: justify;*/\n    padding: 0px;\n}\n\n.team-card p {\n    font-size: 12px;\n}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
@@ -26164,7 +26039,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-08d6dfba", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"./comments.vue":21,"marked":3,"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],25:[function(require,module,exports){
+},{"./comments.vue":20,"marked":3,"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],24:[function(require,module,exports){
 'use strict';
 
 var _themas = require('./themas.vue');
@@ -26323,7 +26198,7 @@ new Vue({
     }
 });
 
-},{"../mixins/helpers":33,"./marktsegments.vue":26,"./navsearch.vue":29,"./search.vue":30,"./themas.vue":31,"marked":3,"vue":12,"vue-moment":10,"vue-resource":11}],26:[function(require,module,exports){
+},{"../mixins/helpers":33,"./marktsegments.vue":25,"./navsearch.vue":28,"./search.vue":29,"./themas.vue":30,"marked":3,"vue":11,"vue-moment":9,"vue-resource":10}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26352,7 +26227,7 @@ exports.default = {
 
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n<div class=\"col-md-10 col-md-offset-1\">\n<div class=\"col-md- col-xs-3 ripplelink markten-container\" v-for=\"markt in markten\">\n    <h3>\n        <a href=\"{{markt.link}}\">\n            <i class=\"fa {{markt.icon}} fa-2x super-icon image\"></i>\n        </a>\n        <br>\n        <span class=\"blocked\" style=\"font-size: 15px;\">\n            <a href=\"/propositie/marktsegment/onderwijs\" style=\"cursor: pointer;\">\n                {{ markt.name }}\n            </a>\n        </span>\n    </h3>\n\n    <!--<p>{{ markt.name }}</p>-->\n    <!--<br/>-->\n    <hr>\n\n</div>\n</div>\n\n\n<!--<div class=\"col-md-12\" style=\"padding: 0px;\">-->\n    <!--<div class=\"row\" style=\"margin: 0px;\">-->\n\n        <!--<div class=\"markt col-xs-6 col-sm-4 col-md-3 col-lg-3\" v-for=\"markt in markten\">-->\n\n            <!--<div class=\"thumbnail marktthumnails ripplelink\">-->\n\n                <!--<div style=\"text-align: center; margin-bottom: 10px;\">-->\n                    <!--<a href=\"/propositie/marktsegment/onderwijs\" style=\"cursor: pointer;\">-->\n                        <!--<span class=\"animated pageName\">{{markt.name}}</span>-->\n                    <!--</a>-->\n                <!--</div>-->\n\n                <!--<div class=\"icon-container-big center-div\"-->\n                     <!--style=\"text-align: center; margin-bottom: 0px; vertical-align: top\">-->\n                    <!--<a href=\"{{markt.link}}\">-->\n                        <!--<div class=\"pointers center-div\" >-->\n                            <!--<div class=\"pointers-small center-div image\">-->\n                                <!--<span><i class=\"fa {{markt.icon}}\"></i> </span>-->\n                            <!--</div>-->\n                        <!--</div>-->\n                    <!--</a>-->\n                <!--</div>-->\n            <!--</div>-->\n\n        <!--</div>-->\n\n    <!--</div>-->\n<!--</div>-->\n\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n<div class=\"col-md-10 col-md-offset-1\">\n<div class=\"col-md- col-xs-3 ripplelink markten-container\" v-for=\"markt in markten\">\n    <h3>\n        <div class=\"icon-contianer\">\n\n        <a href=\"{{markt.link}}\">\n            <i class=\"fa {{markt.icon}} fa-2x super-icon image\"></i>\n        </a>\n        </div>\n\n        <br>\n        <span class=\"blocked\" style=\"font-size: 15px;\">\n            <a href=\"/propositie/marktsegment/onderwijs\" style=\"cursor: pointer;\">\n                {{ markt.name }}\n            </a>\n        </span>\n    </h3>\n\n    <!--<p>{{ markt.name }}</p>-->\n    <!--<br/>-->\n    <hr>\n\n</div>\n</div>\n\n\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -26363,7 +26238,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-53ac3dc7", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":9}],27:[function(require,module,exports){
+},{"vue":11,"vue-hot-reload-api":8}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26415,7 +26290,7 @@ exports.default = {
             }
 };
 
-},{}],28:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -26559,20 +26434,18 @@ exports.default = {
     }
 };
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _vueFocus = require('vue-focus');
 
 var marked = require('marked');
 marked.setOptions({ ghm: true });
 
 exports.default = {
-    directives: { focus: _vueFocus.focus },
     data: function data() {
         return {
             show: false,
@@ -26652,7 +26525,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-fc6f172a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"marked":3,"vue":12,"vue-focus":8,"vue-hot-reload-api":9}],30:[function(require,module,exports){
+},{"marked":3,"vue":11,"vue-hot-reload-api":8}],29:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("\n.tt-menu {\n    position: relative;\n    z-index: 99;\n    padding: 20px 10px;\n}\n\n.right-inner-addon {\n    position: relative;\n    z-index: 1;\n}\n\n.right-inner-addon input {\n    padding-right: 30px;\n}\n\n.right-inner-addon i {\n    position: absolute;\n    right: 0px;\n    padding: 40px 12px;\n    pointer-events: none;\n}\n\n.buttonRight {\n    position: absolute;\n    right: 0px;\n    top: 20px;\n}\n.twitter-typeahead,\n.tt-hint,\n.tt-input,\n.tt-menu {\n    width: 100%;\n}\n\n.tt-suggestion {\n    padding: 3px 20px;\n    font-size: 18px;\n    line-height: 24px;\n    border-bottom: 1px solid #e3e3e3;\n    background-color: white;\n}\n\n.tt-cursor {\n    background-color: #e3e3e3;\n}\n")
 'use strict';
@@ -26766,7 +26639,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-6d872278", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"marked":3,"vue":12,"vue-hot-reload-api":9,"vueify/lib/insert-css":13}],31:[function(require,module,exports){
+},{"marked":3,"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26788,7 +26661,78 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-9a5685c4", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":12,"vue-hot-reload-api":9}],32:[function(require,module,exports){
+},{"vue":11,"vue-hot-reload-api":8}],31:[function(require,module,exports){
+var __vueify_insert__ = require("vueify/lib/insert-css")
+var __vueify_style__ = __vueify_insert__.insert("\n.profile-card {\n    overflow: hidden;\n    position: relative;\n    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);\n    border-radius: 0px;\n    text-align: center;\n    background-color: rgba(87, 196, 190, 0.65);\n    color: rgb(243, 246, 255);\n    height: 350px;\n    font-family: \"Roboto Slab\";\n    font-size: 13px;\n}\n\n.profile-card .header-bg {\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100px;\n    z-index: 1;\n    background-size: cover;\n\n    -webkit-filter: blur(5px);\n    -moz-filter: blur(5px);\n    -o-filter: blur(5px);\n    -ms-filter: blur(5px);\n    filter: blur(5px);\n    border-bottom: 2px solid #FFF;\n    overflow: hidden;\n\n}\n\n.profile-card .avatar {\n    position: relative;\n    margin-top: 15px;\n    z-index: 100;\n    height: 170px;\n    width: 100%;\n\n}\n\n.profile-card .avatar img {\n    width: 150px;\n    height: 150px;\n    -webkit-border-radius: 50%;\n    -moz-border-radius: 50%;\n    border-radius: 50%;\n    border: solid 5px rgba(87, 196, 190, 0.65);\n}\n\n.change-image {\n    position: absolute;\n    top: 60px;\n    left: 45%;\n}\n\n.change-image a {\n    color: #aadcff;\n}\n\n.content {\n    margin-top: 8px;\n    font-family: \"Roboto Slab\";\n}\n\n.activities {\n    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(98, 98, 98, 0.23);\n    background-color: rgba(24, 24, 24, 0.88);\n    color: #FFFFFF;\n    border-radius: 3px;\n    padding: 2px;\n}\n\n\n.edit-pen {\n    position: absolute;\n    top: 1px;\n    bottom: 1px;\n    right: 15px;\n}\n\n.edit-pen a {\n    text-decoration: none;\n    color: #b7e0ff;\n}\n\n")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+
+var marked = require('marked');
+marked.setOptions({ ghm: true });
+
+exports.default = {
+    props: ['userId'],
+    data: function data() {
+        return {
+
+            user: [],
+            backgroundImage: '',
+            changeavatar: false,
+            upload: ''
+
+        };
+    },
+    ready: function ready() {
+        this.getUser();
+    },
+
+
+    methods: {
+        getUser: function getUser() {
+            this.$http.get('/api/userprofile/' + this.userId + '/show').then(function (response) {
+                this.user = response.data;
+                this.backgroundImage = '/uploads/users/' + this.getImg(this.user.avatar);
+            });
+        },
+
+        fireUpload: function fireUpload() {
+            alert(this.upload);
+        },
+
+        getImg: function getImg(link) {
+
+            var t = link.replace('C:\\Users\\Hafiz\\Dropbox\\MyProjects\\Projects\\mytemplate-project\\public/uploads/users\\', '');
+            return t;
+        }
+
+    },
+
+    filters: {
+        'marked': marked
+    }
+
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\n<!--<p class=\"bs-component btn-group-sm\"-->\n<!--style=\"position: absolute; top: 0px; right: 15px; margin: 3px;\">-->\n<!--<a href=\"javascript:void(0)\" class=\"btn btn-primary btn-fab fab-mini\"><i-->\n<!--class=\"material-icons\">edit</i></a>-->\n<!--<a href=\"javascript:void(0)\" class=\"btn btn-danger btn-fab-mini\"><i-->\n<!--class=\"material-icons\">delete</i></a>-->\n<!--</p>-->\n<!--<br/>-->\n\n<div class=\"container-fluid\" v-show=\"user\"> <!--main container--->\n\n    <div class=\"row\">\n        <!------ General and team details ------------->\n        <div class=\"col-md-3 col-md-offset-0\">\n\n            <!--card-wrapper content-->\n            <div class=\"profile-card\">\n                <div class=\"header-bg\" :style=\"{ 'background-image': 'url('+ backgroundImage + ')'}\"></div>\n                <div style=\"margin-bottom: 10px; border-bottom: 2px solid white; width: 100%; position: absolute; top: 99px;\"></div>\n\n                <!--Card image-->\n                <div class=\"avatar\">\n                    <img :src=\"backgroundImage\" alt=\"Userfoto\" @mouseover=\"changeavatar = !changeavatar\">\n                    <div class=\"change-image\" v-if=\"changeavatar\">\n                        <a>\n                            <label>\n                                <i class=\"fa fa-paper-plane fa-3x\"></i>\n                                <input id=\"uploadavatar\" @change=\"fireUpload\" v-el=\"fileInput\" v-model=\"upload\" type=\"file\" style=\"display: none;\">\n                            </label>\n                        </a>\n                    </div>\n                </div>\n                <!--/.Card image-->\n\n                <!--card content-->\n                <div class=\"content\">\n                    <h3>{{user.first_name + ' '+ user.last_name}}</h3>\n                    <p>System administrator</p>\n                    <p>\n                        <i class=\"fa fa-envelope\"></i> {{ user.email }}\n                        <br>\n                        <i class=\"fa fa-phone\"></i> 06 14859701\n                    </p>\n\n                </div>\n                <!--/card content-->\n            </div>\n            <!--/card-wrapper content-->\n\n\n\n            <div class=\"media activities\">\n\n                    <h2 class=\"title\">Teams</h2>\n\n\n                <a class=\"pull-left image\" href=\"#\" style=\"margin-left: 8px;\">\n                    <!--<img class=\"img-circle media-object\"-->\n                    <!--:src=\"getImg(member.avatar)\"-->\n                    <!--alt=\"User profile\">-->\n                </a>\n\n                <div class=\"media-body\">\n\n                    <div class=\"col-xs-12 media-heading\">\n                        <h4 class=\"media-heading\">Team 1 </h4>\n                        <h4 class=\"media-heading\">Team 2 </h4>\n                        <h4 class=\"media-heading\">Team 3 </h4>\n\n                    </div>\n\n                </div>\n\n            </div>\n\n            <br>\n\n        </div>\n        <!------ General and team details ------------->\n\n\n        <!------ Main content section ------------->\n        <div class=\"col-md-7 col-md-offset-0\">\n\n\n            <div class=\"page-divider\">\n                <h2 class=\"title\">\n                    About <a> <i class=\"fa fa-pencil\"></i></a>\n                </h2>\n\n            </div>\n\n            <!--Card content-->\n            <div class=\"card-block readabale\">\n\n                <p><b>DOB:</b> 01-01-2010</p>\n                <p><b>Sex:</b> Male</p>\n                <p><b>Status:</b> Single</p>\n                <p><b>Height:</b> 1.75m</p>\n                <p><b>City:</b> Zwolle</p>\n                <p><b>Address:</b> PR. Magrietstraat 13</p>\n\n                <br>\n\n            </div><!--/.Card content-->\n\n            <h2 class=\"title\">Activities</h2>\n\n\n            <!--Card content-->\n            <div class=\"card-block readabale-text\">\n\n                <p><b>DOB:</b> 01-01-2010</p>\n                <p><b>Sex:</b> Male</p>\n                <p><b>Status:</b> Single</p>\n                <p><b>Height:</b> 1.75m</p>\n                <p><b>City:</b> Zwolle</p>\n                <p><b>Address:</b> PR. Magrietstraat 13</p>\n\n                <br>\n\n            </div><!--/.Card content-->\n\n\n                <h2 class=\"title\">Biography <a> <i class=\"fa fa-pencil\"></i></a></h2>\n\n            <!--Card content-->\n            <div class=\"card-block readabale\">\n\n                <p>\n                   {{{\" Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n\n                    Why do we use it?\n                    It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).\n                    \" | marked }}}\n                </p>\n\n            </div><!--/.Card content-->\n\n\n        </div>\n        <!--/Main content section-->\n\n        <!--Related Items Sections -->\n        <div class=\"col-md-2 col-md-offset-0\">\n\n            <div class=\"panel panel-default\">\n\n                <div class=\"panel-body\">\n\n                    <h4>Related items</h4>\n                    <!--Card content-->\n                    <div class=\"card-block\">\n                        <hr>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n                        <a href=\"/\" class=\"link-text\"><h5>oluptas veritatis. Ad sed autem et et et facilis Do <i class=\"fa fa-chevron-right\"></i></h5></a>\n\n\n                    </div><!--/.Card content-->\n\n                </div>\n\n            </div>\n\n        </div>\n    </div>\n\n\n\n</div> <!--/main container -->\n\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.dispose(function () {
+    __vueify_insert__.cache["\n.profile-card {\n    overflow: hidden;\n    position: relative;\n    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);\n    border-radius: 0px;\n    text-align: center;\n    background-color: rgba(87, 196, 190, 0.65);\n    color: rgb(243, 246, 255);\n    height: 350px;\n    font-family: \"Roboto Slab\";\n    font-size: 13px;\n}\n\n.profile-card .header-bg {\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100px;\n    z-index: 1;\n    background-size: cover;\n\n    -webkit-filter: blur(5px);\n    -moz-filter: blur(5px);\n    -o-filter: blur(5px);\n    -ms-filter: blur(5px);\n    filter: blur(5px);\n    border-bottom: 2px solid #FFF;\n    overflow: hidden;\n\n}\n\n.profile-card .avatar {\n    position: relative;\n    margin-top: 15px;\n    z-index: 100;\n    height: 170px;\n    width: 100%;\n\n}\n\n.profile-card .avatar img {\n    width: 150px;\n    height: 150px;\n    -webkit-border-radius: 50%;\n    -moz-border-radius: 50%;\n    border-radius: 50%;\n    border: solid 5px rgba(87, 196, 190, 0.65);\n}\n\n.change-image {\n    position: absolute;\n    top: 60px;\n    left: 45%;\n}\n\n.change-image a {\n    color: #aadcff;\n}\n\n.content {\n    margin-top: 8px;\n    font-family: \"Roboto Slab\";\n}\n\n.activities {\n    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(98, 98, 98, 0.23);\n    background-color: rgba(24, 24, 24, 0.88);\n    color: #FFFFFF;\n    border-radius: 3px;\n    padding: 2px;\n}\n\n\n.edit-pen {\n    position: absolute;\n    top: 1px;\n    bottom: 1px;\n    right: 15px;\n}\n\n.edit-pen a {\n    text-decoration: none;\n    color: #b7e0ff;\n}\n\n"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord("_v-42f1d568", module.exports)
+  } else {
+    hotAPI.update("_v-42f1d568", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"marked":3,"vue":11,"vue-hot-reload-api":8,"vueify/lib/insert-css":12}],32:[function(require,module,exports){
 'use strict';
 
 //window.Pusher = require('pusher-js');
@@ -26821,8 +26765,8 @@ if (module.hot) {(function () {  module.hot.accept()
 
 require('./components/bootstrap');
 
-},{"./components/bootstrap":14}],33:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}]},{},[32]);
+},{"./components/bootstrap":13}],33:[function(require,module,exports){
+arguments[4][27][0].apply(exports,arguments)
+},{"dup":27}]},{},[32]);
 
 //# sourceMappingURL=main.js.map

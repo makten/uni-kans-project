@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\User;
+use App\UserProfile;
 use Bican\Roles\Models\Permission;
 use Datatables;
 use Illuminate\Http\Request;
@@ -44,7 +45,16 @@ class UserController extends Controller
 
 	}
 
-        /**
+	public function userprofile(Request $request, $id){
+
+		$user = User::with('userprofile')->whereId($id)->first();
+		$userSettings = UserProfile::find($request->user()->id);
+
+		return view('admin.users.userprofile', compact('user', 'userSettings'));
+	}
+
+
+	/**
          * Get a validator for an incoming registration request.
          *
          * @param  array  $data
@@ -180,11 +190,6 @@ class UserController extends Controller
 
         }
 
-
-	public function update($id)
-	{
-
-	}
 
 
 	public function assignRole($id, Request $request)

@@ -14,6 +14,7 @@ class InnovationsTableSeeder extends Seeder
         $proposities = factory(App\Propositie::class, 30)->create()->each(function($propositie){
             $propositie->user()->save(factory(App\User::class)->make());
             $propositie->team()->save(factory(App\Team::class)->make());
+
         });
     }
 }

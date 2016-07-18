@@ -26,6 +26,7 @@ require('./home.js');
 import DashboardOverview from './dashboard/home/home.vue';
 import ShowPropositie from './dashboard/propositie/show.vue';
 import CreatePropositie from './dashboard/propositie/create.vue';
+import UserProfile from './user/profile.vue';
 // require('./dashboard/bootstrap');
 // require('./home/home');
 
@@ -59,6 +60,7 @@ new Vue({
         'dashboard-overview': DashboardOverview,
         'show-propositie': ShowPropositie,
         'createpropositie': CreatePropositie,
+        'user-profile': UserProfile,
     },
 
     ready() {

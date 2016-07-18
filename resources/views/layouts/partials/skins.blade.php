@@ -114,31 +114,30 @@ $encrypted_token = $encrypter->encrypt(csrf_token());
 </ul>
 
 <script type="text/javascript">
+
     function changeSkin(skin, skin_color)
     {
+
 
         var skin_val = $('#skin-value').val();
         $('link[href="{{ asset('/css/skins/') }}/'+skin_val+'.css"]').attr('href','{{ asset('/css/skins/') }}/'+skin+'.css');
 
         $('#skin-value').val(skin);
 
-         $('#app-body').removeClass();
-         $('#app-body').addClass('sidebar-mini');
-         $('#app-body').addClass(skin);
+         $('#admin_app').removeClass();
+         $('#admin_app').addClass('sidebar-mini');
+         $('#admin_app').addClass(skin);
 
 
-        var $_token = $('#token').val();
         var data = {'skin': skin, 'skin_color_code': skin_color, 'user_id': '{{Auth::user()->id}}' }
         $.ajax({
-            url: 'api/userprofile/change',
+            url: '/api/userprofile/' + '{{Auth::user()->id}}' + '/updateSkin',
             type: "POST",
-            headers: { 'X-XSRF-TOKEN' : $_token },
+            headers: { 'X-XSRF-TOKEN' : "{{$encrypted_token}}" },
             cache: false,
             data: data,
             success: function (response) {
 
-                alert(response);
-//                window.location.reload();
             }
         });
     }
